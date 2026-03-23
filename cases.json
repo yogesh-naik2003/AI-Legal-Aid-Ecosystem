@@ -1,0 +1,91 @@
+[
+    {
+        "caseId": "CASE-001",
+        "title": "corporate case 001",
+        "lawyer": "Yogesh naik",
+        "description": "corporate law",
+        "status": "Pending",
+        "nextHearing": null,
+        "lastUpdate": "Case created by user.",
+        "documents": [
+            {
+                "name": "SE-Module-2-Notes.pdf",
+                "url": "static/uploads/cases/SE-Module-2-Notes.pdf"
+            }
+        ]
+    },
+    {
+        "caseId": "CASE-002",
+        "title": "corporate case 001",
+        "lawyer": "Yogesh naik",
+        "description": "corporate case ",
+        "status": "On Hold",
+        "nextHearing": "2025-11-27",
+        "lastUpdate": "Case created by user.",
+        "documents": [
+            {
+                "name": "TOC-module-2.pdf",
+                "url": "static/uploads/cases/TOC-module-2.pdf"
+            }
+        ]
+    },
+    {
+        "caseId": "CASE-003",
+        "title": "criminal case 001",
+        "lawyer": "rahul rathode",
+        "description": "criminal case",
+        "status": "Active",
+        "nextHearing": "2025-11-27",
+        "lastUpdate": "Case created by user.",
+        "documents": [
+            {
+                "name": "Module_3_CN.pdf",
+                "url": "static/uploads/cases/Module_3_CN.pdf"
+            },
+            {
+                "name": "Module_4_CN.pdf",
+                "url": "static/uploads/cases/Module_4_CN.pdf"
+            }
+        ]
+    },
+    {
+        "caseId": "CASE-004",
+        "title": "cyber case 005",
+        "lawyer": "Mayur ",
+        "description": "cyber case",
+        "status": "On Hold",
+        "nextHearing": "2025-11-03",
+        "lastUpdate": "Case created by user.",
+        "documents": []
+    },
+    {
+        "caseId": "CASE-005",
+        "title": "cyber case 008",
+        "lawyer": "Akaash",
+        "description": "cyber case",
+        "status": "Closed",
+        "nextHearing": "2025-11-03",
+        "lastUpdate": "Case created by user.",
+        "documents": [
+            {
+                "name": "RM_Mod-1_Notes.pdf",
+                "url": "static/uploads/cases/RM_Mod-1_Notes.pdf"
+            }
+        ]
+    },
+    {
+        "caseId": "CASE-006",
+        "title": "IT case 010",
+        "lawyer": "Akaash nayer",
+        "description": "IT case",
+        "status": "Active",
+        "nextHearing": "2025-11-03",
+        "lastUpdate": "Case created by user.",
+        "documents": [
+            {
+                "name": "TOC_module-1.pdf",
+                "url": "static/uploads/cases/TOC_module-1.pdf"
+            }
+        ]
+    }
+]

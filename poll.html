@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Polls and Surveys | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        poll: {
+                            400: '#ec4899', // Pink
+                            500: '#db2777',
+                        },
+                        vote_bar: {
+                            default: '#10b981', // Emerald for visualization
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Poll Card Specifics */
+        .poll-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+            cursor: pointer;
+        }
+        .poll-card:hover {
+            box-shadow: 0 12px 25px rgba(236, 72, 153, 0.25); /* Pink glow */
+            transform: translateY(-4px);
+            border-color: #ec4899;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+        .vote-btn { 
+            background: #ec4899; /* Poll Pink */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+        }
+        .vote-btn:hover {
+            background: #db2777;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions */
+        .bg-poll { background-color: #ec4899; } 
+        .bg-blue { background-color: #3b82f6; } 
+        .bg-red { background-color: #dc2626; } 
+
+        /* Modal Styles */
+        #pollModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 30px;
+            width: 95%;
+            max-width: 650px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            border: 2px solid #ec4899;
+        }
+        #pollModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Poll Visualization - MODIFIED FOR ATTRACTIVENESS */
+        .result-bar-container {
+            height: 40px; /* Thicker bar */
+            background: #334155;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .result-bar {
+            height: 100%;
+            transition: width 1s ease-out;
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%); /* Gradient for success */
+            display: flex;
+            align-items: center;
+            padding-right: 10px;
+            position: absolute;
+            z-index: 1;
+            border-radius: 6px;
+            justify-content: flex-end;
+        }
+        .result-bar-text {
+            color: #111827; /* Dark text for contrast on bar */
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+            padding-left: 10px;
+        }
+        .result-bar-label {
+            position: relative;
+            left: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 2; /* Ensure label is above the bar */
+            width: 40%;
+            text-align: left;
+        }
+        .vote-count-label {
+             position: absolute;
+             right: 10px;
+             color: white;
+             font-weight: 500;
+             z-index: 2;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-poll-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-poll-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-poll"></i></div>
+                <h1 class="hero-title text-white">Legal Awareness <span>Polls & Surveys</span></h1>
+                <p class="hero-subtitle">
+                    Share your opinion, test your knowledge, and see what the community thinks about current legal issues, reforms, and rights.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Active Polls -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Active <span>Community Polls</span></h2>
+                <div class="download-grid" id="pollContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Want to Suggest a Poll?</h2>
+                    <p class="text-slate-400 mb-8">Help us understand the pressing legal questions facing our community. Submit your idea for a future survey.</p>
+                    <a href="mailto:polls@legalaidai.com" class="vote-btn !bg-gold-600 hover:!bg-gold-500 text-white">
+                        <i class="fas fa-envelope"></i> Submit Poll Idea
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: Poll results are for community insight only.</p>
+        </div>
+    </footer>
+    
+    <!-- Poll Modal HTML -->
+    <div id="pollModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-2xl font-serif font-bold text-poll-400"></h3>
+                <button onclick="closePollModal()" class="text-xl text-slate-500 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Dynamic content area -->
+            <div id="pollQuestion" class="text-lg text-white font-semibold mb-4"></div>
+            <div id="pollOptions" class="space-y-3">
+                <!-- Poll options injected here -->
+            </div>
+            <div id="pollResults" class="hidden mt-6 pt-4 border-t border-slate-700">
+                <h4 class="text-lg text-gold-400 font-bold mb-3">Community Results:</h4>
+                <div id="resultsVisualization">
+                    <!-- Visualization bars injected here -->
+                </div>
+                <p class="text-xs text-slate-500 mt-4">Total Votes: <span id="totalVotes"></span></p>
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button onclick="closePollModal()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- Poll Data ---
+    const POLL_DATA = [
+        { 
+            id: "traffic_camera", icon: "fa-camera", title: "Traffic Fine Transparency", category: "MV Act/Enforcement", 
+            question: "Do you believe traffic fines issued by automated cameras should require photographic evidence sent directly to the driver?",
+            options: ["Yes, absolutely (Mandatory evidence)", "No, police discretion is necessary", "I don't mind either way"],
+            // Simulated Results
+            results: [68, 15, 17], 
+            total: 100,
+            hasVoted: false
+        },
+        { 
+            id: "llp_pvt", icon: "fa-building", title: "LLP or Pvt Ltd: Preferred Startup Model", category: "Corporate Law",
+            question: "For a new service-based startup in India, which legal entity offers the best balance of flexibility and protection?", 
+            options: ["Limited Liability Partnership (LLP)", "Private Limited Company (Pvt Ltd)", "Sole Proprietorship"],
+            results: [45, 50, 5],
+            total: 100,
+            hasVoted: false
+        },
+        { 
+            id: "maintenance_gender", icon: "fa-user-friends", title: "Gender Neutrality in Alimony", category: "Family Law",
+            question: "Should alimony/maintenance laws be strictly gender-neutral, allowing either spouse to claim support?", 
+            options: ["Yes, based purely on need/income", "No, traditional support for women should remain priority", "It should be mandatory for both to work"],
+            results: [75, 15, 10],
+            total: 100,
+            hasVoted: false
+        },
+        { 
+            id: "rera_success", icon: "fa-home", title: "RERA: Quickest Remedy", category: "Real Estate",
+            question: "If a RERA project is delayed, which remedy do you prefer?", 
+            options: ["Full refund with interest", "Possession with compensation for the delay period", "Wait and hope for the best"],
+            results: [55, 30, 15],
+            total: 100,
+            hasVoted: false
+        }
+    ];
+
+    function renderPollCards() {
+        const container = document.getElementById('pollContainer');
+        if (!container) return;
+        
+        container.innerHTML = POLL_DATA.map(c => `
+            <div id="${c.id}" class="poll-card" onclick="openPollModal('${c.id}')">
+                <div class="content-wrapper flex flex-col h-full">
+                    <p class="text-poll-400 text-sm font-medium mb-1 uppercase tracking-wider">${c.category}</p>
+                    <h3 class="card-title-text">${c.title}</h3>
+                    <p class="card-desc">${c.question}</p>
+                </div>
+                <a href="javascript:void(0)" class="vote-btn">
+                    <i class="fas fa-chart-bar mr-2"></i> ${c.hasVoted ? 'View Results' : 'View / Vote'}
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openPollModal(id) {
+        const poll = POLL_DATA.find(g => g.id === id);
+        if (!poll) return;
+
+        document.getElementById('modalTitle').textContent = poll.title;
+        document.getElementById('pollQuestion').textContent = poll.question;
+        
+        const optionsContainer = document.getElementById('pollOptions');
+        const resultsEl = document.getElementById('pollResults');
+        
+        if (poll.hasVoted) {
+            // If already voted, hide options and show results immediately
+            optionsContainer.classList.add('hidden');
+            displayResults(poll);
+        } else {
+            // Show options for voting
+            optionsContainer.classList.remove('hidden');
+            resultsEl.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            poll.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'decision-button'; 
+                button.textContent = option;
+                button.onclick = () => handleVote(poll.id, index);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        const modal = document.getElementById('pollModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function handleVote(pollId, voteIndex) {
+        const poll = POLL_DATA.find(g => g.id === pollId);
+        
+        // 1. Simulate vote update
+        if (!poll.hasVoted) {
+            poll.results[voteIndex] += 1;
+            poll.total += 1;
+            poll.hasVoted = true;
+        }
+
+        // 2. Hide voting buttons and show results
+        document.getElementById('pollOptions').classList.add('hidden');
+        displayResults(poll);
+        
+        // 3. Update the main card text
+        renderPollCards();
+    }
+
+    function displayResults(poll) {
+        const resultsEl = document.getElementById('pollResults');
+        const visualizationEl = document.getElementById('resultsVisualization');
+        const totalVotesEl = document.getElementById('totalVotes');
+        
+        visualizationEl.innerHTML = '';
+        totalVotesEl.textContent = poll.total;
+
+        // Render visualization bars
+        poll.options.forEach((option, index) => {
+            const votes = poll.results[index];
+            const percentage = (votes / poll.total * 100).toFixed(1);
+            
+            visualizationEl.innerHTML += `
+                <div class="result-bar-container">
+                    <span class="result-bar-label">${option}</span>
+                    <div class="result-bar" style="width: ${percentage}%">
+                        <span class="result-bar-text">${percentage}%</span>
+                    </div>
+                    <span class="vote-count-label">${votes} votes</span>
+                </div>
+            `;
+        });
+
+        resultsEl.classList.remove('hidden');
+    }
+
+
+    function closePollModal() {
+        const modal = document.getElementById('pollModal');
+        modal.classList.remove('open');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 400); 
+    }
+    
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('pollModal').addEventListener('click', (e) => {
+        if (e.target.id === 'pollModal') {
+            closePollModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderPollCards);
+    </script>
+</body>
+</html>

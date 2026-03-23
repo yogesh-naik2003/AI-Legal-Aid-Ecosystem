@@ -1,0 +1,38 @@
+[
+    {
+        "full_name": "Priya Sharma",
+        "location": "Mumbai, MH",
+        "languages": "English, Hindi, Marathi",
+        "experience": "12",
+        "specialization": "Family Law",
+        "consultation_fee": "3000",
+        "availability_status": "Available",
+        "short_bio": "Specializing in divorce, child custody, and adoption cases with a compassionate approach.",
+        "connect_with_clients": true,
+        "avatar_url": "https://i.pravatar.cc/150?u=priya"
+    },
+    {
+        "full_name": "Arjun Singh",
+        "location": "Bengaluru, KA",
+        "languages": "English, Kannada",
+        "experience": "8",
+        "specialization": "Intellectual Property",
+        "consultation_fee": "2500",
+        "availability_status": "Busy",
+        "short_bio": "Expert in patent filing, trademark registration, and copyright law for tech startups.",
+        "connect_with_clients": true,
+        "avatar_url": "https://i.pravatar.cc/150?u=arjun"
+    },
+    {
+        "full_name": "Ananya Reddy",
+        "location": "Hyderabad, TS",
+        "languages": "English, Telugu",
+        "experience": "20",
+        "specialization": "Criminal Law",
+        "consultation_fee": "4000",
+        "availability_status": "Available",
+        "short_bio": "Veteran criminal defense attorney with a high success rate in complex trials.",
+        "connect_with_clients": true,
+        "avatar_url": "https://i.pravatar.cc/150?u=ananya"
+    }
+]

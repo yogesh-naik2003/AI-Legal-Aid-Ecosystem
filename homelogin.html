@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LegalAid AI - Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background: linear-gradient(270deg, #0f172a, #1e3a8a, #4c1d95, #1e3a8a);
+      background-size: 400% 400%;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      animation: animateGradient 30s ease infinite;
+    }
+    canvas { display: block; }
+
+    @keyframes animateGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Feature Card Flip Styles */
+    .feature-card {
+      height: 420px; /* Adjusted height for content */
+      flex: 1 1 280px;
+      max-width: 320px;
+      min-width: 280px;
+    }
+    .feature-inner { transform-style: preserve-3d; }
+    .feature-front, .feature-back {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden; /* For Safari */
+    }
+    .feature-back { transform: rotateY(180deg); }
+    .feature-card.flipped .feature-inner { transform: rotateY(180deg); }
+
+    /* Unique Chatbot Icon Animation */
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(250, 204, 21, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+    }
+    .chatbot-pulse { animation: pulse 2.5s infinite; }
+
+    /* 3D "Did You Know" Carousel Styles */
+    .dky-slide {
+      position: absolute;
+      width: 70%;
+      height: 100%;
+      left: 15%; /* (100% - 70%) / 2 */
+      top: 0;
+      border: 2px solid rgba(250, 204, 21, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      backface-visibility: hidden;
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    /* Scroll margin for anchor links to avoid being hidden by fixed navbar */
+    #about-us, #contact, #know-your-rights-section, #knowledge-base-section {
+      scroll-margin-top: 100px;
+    }
+    /* Pre-loader Styles */
+    #preloader {
+      transition: opacity 0.75s ease-in-out;
+    }
+    #main-content.loading {
+      opacity: 0;
+    }
+    /* Know Your Rights Card Styles */
+    .kyr-card {
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      transform-style: preserve-3d;
+    }
+    .kyr-card:hover {
+      transform: translateY(-10px) translateZ(10px);
+      box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+    }
+    .kyr-card-body {
+      max-height: 0;
+      transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), padding 0.6s ease;
+    }
+    .kyr-card.active .kyr-card-body { max-height: 200px; padding-top: 1rem; }
+  </style>
+  <style>
+    /* Scroll-triggered animations */
+    .animate-on-scroll {
+        opacity: 0;
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out, border-color 0.3s;
+    }
+    .slide-in-from-left { transform: translateX(-50px); }
+    .slide-in-from-right { transform: translateX(50px); }
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Pre-loader -->
+  <div id="preloader" class="fixed top-0 left-0 w-full h-full bg-slate-900 flex items-center justify-center z-[100]">
+    <div class="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+  <div id="main-content" class="loading transition-opacity duration-1000">
+    <!-- Navbar -->
+  <nav class="flex justify-between items-center px-8 py-4 bg-black/30 backdrop-blur-lg fixed w-full z-50">
+    <h1 class="text-2xl font-bold">⚖️ LegalAid AI</h1>
+    <div class="space-x-6 flex items-center">
+      <a href="guide.html" class="hover:text-yellow-400">Guidence</a>
+      <a href="askai.html" class="hover:text-yellow-400">Ask AI</a>
+      <a href="knowledge-base.html" class="hover:text-yellow-400">Knowledge-Base</a>
+      <a href="findlawyers.html" class="hover:text-yellow-400"> Find Lawyers</a>
+      <a href="#about-us" class="hover:text-yellow-400">About Us</a>
+      <a href="#contact" class="hover:text-yellow-400">Contact</a>
+      <a href="quiz.html" class="hover:text-yellow-400">Quiz</a>
+      <a href="userdashboard.html" class="hover:text-yellow-400">Dashboard</a>
+      <a href="#" id="logout-btn" class="hover:text-yellow-400">Logout</a>
+      <!-- Multilingual Dropdown -->
+      <div class="relative group ml-4">
+        <button class="px-3 py-1 bg-yellow-400 text-black rounded-lg shadow hover:scale-105 transition flex items-center gap-2">
+          🌐 Language
+          <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div class="absolute left-0 mt-2 w-32 bg-black/90 rounded-lg shadow-lg border border-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          <a href="#" onclick="event.preventDefault(); changeLanguage('en')" class="block px-4 py-2 text-white hover:bg-yellow-400 hover:text-black rounded-t-lg">English</a>
+          <a href="#" onclick="event.preventDefault(); changeLanguage('hi')" class="block px-4 py-2 text-white hover:bg-yellow-400 hover:text-black">हिन्दी</a>
+          <a href="#" onclick="event.preventDefault(); changeLanguage('bn')" class="block px-4 py-2 text-white hover:bg-yellow-400 hover:text-black">বাংলা</a>
+          <a href="#" onclick="event.preventDefault(); changeLanguage('ta')" class="block px-4 py-2 text-white hover:bg-yellow-400 hover:text-black">தமிழ்</a>
+          <a href="#" onclick="event.preventDefault(); changeLanguage('kn')" class="block px-4 py-2 text-white hover:bg-yellow-400 hover:text-black rounded-b-lg">ಕನ್ನಡ</a>
+        </div>
+      </div>
+    </div>
+    
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero-section" class="h-screen flex items-center justify-between px-16 pt-20 overflow-hidden">
+    <!-- Left Text -->
+    <div class="max-w-xl">
+      <div id="hero-welcome" class="opacity-0">
+        <p class="text-yellow-400 font-semibold mb-2" data-i18n="hero.welcome">👋 Welcome to LegalAid AI</p>
+      </div>
+      <h2 class="text-5xl font-extrabold leading-snug opacity-0" id="hero-headline">
+        <span data-i18n="hero.title">Your Legal Rights, <br> <span class="text-yellow-400">Simplified with AI</span></span>
+      </h2>
+      <p class="mt-4 text-gray-300 text-lg opacity-0" id="hero-subtitle">
+        <span data-i18n="hero.subtitle">Instant guidance, contract analysis, and lawyer connect — all in one platform.</span>
+      </p>
+      <div class="mt-6 space-x-4 opacity-0" id="hero-buttons">
+        <a href="askai.html" class="inline-block px-6 py-3 bg-yellow-400 text-black font-semibold rounded-lg shadow hover:scale-105 transition">
+          <span data-i18n="ask_ai">Ask AI Now</span>
+        </a>
+        <a href="#know-your-rights-section" class="inline-block px-6 py-3 border border-yellow-400 text-yellow-400 font-semibold rounded-lg hover:bg-yellow-400 hover:text-black transition" data-i18n="know_rights">Know Your Rights</a>
+      </div>
+    </div>
+    <!-- Right 3D Animation -->
+    <div id="3d-container" class="w-[500px] h-[500px]"></div>
+  </section>
+
+  <script>
+    // Logout functionality
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'login.html';
+    });
+  </script>
+
+  <!-- DID YOU KNOW?? Legal Updates Section -->
+  <section class="max-w-4xl mx-auto mt-16 mb-10 px-4">
+    <div class="bg-black/40 rounded-xl shadow-xl border-2 border-yellow-400 p-8 relative overflow-hidden">
+      <div id="dky-bg-container" class="absolute top-0 left-0 w-full h-full z-0"></div>
+      <div class="relative z-10 flex flex-col items-center">
+        <h2 class="text-3xl font-bold text-yellow-400 mb-6" data-i18n="dky.title">DID YOU KNOW??</h2>
+        
+        <!-- 3D Carousel Container -->
+        <div class="w-full h-56 relative perspective-1000">
+          <div id="dky-carousel" class="w-full h-full absolute transform-style-preserve-3d transition-transform duration-500 ease-out">
+            <!-- Slides will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex items-center justify-between w-full mt-6">
+          <!-- Prev Button -->
+          <button id="dky-prev" class="p-2 rounded-full bg-yellow-400/20 hover:bg-yellow-400/50 text-yellow-300 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <!-- Navigation dots -->
+          <div class="flex justify-center gap-2">
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="0"></span>
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="1"></span>
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="2"></span>
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="3"></span>
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="4"></span>
+            <span class="dot w-3 h-3 rounded-full bg-yellow-400 opacity-50 cursor-pointer" data-index="5"></span>
+          </div>
+          <!-- Next Button -->
+          <button id="dky-next" class="p-2 rounded-full bg-yellow-400/20 hover:bg-yellow-400/50 text-yellow-300 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Know Your Rights Section -->
+  <section id="know-your-rights-section" class="max-w-6xl mx-auto mt-16 mb-10 px-4 perspective-1000">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-8 text-center" data-i18n="kyr.title">Know Your Rights</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Card 1: Consumer Rights -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.consumer.title">Consumer Rights</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.consumer.desc">Right to safety against hazardous goods, to be informed about quality and price, to choose from a variety of goods, and to seek redressal against unfair trade practices.</p>
+        </div>
+      </div>
+      <!-- Card 2: Employee Rights -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.employee.title">Employee Rights</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.employee.desc">Right to equal pay for equal work, protection against workplace harassment, right to form unions, and entitlement to social security benefits like provident fund and gratuity.</p>
+        </div>
+      </div>
+      <!-- Card 3: Fundamental Rights -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v21m-8.25-6.75h16.5M3.75 6h16.5" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 22.5c-5.13 0-9.25-4.12-9.25-9.25S6.87 4 12 4s9.25 4.12 9.25 9.25-4.12 9.25-9.25 9.25z" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.fundamental.title">Fundamental Rights</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.fundamental.desc">Right to equality, freedom of speech and expression, right to life and personal liberty, and the right to constitutional remedies for the enforcement of these rights.</p>
+        </div>
+      </div>
+      <!-- Card 4: Right to Information -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.rti.title">Right to Information</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.rti.desc">Right of any citizen to request information from a public authority, promoting transparency and accountability in the working of every public authority.</p>
+        </div>
+      </div>
+      <!-- Card 5: Digital & Cyber Rights -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008h-.008v-.008z" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.cyber.title">Digital & Cyber Rights</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.cyber.desc">Includes the right to data privacy, protection from online harassment, and freedom of speech on the internet, governed by the IT Act and data protection laws.</p>
+        </div>
+      </div>
+      <!-- Card 6: Rights of Arrested Person -->
+      <div class="kyr-card bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 cursor-pointer">
+        <div class="kyr-card-header flex items-center gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.036.243c-2.132 0-4.14-.818-5.62-2.24l-2.62-2.62a1.5 1.5 0 00-2.122 0l-2.62 2.62c-1.48 1.422-3.488 2.24-5.62 2.24a5.988 5.988 0 01-2.036-.243c-.483-.174-.711-.703-.59-1.202L5.25 4.97m13.5 0l-2.62 10.726" /></svg>
+          <h3 class="text-xl font-bold" data-i18n="kyr.arrest.title">Rights of Arrested Person</h3>
+        </div>
+        <div class="kyr-card-body overflow-hidden">
+          <p class="text-gray-300" data-i18n="kyr.arrest.desc">Right to be informed of the grounds of arrest, right to consult a legal practitioner of choice, and the right to be produced before a magistrate within 24 hours.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="max-w-7xl mx-auto mt-16 mb-10 px-4">
+    <div class="flex flex-row flex-wrap gap-8 justify-center items-stretch perspective-1000">
+      <!-- Card 1: AI Assistant -->
+      <div class="feature-card group cursor-pointer">
+        <div class="feature-inner relative w-full h-full transition-transform duration-700">
+          <!-- Front -->
+          <div class="feature-front absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-yellow-400 bg-black/40">
+            <div>
+              <span class="absolute top-4 right-4 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">Popular</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-yellow-400 mb-4 group-hover:animate-bounce"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5m0 15v-1.5M12 4.5v-1.5m0 18v-1.5" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z" /></svg>
+              <h4 class="text-xl font-bold text-yellow-400 mb-2" data-i18n="features.ai">AI Assistant</h4>
+              <p class="text-gray-200" data-i18n="features.ai_desc">Get instant answers to legal questions powered by advanced AI.</p>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center gap-1 text-yellow-400"><span>★★★★☆</span><span class="text-xs text-gray-400">(4.8/5)</span></div>
+              <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2"><div class="bg-yellow-400 h-2.5 rounded-full" style="width: 90%"></div></div>
+              <p class="text-xs text-gray-400 mt-1">Used by 50,000+ users</p>
+            </div>
+            <div class="absolute bottom-full mb-2 w-max px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Click to see more details!</div>
+          </div>
+          <!-- Back -->
+          <div class="feature-back absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-yellow-400 bg-black/60">
+            <div>
+              <h5 class="text-lg font-bold text-yellow-400 mb-2">How it Works</h5>
+              <div class="w-full h-24 bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 text-sm p-2">Mini Demo: User types a question, and an animated response appears.</div>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-xs bg-blue-500/50 text-white px-2 py-1 rounded-full">Accessible</span>
+                <span class="text-xs bg-green-500/50 text-white px-2 py-1 rounded-full">Mobile Friendly</span>
+              </div>
+            </div>
+            <button class="w-full mt-4 px-4 py-2 bg-yellow-400 text-black rounded-lg shadow hover:bg-yellow-500 transition">Try Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Document Analyzer -->
+      <div class="feature-card group cursor-pointer">
+        <div class="feature-inner relative w-full h-full transition-transform duration-700">
+          <!-- Front -->
+          <div class="feature-front absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-blue-400 bg-black/40">
+            <div>
+              <span class="absolute top-4 right-4 bg-blue-400 text-black text-xs px-2 py-1 rounded-full font-bold">New</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-blue-400 mb-4 group-hover:animate-bounce"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.5h3.832a1.125 1.125 0 001.125-1.125V6.108c0-.621-.504-1.125-1.125-1.125h-4.158a1.125 1.125 0 01-1.125-1.125v-1.5a1.125 1.125 0 00-1.125-1.125H8.25A1.125 1.125 0 007.125 3v1.5a1.125 1.125 0 01-1.125 1.125H4.5A1.125 1.125 0 003.375 6.75v10.5a1.125 1.125 0 001.125 1.125h3.832M9 15.75h6m-6 3h6m-3.45-6.45l.75.75 2.25-2.25" /></svg>
+              <h4 class="text-xl font-bold text-blue-400 mb-2" data-i18n="features.doc">Document Analyzer</h4>
+              <p class="text-gray-200" data-i18n="features.doc_desc">Upload and review contracts or legal documents for quick analysis.</p>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center gap-1 text-yellow-400"><span>★★★★☆</span><span class="text-xs text-gray-400">(4.6/5)</span></div>
+              <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2"><div class="bg-blue-400 h-2.5 rounded-full" style="width: 65%"></div></div>
+              <p class="text-xs text-gray-400 mt-1">Used by 15,000+ users</p>
+            </div>
+            <div class="absolute bottom-full mb-2 w-max px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Tip: Check for unfair clauses!</div>
+          </div>
+          <!-- Back -->
+          <div class="feature-back absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-blue-400 bg-black/60">
+            <div>
+              <h5 class="text-lg font-bold text-blue-400 mb-2">Key Features</h5>
+              <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                <li>Clause highlighting</li>
+                <li>Risk assessment</li>
+                <li>Plain language summary</li>
+              </ul>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-xs bg-blue-500/50 text-white px-2 py-1 rounded-full">Accessible</span>
+              </div>
+            </div>
+            <button class="w-full mt-4 px-4 py-2 bg-blue-400 text-black rounded-lg shadow hover:bg-blue-500 transition">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Multilingual -->
+      <div class="feature-card group cursor-pointer">
+        <div class="feature-inner relative w-full h-full transition-transform duration-700">
+          <!-- Front -->
+          <div class="feature-front absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-green-400 bg-black/40">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-green-400 mb-4 group-hover:animate-bounce"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C13.18 7.061 14.287 7.5 15.5 7.5c1.213 0 2.32-.439 3.166-1.136m-4.834-1.228L12 3m-3.166 1.136a48.473 48.473 0 01-3.166-.487m0 0a48.472 48.472 0 00-3.166.487M3 13.5v6.75m18-6.75v6.75" /></svg>
+              <h4 class="text-xl font-bold text-green-400 mb-2" data-i18n="features.multi">Multilingual</h4>
+              <p class="text-gray-200" data-i18n="features.multi_desc">Access legal guidance in multiple languages for wider reach.</p>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center gap-1 text-yellow-400"><span>★★★★★</span><span class="text-xs text-gray-400">(4.9/5)</span></div>
+              <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2"><div class="bg-green-400 h-2.5 rounded-full" style="width: 95%"></div></div>
+              <p class="text-xs text-gray-400 mt-1">Supports 5+ Indian languages</p>
+            </div>
+            <div class="absolute bottom-full mb-2 w-max px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Breaking language barriers!</div>
+          </div>
+          <!-- Back -->
+          <div class="feature-back absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-green-400 bg-black/60">
+            <div>
+              <h5 class="text-lg font-bold text-green-400 mb-2">Supported Languages</h5>
+              <p class="text-sm text-gray-300 mb-4">Currently supporting English, Hindi, Bengali, Tamil, and Kannada with more on the way.</p>
+              <div class="w-full h-20 bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 text-sm p-2">Mini Demo: Flags of supported languages animating.</div>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-xs bg-pink-500/50 text-white px-2 py-1 rounded-full">Multilingual</span>
+              </div>
+            </div>
+            <button class="w-full mt-4 px-4 py-2 bg-green-400 text-black rounded-lg shadow hover:bg-green-500 transition">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Free Guidance -->
+      <div class="feature-card group cursor-pointer">
+        <div class="feature-inner relative w-full h-full transition-transform duration-700">
+          <!-- Front -->
+          <div class="feature-front absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-purple-400 bg-black/40">
+            <div>
+              <span class="absolute top-4 right-4 bg-purple-400 text-black text-xs px-2 py-1 rounded-full font-bold">Beta</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-purple-400 mb-4 group-hover:animate-bounce"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+              <h4 class="text-xl font-bold text-purple-400 mb-2" data-i18n="features.free">Free Guidance</h4>
+              <p class="text-gray-200" data-i18n="features.free_desc">No cost for basic legal awareness and support for everyone.</p>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center gap-1 text-yellow-400"><span>★★★★★</span><span class="text-xs text-gray-400">(5.0/5)</span></div>
+              <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2"><div class="bg-purple-400 h-2.5 rounded-full" style="width: 40%"></div></div>
+              <p class="text-xs text-gray-400 mt-1">Growing community support</p>
+            </div>
+            <div class="absolute bottom-full mb-2 w-max px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Legal knowledge for all!</div>
+          </div>
+          <!-- Back -->
+          <div class="feature-back absolute w-full h-full backface-hidden rounded-xl p-6 flex flex-col justify-between shadow-xl border-2 border-purple-400 bg-black/60">
+            <div>
+              <h5 class="text-lg font-bold text-purple-400 mb-2">Our Mission</h5>
+              <p class="text-sm text-gray-300 mb-4">We believe access to legal information is a fundamental right. This feature will always be free.</p>
+              <p class="text-sm text-gray-300">"A great starting point for anyone with a legal question." - User Review</p>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-xs bg-green-500/50 text-white px-2 py-1 rounded-full">Mobile Friendly</span>
+              </div>
+            </div>
+            <button class="w-full mt-4 px-4 py-2 bg-purple-400 text-black rounded-lg shadow hover:bg-purple-500 transition">Learn More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Knowledge Base Section -->
+  <section id="knowledge-base-section" class="max-w-7xl mx-auto mt-16 mb-10 px-4">
+    <div class="text-center mb-10">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-yellow-400" data-i18n="kb.title">Knowledge Base</h2>
+      <p class="mt-2 text-slate-300" data-i18n="kb.subtitle">Your one-stop resource for legal information.</p>
+    </div>
+
+    <!-- 6. AI-powered "Ask the Knowledge Base" -->
+    <div class="mb-12 max-w-3xl mx-auto">
+      <div class="relative">
+        <input type="search" data-i18n="[placeholder]kb.search_placeholder" placeholder="Search the knowledge base... e.g., 'Divorce rights in India'" class="w-full p-4 rounded-xl bg-black/30 border-2 border-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-slate-100 placeholder-gray-400" />
+        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl text-yellow-400">🔍</span>
+      </div>
+      <p class="text-center text-xs text-slate-400 mt-2" data-i18n="kb.search_desc">AI-powered search fetches relevant guides, documents, and articles.</p>
+    </div>
+
+    <!-- Grid for KB categories -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <!-- 1. Legal Guides -->
+      <div class="group bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px] overflow-hidden">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 1. Legal Guides</h3>
+        <p class="text-sm text-slate-400">Step-by-step, infographic style cards.</p>
+        <ul class="space-y-2 text-sm text-slate-200 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 ease-in-out">
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">How to file an FIR?</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Steps to file a consumer complaint</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Process of filing RTI</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">How to apply for legal aid services</a></li>
+        </ul>
+      </div>
+
+      <!-- 2. Common Legal Documents -->
+      <div class="group bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px] overflow-hidden">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 2. Common Legal Documents</h3>
+        <p class="text-sm text-slate-400">Free templates & samples to download.</p>
+        <ul class="space-y-2 text-sm text-slate-200 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 ease-in-out">
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Rental agreement</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Employment contract basics</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Power of attorney</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Consumer complaint format</a></li>
+        </ul>
+      </div>
+
+      <!-- 3. Legal Glossary (A–Z) -->
+      <div class="bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px]">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 3. Legal Glossary (A–Z)</h3>
+        <p class="text-sm text-slate-300">Simple explanations of legal terms. Searchable with instant tooltips/hover effects.</p>
+        <p class="mt-4 text-sm text-slate-400 italic"><strong>Example: “Bail:</strong> Temporary release of an accused person with certain conditions.”</p>
+      </div>
+
+      <!-- 4. Articles & Case Studies -->
+      <div class="group bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px] overflow-hidden">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 4. Articles & Case Studies</h3>
+        <p class="text-sm text-slate-400">Short blogs or knowledge cards.</p>
+        <ul class="space-y-2 text-sm text-slate-200 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 ease-in-out">
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Recent landmark judgments</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Rights of gig workers in India</a></li>
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Cybercrime & your protection</a></li>
+        </ul>
+      </div>
+
+      <!-- 5. Interactive Knowledge -->
+      <div class="group bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px] overflow-hidden">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 5. Interactive Knowledge</h3>
+        <p class="text-sm text-slate-400">Learn through interaction.</p>
+        <ul class="space-y-2 text-sm text-slate-200 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 ease-in-out">
+          <li><a href="#" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Animated flowchart: What happens after you file a complaint?</a></li>
+          <li><a href="#quiz" class="hover:text-yellow-300 block p-2 rounded-md hover:bg-slate-800/50 transition-colors">Quiz: FIR vs. Complaint</a></li>
+        </ul>
+      </div>
+
+      <!-- 7. Videos & Explainers -->
+      <div class="bg-black/30 p-6 rounded-xl border-2 border-transparent hover:border-yellow-400 transition-all duration-300 min-h-[160px]">
+        <h3 class="font-bold text-lg mb-3 flex items-center gap-2 text-yellow-400">🔹 7. Videos & Explainers</h3>
+        <p class="text-sm text-slate-300">Short animated clips and embedded YouTube/TikTok style reels with legal awareness.</p>
+        <p class="mt-4 text-sm text-slate-400 italic"><strong>Example:</strong> “Your Consumer Rights in 60 seconds”</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- About, Disclaimer, Contact, Support as Cards -->
+  <section class="max-w-6xl mx-auto mb-10">
+    <!-- Top Row: About & Disclaimer -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div id="about-us" class="bg-black/40 rounded-xl shadow-xl p-8 border-2 border-yellow-400 hover:scale-105 hover:shadow-yellow-400 transition duration-300 ease-in-out">
+        <h3 class="text-3xl font-bold text-yellow-400 mb-4" data-i18n="about.title">About Us</h3>
+        <p class="text-lg mb-2 text-gray-200" data-i18n="about.desc1">
+          LegalAid AI is dedicated to making legal knowledge accessible for everyone. Our mission is to simplify legal rights and processes using advanced AI, empowering users to make informed decisions and connect with professionals when needed.
+        </p>
+        <p class="text-lg text-gray-200" data-i18n="about.desc2">
+          The purpose of our app is to bridge the gap between citizens and legal information, offering instant support, document analysis, and multilingual resources for free.
+        </p>
+      </div>
+      <div class="bg-black/40 rounded-xl shadow-xl p-8 border-2 border-yellow-400 hover:scale-105 hover:shadow-yellow-400 transition duration-300 ease-in-out">
+        <h3 class="text-2xl font-bold text-yellow-400 mb-4" data-i18n="disclaimer.title">Disclaimer</h3>
+        <p class="text-lg text-gray-200" data-i18n="disclaimer.desc">
+          All advice and guidance provided by LegalAid AI is generated by artificial intelligence and is intended for informational purposes only. It does not constitute professional legal advice or establish a lawyer-client relationship. For complex or urgent matters, please consult a qualified legal professional.
+        </p>
+      </div>
+    </div>
+    <!-- Bottom Row: Contact & Support -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div id="contact" class="bg-black/40 rounded-xl shadow-xl p-8 border-2 border-yellow-400 hover:scale-105 hover:shadow-yellow-400 transition duration-300 ease-in-out flex flex-col justify-center">
+        <h3 class="text-3xl font-bold text-yellow-400 mb-4" data-i18n="contact.title">Contact</h3>
+        <div class="space-y-3 text-lg text-gray-200">
+          <p>
+            <span class="font-semibold text-yellow-400" data-i18n="contact.email">Email ID:</span>
+            <a href="mailto:support@legalaidai.com" class="underline hover:text-white">support@legalaidai.com</a>
+          </p>
+          <p>
+            <span class="font-semibold text-yellow-400">Phone Number:</span>
+            <span>6562158425</span>
+          </p>
+          <p>
+            <span class="font-semibold text-yellow-400">Office Address:</span>
+            <span>LegalAid AI, 123 Main Street, Delhi, India</span>
+          </p>
+        </div>
+      </div>
+      <div class="bg-black/40 rounded-xl shadow-xl p-8 border-2 border-yellow-400 hover:scale-105 hover:shadow-yellow-400 transition duration-300 ease-in-out flex flex-col justify-center">
+        <h3 class="text-3xl font-bold text-yellow-400 mb-4" data-i18n="support.title">Support & Helpline</h3>
+        <div class="space-y-3 text-lg text-gray-200">
+          <p>
+            <span class="font-semibold text-yellow-400" data-i18n="support.helplines">Emergency Helpline Numbers:</span>
+          </p>
+          <ul class="ml-4 list-disc">
+            <li>National Legal Services Authority: 15100</li>
+            <li>Women Helpline: 1091</li>
+            <li>Child Helpline: 1098</li>
+            <li>Senior Citizens Helpline: 14567</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3D FAQ Section (replace your current FAQ section with this) -->
+  <section class="max-w-6xl mx-auto mb-16 px-4">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-8 text-center">❓ Frequently Asked Questions</h2>
+    <div class="faq-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q1">What is AI Legal Aid?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a1">AI Legal Aid is a smart platform that provides instant legal information, guidance, and resources using AI-powered technology.</p>
+          </div>
+        </div>
+      </div>
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q2">Can AI replace a lawyer?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a2">No. AI assists with basic legal information, but professional lawyers are needed for court representation and complex cases.</p>
+          </div>
+        </div>
+      </div>
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q3">Is my data safe?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a3">Yes, we use end-to-end encryption to keep your conversations and uploaded documents completely secure.</p>
+          </div>
+        </div>
+      </div>
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q4">Which laws does this cover?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a4">Our system covers Civil, Criminal, Family, Labor, and Consumer Protection laws, with constant updates to keep information accurate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q5">Can I talk to a real lawyer?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a5">Yes. If AI cannot solve your issue, we connect you with verified legal experts for real-time consultation.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Add this FAQ Item at the end of your FAQ section -->
+      <div class="faq-card perspective-1000 h-56">
+        <div class="faq-inner relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer">
+          <div class="faq-front absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-blue-900 to-blue-400 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <h3 class="text-lg font-semibold" data-i18n="faq.q6">How often is the legal database updated?</h3>
+          </div>
+          <div class="faq-back absolute w-full h-full backface-hidden rounded-xl p-6 flex items-center justify-center text-center shadow-xl bg-gradient-to-br from-orange-600 to-yellow-400 transform rotate-y-180 bg-blend-overlay bg-black/30 hover:bg-black/0 transition-colors duration-400">
+            <p class="text-base" data-i18n="faq.a6">Our legal database is reviewed and updated weekly by experts to ensure you receive the latest information and guidance on laws and regulations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Aim and Purpose Section -->
+  <section id="aim-purpose" class="max-w-6xl mx-auto mb-16 px-4">
+    <h2 class="text-3xl font-bold text-yellow-400 mb-8 text-center" data-i18n="aim.title">Our Aim & Purpose</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Aim Card -->
+        <div class="animate-on-scroll slide-in-from-left bg-black/30 p-8 rounded-xl border-2 border-yellow-400/50 hover:border-yellow-400">
+            <h3 class="text-2xl font-bold text-yellow-400 mb-4" data-i18n="aim.aim_title">🎯 Our Aim</h3>
+            <p class="text-gray-300" data-i18n="aim.aim_desc">
+                Our primary aim is to democratize legal knowledge. We strive to break down complex legal jargon and processes into simple, understandable information, making it accessible to every citizen, regardless of their background or location.
+            </p>
+        </div>
+        <!-- Purpose Card -->
+        <div class="animate-on-scroll slide-in-from-right bg-black/30 p-8 rounded-xl border-2 border-yellow-400/50 hover:border-yellow-400">
+            <h3 class="text-2xl font-bold text-yellow-400 mb-4" data-i18n="aim.purpose_title">🚀 Our Purpose</h3>
+            <p class="text-gray-300" data-i18n="aim.purpose_desc">
+                The purpose of LegalAid AI is to empower individuals by providing a reliable first point of contact for legal queries. We bridge the gap between legal uncertainty and professional help, offering free, instant AI-driven guidance to help users understand their rights and navigate the legal system with confidence.
+            </p>
+        </div>
+    </div>
+  </section>
+
+  <style>
+    .faq-container { perspective: 1000px; }
+    .faq-card { height: 220px; }
+    .faq-inner { transform-style: preserve-3d; }
+    .faq-front, .faq-back {
+      backface-visibility: hidden;
+      transition: box-shadow 0.3s;
+    }
+    .faq-back { transform: rotateY(180deg); }
+    .faq-card.flipped .faq-inner { transform: rotateY(180deg); }
+  </style>
+  <script>
+    // Feature Card 3D Flip Animation
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        // Prevent flip if a button or link inside the card was clicked
+        if (e.target.closest('button') || e.target.closest('a')) {
+          return;
+        }
+        this.classList.toggle('flipped');
+      });
+    });
+
+    // FAQ 3D Flip Animation
+    document.querySelectorAll('.faq-card').forEach(card => {
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer class="flex flex-col md:flex-row justify-between items-center py-6 bg-black/40 mt-10 px-6">
+    <!-- Left Side: Info -->
+    <div class="text-left">
+      <p>© 2025 LegalAid AI | <span class="text-yellow-400">AI-powered Legal Awareness</span></p>
+      <p class="text-sm text-gray-400 mt-1" data-i18n="footer.disclaimer">
+        Disclaimer: This platform provides AI-generated guidance, not professional legal advice.
+      </p>
+      <p class="text-sm text-yellow-400 mt-2" data-i18n="footer.contact">
+        Contact: <a href="mailto:support@legalaidai.com" class="underline hover:text-white">support@legalaidai.com</a>
+      </p>
+    </div>
+    <!-- Right Side: Social Media Links -->
+    <div class="flex gap-4 mt-4 md:mt-0">
+      <a href="https://facebook.com" target="_blank" rel="noopener" class="text-yellow-400 hover:text-white text-2xl" aria-label="Facebook">
+        <svg class="w-6 h-6 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12.07C22 6.48 17.52 2 12 2S2 6.48 2 12.07c0 5.02 3.66 9.16 8.44 9.93v-7.03H7.9v-2.9h2.54V9.84c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34v7.03C18.34 21.23 22 17.09 22 12.07z"/></svg>
+      </a>
+      <a href="https://twitter.com" target="_blank" rel="noopener" class="text-yellow-400 hover:text-white text-2xl" aria-label="Twitter">
+        <svg class="w-6 h-6 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.59-2.47.7a4.3 4.3 0 0 0 1.88-2.37c-.83.5-1.75.87-2.72 1.07a4.28 4.28 0 0 0-7.29 3.9A12.13 12.13 0 0 1 3.15 4.6a4.28 4.28 0 0 0 1.32 5.71c-.7-.02-1.36-.21-1.94-.53v.05a4.28 4.28 0 0 0 3.43 4.19c-.33.09-.68.14-1.04.14-.25 0-.5-.02-.74-.07a4.29 4.29 0 0 0 4 2.97A8.6 8.6 0 0 1 2 19.54a12.13 12.13 0 0 0 6.56 1.92c7.88 0 12.2-6.53 12.2-12.2 0-.19-.01-.38-.02-.57A8.72 8.72 0 0 0 24 4.59a8.6 8.6 0 0 1-2.54.7z"/></svg>
+      </a>
+      <a href="https://instagram.com" target="_blank" rel="noopener" class="text-yellow-400 hover:text-white text-2xl" aria-label="Instagram">
+        <svg class="w-6 h-6 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5zm6.25 1.25a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>
+      </a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener" class="text-yellow-400 hover:text-white text-2xl" aria-label="LinkedIn">
+        <svg class="w-6 h-6 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3A2 2 0 0 1 21 5v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-9.75 7.5H7.5v7h1.75v-7zm-.88-2.13a1.13 1.13 0 1 0 0-2.25 1.13 1.13 0 0 0 0 2.25zm8.13 2.13h-1.75v1.13c-.25-.38-.75-.88-1.63-.88-1.38 0-2.12.88-2.12 2.38v4.37h1.75v-4.13c0-.63.13-1.13.88-1.13.75 0 .87.5.87 1.13v4.13h1.75v-4.13c0-1.5-.75-2.38-2.12-2.38z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <!-- Three.js Script -->
+  <script>
+    // --- Three.js Script for Interactive Globe ---
+    const container = document.getElementById("3d-container");
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    // --- Create a swirling particle system ---
+    const particleGroup = new THREE.Group();
+    scene.add(particleGroup);
+
+    const particleCount = 8000;
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const color1 = new THREE.Color(0xfacc15); // yellow-400
+    const color2 = new THREE.Color(0x3b82f6); // blue-500
+
+    for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        // Position particles in a sphere
+        const radius = 2 + Math.random() * 2.5;
+        const phi = Math.random() * Math.PI * 2;
+        const theta = Math.random() * Math.PI;
+        positions[i3] = radius * Math.sin(theta) * Math.cos(phi);
+        positions[i3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
+        positions[i3 + 2] = radius * Math.cos(theta);
+
+        // Assign color
+        const mixedColor = color1.clone().lerp(color2, Math.random());
+        colors[i3] = mixedColor.r;
+        colors[i3 + 1] = mixedColor.g;
+        colors[i3 + 2] = mixedColor.b;
+    }
+
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+        size: 0.06,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true,
+    });
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    particleGroup.add(particles);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    camera.position.z = 7;
+
+    // Mouse interaction
+    let mouse = { x: 0, y: 0 };
+    let targetRotation = { x: 0, y: 0 };
+
+    function onMouseMove(event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+    window.addEventListener('mousemove', onMouseMove, false);
+
+    // Animate
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const time = Date.now() * 0.0001;
+
+      // Smoothly interpolate group rotation towards target
+      targetRotation.y = mouse.x * 0.3;
+      targetRotation.x = mouse.y * 0.3;
+      particleGroup.rotation.y += (targetRotation.y - particleGroup.rotation.y) * 0.05;
+      particleGroup.rotation.x += (targetRotation.x - particleGroup.rotation.x) * 0.05;
+
+      // Add a slow constant rotation for ambient movement
+      particleGroup.rotation.z += 0.001;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  </script>
+
+  <!-- i18next Scripts -->
+  <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
+  <script>
+    // Hero Section Typewriter Animation
+    function typeWriter(element, speed = 30, cb) {
+      // This function handles HTML tags within the text to preserve formatting like colors and line breaks.
+      const contentHolder = element.querySelector('[data-i18n]');
+      if (!contentHolder) { // Fallback if the structure is different
+        if (cb) cb();
+        return;
+      }
+      const htmlContent = contentHolder.innerHTML;
+      contentHolder.innerHTML = ''; // Clear for typing effect
+      element.style.opacity = 1; // Make the element visible
+
+      let i = 0;
+      function typing() {
+        if (i < htmlContent.length) {
+          // If we find a tag, add the whole tag at once
+          if (htmlContent[i] === '<') {
+            const tagEnd = htmlContent.indexOf('>', i);
+            contentHolder.innerHTML += htmlContent.substring(i, tagEnd + 1);
+            i = tagEnd;
+          } else {
+            contentHolder.innerHTML += htmlContent[i];
+          }
+          i++;
+          setTimeout(typing, speed);
+        } else if (cb) {
+          cb();
+        }
+      }
+      typing();
+    }
+    function runHeroAnimation() {
+      const welcome = document.getElementById('hero-welcome');
+      const headline = document.getElementById('hero-headline');
+      const subtitle = document.getElementById('hero-subtitle');
+      const buttons = document.getElementById('hero-buttons');
+      typeWriter(welcome, 20, () => {
+        typeWriter(headline, 30, () => {
+          typeWriter(subtitle, 15, () => {
+            buttons.style.opacity = 1; // Fade in buttons after text animation
+          });
+        });
+      });
+    }
+
+    const resources = {
+      en: {
+        translation: {
+          "hero.welcome": "👋 Welcome to LegalAid AI",
+          "hero.title": "Your Legal Rights, <br> <span class='text-yellow-400'>Simplified with AI</span>",
+          "hero.subtitle": "Instant guidance, contract analysis, and lawyer connect — all in one platform.",
+          "ask_ai": "Ask AI Now",
+          "know_rights": "Know Your Rights",
+          "features.ai": "AI Assistant",
+          "features.ai_desc": "Get instant answers to legal questions powered by advanced AI.",
+          "features.doc": "Document Analyzer",
+          "features.doc_desc": "Upload and review contracts or legal documents for quick analysis.",
+          "features.multi": "Multilingual",
+          "features.multi_desc": "Access legal guidance in multiple languages for wider reach.",
+          "features.free": "Free Guidance",
+          "features.free_desc": "No cost for basic legal awareness and support for everyone.",
+          "about.title": "About Us",
+          "about.desc1": "LegalAid AI is dedicated to making legal knowledge accessible for everyone. Our mission is to simplify legal rights and processes using advanced AI, empowering users to make informed decisions and connect with professionals when needed.",
+          "about.desc2": "The purpose of our app is to bridge the gap between citizens and legal information, offering instant support, document analysis, and multilingual resources for free.",
+          "disclaimer.title": "Disclaimer",
+          "disclaimer.desc": "All advice and guidance provided by LegalAid AI is generated by artificial intelligence and is intended for informational purposes only. It does not constitute professional legal advice or establish a lawyer-client relationship. For complex or urgent matters, please consult a qualified legal professional.",
+          "contact.title": "Contact",
+          "contact.email": "Support Email:",
+          "support.title": "Support & Helpline",
+          "support.helplines": "Emergency Helpline Numbers:",
+          "footer.disclaimer": "Disclaimer: This platform provides AI-generated guidance, not professional legal advice.",
+          "faq.q1": "What is AI Legal Aid?",
+          "faq.a1": "AI Legal Aid is a smart platform that provides instant legal information, guidance, and resources using AI-powered technology.",
+          "faq.q2": "Can AI replace a lawyer?",
+          "faq.a2": "No. AI assists with basic legal information, but professional lawyers are needed for court representation and complex cases.",
+          "faq.q3": "Is my data safe?",
+          "faq.a3": "Yes, we use end-to-end encryption to keep your conversations and uploaded documents completely secure.",
+          "faq.q4": "Which laws does this cover?",
+          "faq.a4": "Our system covers Civil, Criminal, Family, Labor, and Consumer Protection laws, with constant updates to keep information accurate.",
+          "faq.q5": "Can I talk to a real lawyer?",
+          "faq.a5": "Yes. If AI cannot solve your issue, we connect you with verified legal experts for real-time consultation.",
+          "faq.q6": "How often is the legal database updated?",
+          "faq.a6": "Our legal database is reviewed and updated weekly by experts to ensure you receive the latest information and guidance on laws and regulations.",
+          "kyr.title": "Know Your Rights",
+          "kyr.consumer.title": "Consumer Rights",
+          "kyr.consumer.desc": "Right to safety against hazardous goods, to be informed about quality and price, to choose from a variety of goods, and to seek redressal against unfair trade practices.",
+          "kyr.employee.title": "Employee Rights",
+          "kyr.employee.desc": "Right to equal pay for equal work, protection against workplace harassment, right to form unions, and entitlement to social security benefits like provident fund and gratuity.",
+          "kyr.fundamental.title": "Fundamental Rights",
+          "kyr.fundamental.desc": "Right to equality, freedom of speech and expression, right to life and personal liberty, and the right to constitutional remedies for the enforcement of these rights.",
+          "kyr.rti.title": "Right to Information",
+          "kyr.rti.desc": "Right of any citizen to request information from a public authority, promoting transparency and accountability in the working of every public authority.",
+          "kyr.cyber.title": "Digital & Cyber Rights",
+          "kyr.cyber.desc": "Includes the right to data privacy, protection from online harassment, and freedom of speech on the internet, governed by the IT Act and data protection laws.",
+          "kyr.arrest.title": "Rights of Arrested Person",
+          "kyr.arrest.desc": "Right to be informed of the grounds of arrest, right to consult a legal practitioner of choice, and the right to be produced before a magistrate within 24 hours.",
+          "dky.title": "DID YOU KNOW??",
+          "dky.news1.title": "Corporate Law Update",
+          "dky.news1.text": "SEBI introduces new ESG disclosure norms for listed companies, enhancing transparency in corporate governance.",
+          "dky.news2.title": "Employee Laws",
+          "dky.news2.text": "The Supreme Court upholds the right to equal pay for equal work, reinforcing protection for contract employees.",
+          "dky.news3.title": "Labour Law",
+          "dky.news3.text": "New Labour Codes to simplify compliance and improve social security for workers are set to roll out this year.",
+          "dky.news4.title": "Human Rights",
+          "dky.news4.text": "India ratifies the UN Convention on Rights of Persons with Disabilities, strengthening human rights protections.",
+          "dky.news5.title": "Land Laws",
+          "dky.news5.text": "Digital land records initiative launched to reduce property disputes and improve transparency in land ownership.",
+          "dky.news6.title": "Women & Child Rights",
+          "dky.news6.text": "POSH Act amendments expand workplace harassment protections to gig and platform workers.",
+          "footer.contact": "Contact:",
+          "kb.title": "Knowledge Base",
+          "kb.subtitle": "Your one-stop resource for legal information.",
+          "kb.search_placeholder": "Search the knowledge base... e.g., 'Divorce rights in India'",
+          "kb.search_desc": "AI-powered search fetches relevant guides, documents, and articles.",
+          "aim.title": "Our Aim & Purpose",
+          "aim.aim_title": "🎯 Our Aim",
+          "aim.aim_desc": "Our primary aim is to democratize legal knowledge. We strive to break down complex legal jargon and processes into simple, understandable information, making it accessible to every citizen, regardless of their background or location.",
+          "aim.purpose_title": "🚀 Our Purpose",
+          "aim.purpose_desc": "The purpose of LegalAid AI is to empower individuals by providing a reliable first point of contact for legal queries. We bridge the gap between legal uncertainty and professional help, offering free, instant AI-driven guidance to help users understand their rights and navigate the legal system with confidence."
+        }
+      },
+      hi: {
+        translation: {
+          "hero.welcome": "👋 LegalAid AI में आपका स्वागत है",
+          "hero.title": "आपके कानूनी अधिकार, <br> <span class='text-yellow-400'>एआई के साथ सरल</span>",
+          "hero.subtitle": "तुरंत मार्गदर्शन, अनुबंध विश्लेषण, और वकील कनेक्ट — सब एक प्लेटफॉर्म पर।",
+          "ask_ai": "एआई से पूछें",
+          "know_rights": "अपने अधिकार जानें",
+          "features.ai": "एआई सहायक",
+          "features.ai_desc": "एआई द्वारा संचालित कानूनी प्रश्नों के त्वरित उत्तर प्राप्त करें।",
+          "features.doc": "दस्तावेज़ विश्लेषक",
+          "features.doc_desc": "अनुबंध या कानूनी दस्तावेज़ अपलोड करें और त्वरित विश्लेषण प्राप्त करें।",
+          "features.multi": "बहुभाषी",
+          "features.multi_desc": "अनेक भाषाओं में कानूनी मार्गदर्शन प्राप्त करें।",
+          "features.free": "नि:शुल्क मार्गदर्शन",
+          "features.free_desc": "हर किसी के लिए बुनियादी कानूनी जागरूकता और सहायता नि:शुल्क।",
+          "about.title": "हमारे बारे में",
+          "about.desc1": "LegalAid AI सभी के लिए कानूनी ज्ञान सुलभ बनाने के लिए समर्पित है। हमारा मिशन उन्नत एआई का उपयोग करके कानूनी अधिकारों और प्रक्रियाओं को सरल बनाना है, जिससे उपयोगकर्ता सूचित निर्णय ले सकें और आवश्यकता पड़ने पर पेशेवरों से जुड़ सकें।",
+          "about.desc2": "हमारे ऐप का उद्देश्य नागरिकों और कानूनी जानकारी के बीच की खाई को पाटना है, त्वरित सहायता, दस्तावेज़ विश्लेषण, और बहुभाषी संसाधन नि:शुल्क प्रदान करना।",
+          "disclaimer.title": "अस्वीकरण",
+          "disclaimer.desc": "LegalAid AI द्वारा प्रदान की गई सभी सलाह और मार्गदर्शन कृत्रिम बुद्धिमत्ता द्वारा उत्पन्न किए गए हैं और केवल सूचना के उद्देश्य से हैं। यह पेशेवर कानूनी सलाह नहीं है या वकील-ग्राहक संबंध स्थापित नहीं करता है। जटिल या तात्कालिक मामलों के लिए, कृपया योग्य कानूनी पेशेवर से परामर्श करें।",
+          "contact.title": "संपर्क करें",
+          "contact.email": "सहायता ईमेल:",
+          "support.title": "सहायता और हेल्पलाइन",
+          "support.helplines": "आपातकालीन हेल्पलाइन नंबर:",
+          "footer.disclaimer": "अस्वीकरण: यह प्लेटफॉर्म एआई-जनित मार्गदर्शन प्रदान करता है, पेशेवर कानूनी सलाह नहीं।",
+          "faq.q1": "एआई लीगल एड क्या है?",
+          "faq.a1": "एआई लीगल एड एक स्मार्ट प्लेटफॉर्म है जो एआई-पावर्ड तकनीक का उपयोग करके तत्काल कानूनी जानकारी, मार्गदर्शन और संसाधन प्रदान करता है।",
+          "faq.q2": "क्या एआई एक वकील की जगह ले सकता है?",
+          "faq.a2": "नहीं। एआई बुनियादी कानूनी जानकारी के साथ सहायता करता है, लेकिन अदालत में प्रतिनिधित्व और जटिल मामलों के लिए पेशेवर वकीलों की आवश्यकता होती है।",
+          "faq.q3": "क्या मेरा डेटा सुरक्षित है?",
+          "faq.a3": "हाँ, हम आपकी बातचीत और अपलोड किए गए दस्तावेज़ों को पूरी तरह से सुरक्षित रखने के लिए एंड-टू-एंड एन्क्रिप्शन का उपयोग करते हैं।",
+          "faq.q4": "यह किन कानूनों को कवर करता है?",
+          "faq.a4": "हमारी प्रणाली नागरिक, आपराधिक, परिवार, श्रम और उपभोक्ता संरक्षण कानूनों को कवर करती है, और जानकारी को सटीक रखने के लिए लगातार अपडेट किया जाता है।",
+          "faq.q5": "क्या मैं एक वास्तविक वकील से बात कर सकता हूँ?",
+          "faq.a5": "हाँ। यदि एआई आपकी समस्या का समाधान नहीं कर पाता है, तो हम आपको वास्तविक समय परामर्श के लिए सत्यापित कानूनी विशेषज्ञों से जोड़ते हैं।",
+          "faq.q6": "कानूनी डेटाबेस को कितनी बार अपडेट किया जाता है?",
+          "faq.a6": "यह सुनिश्चित करने के लिए कि आपको कानूनों और विनियमों पर नवीनतम जानकारी और मार्गदर्शन प्राप्त हो, हमारे कानूनी डेटाबेस की विशेषज्ञों द्वारा साप्ताहिक समीक्षा और अपडेट किया जाता है।",
+          "kyr.title": "अपने अधिकार जानें",
+          "kyr.consumer.title": "उपभोक्ता अधिकार",
+          "kyr.consumer.desc": "खतरनाक सामानों के खिलाफ सुरक्षा का अधिकार, गुणवत्ता और कीमत के बारे में सूचित होने का अधिकार, विभिन्न प्रकार के सामानों में से चुनने का अधिकार, और अनुचित व्यापार प्रथाओं के खिलाफ निवारण मांगने का अधिकार।",
+          "kyr.employee.title": "कर्मचारी अधिकार",
+          "kyr.employee.desc": "समान काम के लिए समान वेतन का अधिकार, कार्यस्थल पर उत्पीड़न के खिलाफ सुरक्षा, संघ बनाने का अधिकार, और भविष्य निधि और ग्रेच्युटी जैसे सामाजिक सुरक्षा लाभों का हक।",
+          "kyr.fundamental.title": "मौलिक अधिकार",
+          "kyr.fundamental.desc": "समानता का अधिकार, भाषण और अभिव्यक्ति की स्वतंत्रता, जीवन और व्यक्तिगत स्वतंत्रता का अधिकार, और इन अधिकारों के प्रवर्तन के लिए संवैधानिक उपचारों का अधिकार।",
+          "kyr.rti.title": "सूचना का अधिकार",
+          "kyr.rti.desc": "किसी भी नागरिक को किसी भी सार्वजनिक प्राधिकरण से जानकारी का अनुरोध करने का अधिकार, जो हर सार्वजनिक प्राधिकरण के कामकाज में पारदर्शिता और जवाबदेही को बढ़ावा देता है।",
+          "kyr.cyber.title": "डिजिटल और साइबर अधिकार",
+          "kyr.cyber.desc": "इसमें डेटा गोपनीयता का अधिकार, ऑनलाइन उत्पीड़न से सुरक्षा, और इंटरनेट पर भाषण की स्वतंत्रता शामिल है, जो आईटी अधिनियम और डेटा संरक्षण कानूनों द्वारा शासित है।",
+          "kyr.arrest.title": "गिरफ्तार व्यक्ति के अधिकार",
+          "kyr.arrest.desc": "गिरफ्तारी के आधारों के बारे में सूचित होने का अधिकार, अपनी पसंद के कानूनी व्यवसायी से परामर्श करने का अधिकार, और 24 घंटे के भीतर मजिस्ट्रेट के सामने पेश होने का अधिकार।",
+          "dky.title": "क्या आप जानते हैं??",
+          "dky.news1.title": "कॉर्पोरेट कानून अपडेट",
+          "dky.news1.text": "सेबी ने सूचीबद्ध कंपनियों के लिए नए ईएसजी प्रकटीकरण मानदंड पेश किए, जिससे कॉर्पोरेट प्रशासन में पारदर्शिता बढ़ेगी।",
+          "dky.news2.title": "कर्मचारी कानून",
+          "dky.news2.text": "सुप्रीम कोर्ट ने समान काम के लिए समान वेतन के अधिकार को बरकरार रखा, जिससे अनुबंध कर्मचारियों के लिए सुरक्षा मजबूत हुई है।",
+          "dky.news3.title": "श्रम कानून",
+          "dky.news3.text": "अनुपालन को सरल बनाने और श्रमिकों के लिए सामाजिक सुरक्षा में सुधार के लिए नए श्रम कोड इस साल लागू होने वाले हैं।",
+          "dky.news4.title": "मानवाधिकार",
+          "dky.news4.text": "भारत ने विकलांग व्यक्तियों के अधिकारों पर संयुक्त राष्ट्र सम्मेलन की पुष्टि की, जिससे मानवाधिकारों की सुरक्षा मजबूत हुई है।",
+          "dky.news5.title": "भूमि कानून",
+          "dky.news5.text": "संपत्ति विवादों को कम करने और भूमि स्वामित्व में पारदर्शिता में सुधार के लिए डिजिटल भूमि रिकॉर्ड पहल शुरू की गई।",
+          "dky.news6.title": "महिला और बाल अधिकार",
+          "dky.news6.text": "पॉश अधिनियम संशोधन गिग और प्लेटफॉर्म श्रमिकों के लिए कार्यस्थल उत्पीड़न सुरक्षा का विस्तार करते हैं।",
+          "footer.contact": "संपर्क:",
+          "kb.title": "ज्ञान भंडार",
+          "kb.subtitle": "कानूनी जानकारी के लिए आपका वन-स्टॉप संसाधन।",
+          "kb.search_placeholder": "ज्ञान भंडार में खोजें... उदा., 'भारत में तलाक के अधिकार'",
+          "kb.search_desc": "एआई-संचालित खोज प्रासंगिक गाइड, दस्तावेज़ और लेख प्राप्त करती है।",
+          "aim.title": "हमारा लक्ष्य और उद्देश्य",
+          "aim.aim_title": "🎯 हमारा लक्ष्य",
+          "aim.aim_desc": "हमारा प्राथमिक लक्ष्य कानूनी ज्ञान का लोकतंत्रीकरण करना है। हम जटिल कानूनी शब्दावली और प्रक्रियाओं को सरल, समझने योग्य जानकारी में तोड़ने का प्रयास करते हैं, जिससे यह हर नागरिक के लिए सुलभ हो, चाहे उनकी पृष्ठभूमि या स्थान कुछ भी हो।",
+          "aim.purpose_title": "🚀 हमारा उद्देश्य",
+          "aim.purpose_desc": "LegalAid AI का उद्देश्य कानूनी प्रश्नों के लिए एक विश्वसनीय पहला संपर्क बिंदु प्रदान करके व्यक्तियों को सशक्त बनाना है। हम कानूनी अनिश्चितता और पेशेवर मदद के बीच की खाई को पाटते हैं, उपयोगकर्ताओं को उनके अधिकारों को समझने और आत्मविश्वास के साथ कानूनी प्रणाली को नेविगेट करने में मदद करने के लिए मुफ्त, तत्काल एआई-संचालित मार्गदर्शन प्रदान करते हैं।"
+        }
+      },
+      bn: {
+        translation: {
+          "hero.welcome": "👋 LegalAid AI-তে স্বাগতম",
+          "hero.title": "আপনার আইনগত অধিকার, <br> <span class='text-yellow-400'>এআই দ্বারা সহজীকৃত</span>",
+          "hero.subtitle": "তাৎক্ষণিক গাইডেন্স, চুক্তি বিশ্লেষণ, এবং আইনজীবী সংযোগ — সব এক প্ল্যাটফর্মে।",
+          "ask_ai": "এআইকে জিজ্ঞাসা করুন",
+          "know_rights": "আপনার অধিকার জানুন",
+          "features.ai": "এআই সহকারী",
+          "features.ai_desc": "উন্নত এআই দ্বারা আইনগত প্রশ্নের তাৎক্ষণিক উত্তর পান।",
+          "features.doc": "ডকুমেন্ট বিশ্লেষক",
+          "features.doc_desc": "চুক্তি বা আইনগত ডকুমেন্ট আপলোড করুন এবং দ্রুত বিশ্লেষণ পান।",
+          "features.multi": "বহুভাষিক",
+          "features.multi_desc": "বিভিন্ন ভাষায় আইনগত গাইডেন্স পান।",
+          "features.free": "বিনামূল্যে গাইডেন্স",
+          "features.free_desc": "সবার জন্য বিনামূল্যে মৌলিক আইনগত সচেতনতা ও সহায়তা।",
+          "about.title": "আমাদের সম্পর্কে",
+          "about.desc1": "LegalAid AI সকলের জন্য আইনগত জ্ঞান সহজলভ্য করতে প্রতিশ্রুতিবদ্ধ। আমাদের লক্ষ্য উন্নত এআই ব্যবহার করে আইনগত অধিকার ও প্রক্রিয়া সহজ করা, যাতে ব্যবহারকারীরা তথ্যভিত্তিক সিদ্ধান্ত নিতে পারে এবং প্রয়োজনে পেশাদারদের সাথে সংযোগ করতে পারে।",
+          "about.desc2": "আমাদের অ্যাপের উদ্দেশ্য নাগরিকদের এবং আইনগত তথ্যের মধ্যে ব্যবধান দূর করা, তাৎক্ষণিক সহায়তা, ডকুমেন্ট বিশ্লেষণ এবং বহুভাষিক সম্পদ বিনামূল্যে প্রদান করা।",
+          "disclaimer.title": "অস্বীকৃতি",
+          "disclaimer.desc": "LegalAid AI দ্বারা প্রদত্ত সমস্ত পরামর্শ এবং গাইডেন্স কৃত্রিম বুদ্ধিমত্তা দ্বারা তৈরি এবং শুধুমাত্র তথ্যের উদ্দেশ্যে। এটি পেশাদার আইনগত পরামর্শ নয় বা আইনজীবী-গ্রাহক সম্পর্ক স্থাপন করে না। জটিল বা জরুরি বিষয়ে, দয়া করে একজন যোগ্য আইনজীবীর সাথে পরামর্শ করুন।",
+          "contact.title": "যোগাযোগ",
+          "contact.email": "সহায়তা ইমেইল:",
+          "support.title": "সহায়তা ও হেল্পলাইন",
+          "support.helplines": "জরুরি হেল্পলাইন নম্বর:",
+          "footer.disclaimer": "অস্বীকৃতি: এই প্ল্যাটফর্মটি এআই-উৎপাদিত গাইডেন্স প্রদান করে, পেশাদার আইনগত পরামর্শ নয়।",
+          "faq.q1": "এআই লিগাল এইড কী?",
+          "faq.a1": "এআই লিগাল এইড একটি স্মার্ট প্ল্যাটফর্ম যা এআই-চালিত প্রযুক্তি ব্যবহার করে তাৎক্ষণিক আইনি তথ্য, গাইডেন্স এবং সম্পদ সরবরাহ করে।",
+          "faq.q2": "এআই কি আইনজীবীর বিকল্প হতে পারে?",
+          "faq.a2": "না। এআই মৌলিক আইনি তথ্যের সাথে সহায়তা করে, তবে আদালতে প্রতিনিধিত্ব এবং জটিল মামলার জন্য পেশাদার আইনজীবীর প্রয়োজন।",
+          "faq.q3": "আমার ডেটা কি নিরাপদ?",
+          "faq.a3": "হ্যাঁ, আমরা আপনার কথোপকথন এবং আপলোড করা ডকুমেন্টগুলি সম্পূর্ণরূপে সুরক্ষিত রাখতে এন্ড-টু-এন্ড এনক্রিপশন ব্যবহার করি।",
+          "faq.q4": "এটি কোন আইনগুলি কভার করে?",
+          "faq.a4": "আমাদের সিস্টেম দেওয়ানি, ফৌজদারি, পরিবার, শ্রম এবং ভোক্তা সুরক্ষা আইন কভার করে এবং তথ্য সঠিক রাখার জন্য ক্রমাগত আপডেট করা হয়।",
+          "faq.q5": "আমি কি একজন প্রকৃত আইনজীবীর সাথে কথা বলতে পারি?",
+          "faq.a5": "হ্যাঁ। যদি এআই আপনার সমস্যার সমাধান করতে না পারে, তবে আমরা আপনাকে রিয়েল-টাইম পরামর্শের জন্য যাচাইকৃত আইনি বিশেষজ্ঞদের সাথে সংযুক্ত করি।",
+          "faq.q6": "আইনি ডাটাবেস কত ঘন ঘন আপডেট করা হয়?",
+          "faq.a6": "আমাদের আইনি ডাটাবেসটি বিশেষজ্ঞদের দ্বারা সাপ্তাহিক পর্যালোচনা এবং আপডেট করা হয় যাতে আপনি আইন এবং বিধিবিধানের উপর সর্বশেষ তথ্য এবং গাইডেন্স পান তা নিশ্চিত করা যায়।",
+          "kyr.title": "আপনার অধিকার জানুন",
+          "kyr.consumer.title": "ভোক্তা অধিকার",
+          "kyr.consumer.desc": "বিপজ্জনক পণ্যের বিরুদ্ধে সুরক্ষার অধিকার, গুণমান এবং মূল্য সম্পর্কে অবহিত হওয়ার অধিকার, বিভিন্ন পণ্য থেকে বেছে নেওয়ার অধিকার এবং অন্যায্য বাণিজ্য অনুশীলনের বিরুদ্ধে প্রতিকার চাওয়ার অধিকার।",
+          "kyr.employee.title": "কর্মী অধিকার",
+          "kyr.employee.desc": "সমান কাজের জন্য সমান বেতনের অধিকার, কর্মক্ষেত্রে হয়রানির বিরুদ্ধে সুরক্ষা, ইউনিয়ন গঠনের অধিকার এবং প্রভিডেন্ট ফান্ড এবং গ্র্যাচুইটির মতো সামাজিক সুরক্ষা সুবিধার অধিকার।",
+          "kyr.fundamental.title": "মৌলিক অধিকার",
+          "kyr.fundamental.desc": "সমতার অধিকার, বাক ও মত প্রকাশের স্বাধীনতা, জীবন ও ব্যক্তিগত স্বাধীনতার অধিকার এবং এই অধিকারগুলি প্রয়োগের জন্য সাংবিধানিক প্রতিকারের অধিকার।",
+          "kyr.rti.title": "তথ্যের অধিকার",
+          "kyr.rti.desc": "যেকোনো নাগরিকের যেকোনো সরকারি কর্তৃপক্ষের কাছ থেকে তথ্য চাওয়ার অধিকার, যা প্রতিটি সরকারি কর্তৃপক্ষের কাজে স্বচ্ছতা ও জবাবদিহিতা বাড়ায়।",
+          "kyr.cyber.title": "ডিজিটাল ও সাইবার অধিকার",
+          "kyr.cyber.desc": "এর মধ্যে রয়েছে ডেটা গোপনীয়তার অধিকার, অনলাইন হয়রানি থেকে সুরক্ষা এবং ইন্টারনেটে বাক স্বাধীনতা, যা আইটি আইন এবং ডেটা সুরক্ষা আইন দ্বারা পরিচালিত।",
+          "kyr.arrest.title": "গ্রেপ্তার হওয়া ব্যক্তির অধিকার",
+          "kyr.arrest.desc": "গ্রেপ্তারের কারণ জানার অধিকার, পছন্দের আইনজীবীর সাথে পরামর্শ করার অধিকার এবং গ্রেপ্তারের ২৪ ঘণ্টার মধ্যে ম্যাজিস্ট্রেটের সামনে হাজির হওয়ার অধিকার।",
+          "dky.title": "আপনি কি জানেন??",
+          "dky.news1.title": "কর্পোরেট আইন আপডেট",
+          "dky.news1.text": "SEBI তালিকাভুক্ত কোম্পানিগুলির জন্য নতুন ESG প্রকাশের নিয়ম চালু করেছে, যা কর্পোরেট প্রশাসনে স্বচ্ছতা বাড়ায়।",
+          "dky.news2.title": "কর্মচারী আইন",
+          "dky.news2.text": "সুপ্রিম কোর্ট সমান কাজের জন্য সমান বেতনের অধিকারকে সমর্থন করেছে, যা চুক্তিভিত্তিক কর্মচারীদের সুরক্ষা জোরদার করে।",
+          "dky.news3.title": "শ্রম আইন",
+          "dky.news3.text": "নতুন শ্রম কোডগুলি সম্মতি সহজ করতে এবং শ্রমিকদের জন্য সামাজিক নিরাপত্তা উন্নত করতে এই বছর চালু হতে চলেছে।",
+          "dky.news4.title": "মানবাধিকার",
+          "dky.news4.text": "ভারত প্রতিবন্ধী ব্যক্তিদের অধিকার সংক্রান্ত জাতিসংঘ কনভেনশন অনুমোদন করেছে, যা মানবাধিকার সুরক্ষা শক্তিশালী করে।",
+          "dky.news5.title": "ভূমি আইন",
+          "dky.news5.text": "সম্পত্তি বিরোধ কমাতে এবং জমির মালিকানায় স্বচ্ছতা উন্নত করতে ডিজিটাল ভূমি রেকর্ড উদ্যোগ চালু করা হয়েছে।",
+          "dky.news6.title": "নারী ও শিশু অধিকার",
+          "dky.news6.text": "POSH আইনের সংশোধনী গিগ এবং প্ল্যাটফর্ম কর্মীদের জন্য কর্মক্ষেত্রে হয়রানি সুরক্ষা প্রসারিত করে।",
+          "footer.contact": "যোগাযোগ:",
+          "kb.title": "নলেজ বেস",
+          "kb.subtitle": "আইনি তথ্যের জন্য আপনার ওয়ান-স্টপ রিসোর্স।",
+          "kb.search_placeholder": "নলেজ বেস অনুসন্ধান করুন... যেমন, 'ভারতে বিবাহবিচ্ছেদের অধিকার'",
+          "kb.search_desc": "এআই-চালিত অনুসন্ধান প্রাসঙ্গিক গাইড, নথি এবং নিবন্ধ নিয়ে আসে।",
+          "aim.title": "আমাদের লক্ষ্য ও উদ্দেশ্য",
+          "aim.aim_title": "🎯 আমাদের লক্ষ্য",
+          "aim.aim_desc": "আমাদের প্রাথমিক লক্ষ্য হল আইনি জ্ঞানের গণতন্ত্রীকরণ করা। আমরা জটিল আইনি পরিভাষা এবং প্রক্রিয়াগুলিকে সহজ, বোধগম্য তথ্যে ভেঙে ফেলার চেষ্টা করি, যাতে এটি প্রত্যেক নাগরিকের কাছে তাদের পটভূমি বা অবস্থান নির্বিশেষে সহজলভ্য হয়।",
+          "aim.purpose_title": "🚀 আমাদের উদ্দেশ্য",
+          "aim.purpose_desc": "LegalAid AI-এর উদ্দেশ্য হল আইনি প্রশ্নের জন্য একটি নির্ভরযোগ্য প্রথম যোগাযোগ বিন্দু প্রদান করে ব্যক্তিদের ক্ষমতায়ন করা। আমরা আইনি অনিশ্চয়তা এবং পেশাদার সাহায্যের মধ্যে ব্যবধান পূরণ করি, ব্যবহারকারীদের তাদের অধিকার বুঝতে এবং আত্মবিশ্বাসের সাথে আইনি ব্যবস্থা নেভিগেট করতে সাহায্য করার জন্য বিনামূল্যে, তাত্ক্ষণিক এআই-চালিত নির্দেশিকা প্রদান করি।"
+        }
+      },
+      ta: {
+        translation: {
+          "hero.welcome": "👋 LegalAid AI-க்கு வரவேற்கிறோம்",
+          "hero.title": "உங்கள் சட்ட உரிமைகள், <br> <span class='text-yellow-400'>ஏ.ஐ. மூலம் எளிதாக்கப்பட்டது</span>",
+          "hero.subtitle": "உடனடி வழிகாட்டல், ஒப்பந்த பகுப்பாய்வு, மற்றும் வழக்கறிஞர் இணைப்பு — அனைத்தும் ஒரே தளத்தில்.",
+          "ask_ai": "ஏ.ஐ.யை கேளுங்கள்",
+          "know_rights": "உங்கள் உரிமைகளை அறியுங்கள்",
+          "features.ai": "ஏ.ஐ. உதவியாளர்",
+          "features.ai_desc": "உயர்ந்த ஏ.ஐ. மூலம் சட்ட கேள்விகளுக்கு உடனடி பதில்கள் பெறுங்கள்.",
+          "features.doc": "ஆவண பகுப்பாய்வாளர்",
+          "features.doc_desc": "ஒப்பந்தங்கள் அல்லது சட்ட ஆவணங்களை பதிவேற்றவும் மற்றும் விரைவில் பகுப்பாய்வு பெறுங்கள்.",
+          "features.multi": "பல மொழிகள்",
+          "features.multi_desc": "பல மொழிகளில் சட்ட வழிகாட்டலைப் பெறுங்கள்.",
+          "features.free": "இலவச வழிகாட்டல்",
+          "features.free_desc": "அனைவருக்கும் இலவச அடிப்படை சட்ட விழிப்புணர்வு மற்றும் ஆதரவு.",
+          "about.title": "எங்களை பற்றி",
+          "about.desc1": "LegalAid AI அனைவருக்கும் சட்ட அறிவை எளிதாகக் கிடைக்கச் செய்ய உறுதிபூண்டுள்ளது. எங்கள் நோக்கம் மேம்பட்ட ஏ.ஐ.யைப் பயன்படுத்தி சட்ட உரிமைகள் மற்றும் செயல்முறைகளை எளிதாக்குவது, பயனாளர்கள் தகவலறிந்த முடிவுகளை எடுக்கவும், தேவையான போது நிபுணர்களுடன் இணைக்கவும்.",
+          "about.desc2": "எங்கள் செயலியின் நோக்கம் குடிமக்கள் மற்றும் சட்ட தகவலுக்கு இடையிலான இடைவெளியை குறைப்பது, உடனடி ஆதரவு, ஆவண பகுப்பாய்வு மற்றும் பல மொழி வளங்களை இலவசமாக வழங்குவது.",
+          "disclaimer.title": "பொறுப்புத்துறப்பு",
+          "disclaimer.desc": "LegalAid AI வழங்கும் அனைத்து ஆலோசனையும் மற்றும் வழிகாட்டலும் செயற்கை நுண்ணறிவால் உருவாக்கப்பட்டவை மற்றும் தகவல் நோக்கத்திற்காக மட்டுமே. இது தொழில்முறை சட்ட ஆலோசனை அல்ல அல்லது வழக்கறிஞர்-வாடிக்கையாளர் உறவை உருவாக்காது. சிக்கலான அல்லது அவசர விஷயங்களுக்கு, தகுதியான சட்ட நிபுணரை அணுகவும்.",
+          "contact.title": "தொடர்பு",
+          "contact.email": "ஆதரவு மின்னஞ்சல்:",
+          "support.title": "ஆதரவு & ஹெல்ப்லைன்",
+          "support.helplines": "அவசர ஹெல்ப்லைன் எண்கள்:",
+          "footer.disclaimer": "பொறுப்புத்துறப்பு: இந்த தளம் ஏ.ஐ. உருவாக்கிய வழிகாட்டலை வழங்குகிறது, தொழில்முறை சட்ட ஆலோசனை அல்ல.",
+          "faq.q1": "ஏ.ஐ. சட்ட உதவி என்றால் என்ன?",
+          "faq.a1": "ஏ.ஐ. சட்ட உதவி என்பது ஏ.ஐ.-ஆற்றல் தொழில்நுட்பத்தைப் பயன்படுத்தி உடனடி சட்டத் தகவல், வழிகாட்டல் மற்றும் வளங்களை வழங்கும் ஒரு ஸ்மார்ட் தளமாகும்.",
+          "faq.q2": "ஏ.ஐ. ஒரு வழக்கறிஞரை மாற்ற முடியுமா?",
+          "faq.a2": "இல்லை. ஏ.ஐ. அடிப்படை சட்டத் தகவலுடன் உதவுகிறது, ஆனால் நீதிமன்ற பிரதிநிதித்துவம் மற்றும் சிக்கலான வழக்குகளுக்கு தொழில்முறை வழக்கறிஞர்கள் தேவை.",
+          "faq.q3": "எனது தரவு பாதுகாப்பானதா?",
+          "faq.a3": "ஆம், உங்கள் உரையாடல்களையும் பதிவேற்றிய ஆவணங்களையும் முற்றிலும் பாதுகாப்பாக வைத்திருக்க நாங்கள் இறுதி முதல் இறுதி வரை குறியாக்கத்தைப் பயன்படுத்துகிறோம்.",
+          "faq.q4": "இது எந்த சட்டங்களை உள்ளடக்குகிறது?",
+          "faq.a4": "எங்கள் அமைப்பு சிவில், கிரிமினல், குடும்பம், தொழிலாளர் மற்றும் நுகர்வோர் பாதுகாப்புச் சட்டங்களை உள்ளடக்குகிறது, மேலும் தகவல்களை துல்லியமாக வைத்திருக்க தொடர்ந்து புதுப்பிக்கப்படுகிறது.",
+          "faq.q5": "நான் ஒரு உண்மையான வழக்கறிஞரிடம் பேச முடியுமா?",
+          "faq.a5": "ஆம். ஏ.ஐ. உங்கள் சிக்கலைத் தீர்க்க முடியாவிட்டால், நிகழ்நேர ஆலோசனைக்காக சரிபார்க்கப்பட்ட சட்ட நிபுணர்களுடன் உங்களை இணைக்கிறோம்.",
+          "faq.q6": "சட்டத் தரவுத்தளம் எவ்வளவு அடிக்கடி புதுப்பிக்கப்படுகிறது?",
+          "faq.a6": "சட்டங்கள் மற்றும் ஒழுங்குமுறைகள் குறித்த சமீபத்திய தகவல்களையும் வழிகாட்டுதலையும் நீங்கள் பெறுவதை உறுதி செய்வதற்காக எங்கள் சட்டத் தரவுத்தளம் நிபுணர்களால் வாரந்தோறும் மதிப்பாய்வு செய்யப்பட்டு புதுப்பிக்கப்படுகிறது.",
+          "kyr.title": "உங்கள் உரிமைகளை அறியுங்கள்",
+          "kyr.consumer.title": "நுகர்வோர் உரிமைகள்",
+          "kyr.consumer.desc": "அபாயகரமான பொருட்களுக்கு எதிரான பாதுகாப்பு உரிமை, தரம் மற்றும் விலை பற்றி அறியும் உரிமை, பல்வேறு பொருட்களிலிருந்து தேர்வு செய்யும் உரிமை, மற்றும் நேர்மையற்ற வர்த்தக நடைமுறைகளுக்கு எதிராக தீர்வு காணும் உரிமை.",
+          "kyr.employee.title": "ஊழியர் உரிமைகள்",
+          "kyr.employee.desc": "சம வேலைக்கு சம ஊதியம் பெறும் உரிமை, பணியிடத் துன்புறுத்தலுக்கு எதிரான பாதுகாப்பு, சங்கங்கள் அமைக்கும் உரிமை, மற்றும் வருங்கால வைப்பு நிதி மற்றும் பணிக்கொடை போன்ற சமூகப் பாதுகாப்புப் பலன்களுக்கான உரிமை.",
+          "kyr.fundamental.title": "அடிப்படை உரிமைகள்",
+          "kyr.fundamental.desc": "சமத்துவத்திற்கான உரிமை, பேச்சு மற்றும் கருத்து சுதந்திரம், வாழ்க்கை மற்றும் தனிப்பட்ட சுதந்திரத்திற்கான உரிமை, மற்றும் இந்த உரிமைகளை அமல்படுத்துவதற்கான அரசியலமைப்பு தீர்வுகள் பெறும் உரிமை.",
+          "kyr.rti.title": "தகவல் அறியும் உரிமை",
+          "kyr.rti.desc": "எந்தவொரு குடிமகனுக்கும் ஒரு பொது அதிகாரியிடமிருந்து தகவல்களைக் கோரும் உரிமை, ஒவ்வொரு பொது அதிகாரியின் செயல்பாட்டிலும் வெளிப்படைத்தன்மை மற்றும் பொறுப்புணர்வை ஊக்குவிக்கிறது.",
+          "kyr.cyber.title": "டிஜிட்டல் மற்றும் சைபர் உரிமைகள்",
+          "kyr.cyber.desc": "தரவு தனியுரிமைக்கான உரிமை, ஆன்லைன் துன்புறுத்தலில் இருந்து பாதுகாப்பு, மற்றும் இணையத்தில் பேச்சு சுதந்திரம் ஆகியவை இதில் அடங்கும், இது தகவல் தொழில்நுட்பச் சட்டம் மற்றும் தரவுப் பாதுகாப்புச் சட்டங்களால் நிர்வகிக்கப்படுகிறது.",
+          "kyr.arrest.title": "கைது செய்யப்பட்ட நபரின் உரிமைகள்",
+          "kyr.arrest.desc": "கைதுக்கான காரணங்களை அறியும் உரிமை, விருப்பமான சட்டப் பயிற்சியாளருடன் கலந்தாலோசிக்கும் உரிமை, மற்றும் கைது செய்யப்பட்ட 24 மணி நேரத்திற்குள் ஒரு மாஜிஸ்திரேட் முன் ஆஜர்படுத்தப்படும் உரிமை.",
+          "dky.title": "உங்களுக்குத் தெரியுமா??",
+          "dky.news1.title": "கார்ப்பரேট சட்டப் புதுப்பிப்பு",
+          "dky.news1.text": "பட்டியலிடப்பட்ட நிறுவனங்களுக்கு SEBI புதிய ESG வெளிப்படுத்தல் விதிமுறைகளை அறிமுகப்படுத்துகிறது, இது கார்ப்பரேট நிர்வாகத்தில் வெளிப்படைத்தன்மையை மேம்படுத்துகிறது.",
+          "dky.news2.title": "ஊழியர் சட்டங்கள்",
+          "dky.news2.text": "ஒரே வேலைக்கு சம ஊதியம் பெறும் உரிமையை உச்ச நீதிமன்றம் உறுதி செய்துள்ளது, இது ஒப்பந்த ஊழியர்களுக்கான பாதுகாப்பை வலுப்படுத்துகிறது.",
+          "dky.news3.title": "தொழிலாளர் சட்டம்",
+          "dky.news3.text": "இணக்கத்தை எளிதாக்கவும், தொழிலாளர்களுக்கான சமூகப் பாதுகாப்பை மேம்படுத்தவும் புதிய தொழிலாளர் குறியீடுகள் இந்த ஆண்டு வெளியிடப்பட உள்ளன.",
+          "dky.news4.title": "மனித உரிமைகள்",
+          "dky.news4.text": "மாற்றுத்திறனாளிகளின் உரிமைகள் மீதான ஐ.நா. உடன்படிக்கையை இந்தியா ஏற்றுக்கொண்டது, இது மனித உரிமைப் பாதுகாப்பை வலுப்படுத்துகிறது.",
+          "dky.news5.title": "நிலச் சட்டங்கள்",
+          "dky.news5.text": "சொத்துத் தகராறுகளைக் குறைக்கவும், நில உரிமையில் வெளிப்படைத்தன்மையை மேம்படுத்தவும் டிஜிட்டல் நிலப் பதிவு முயற்சி தொடங்கப்பட்டுள்ளது.",
+          "dky.news6.title": "பெண்கள் மற்றும் குழந்தைகள் உரிமைகள்",
+          "dky.news6.text": "POSH சட்டத் திருத்தங்கள் கிக் மற்றும் பிளாட்ஃபார்ம் தொழிலாளர்களுக்கு பணியிடத் துன்புறுத்தல் பாதுகாப்பை விரிவுபடுத்துகின்றன.",
+          "footer.contact": "தொடர்பு:",
+          "kb.title": "அறிவுத் தளம்",
+          "kb.subtitle": "சட்டத் தகவலுக்கான உங்கள் ஒரே ஆதாரம்.",
+          "kb.search_placeholder": "அறிவுத் தளத்தில் தேடவும்... எ.கா., 'இந்தியாவில் விவாகரத்து உரிமைகள்'",
+          "kb.search_desc": "AI-இயங்கும் தேடல் தொடர்புடைய வழிகாட்டிகள், ஆவணங்கள் மற்றும் கட்டுரைகளைப் பெறுகிறது.",
+          "aim.title": "எங்கள் நோக்கம் மற்றும் குறிக்கோள்",
+          "aim.aim_title": "🎯 எங்கள் நோக்கம்",
+          "aim.aim_desc": "எங்கள் முதன்மை நோக்கம் சட்ட அறிவை ஜனநாயகப்படுத்துவதாகும். சிக்கலான சட்ட thuật ngữ மற்றும் செயல்முறைகளை எளிய, புரிந்துகொள்ளக்கூடிய தகவல்களாக உடைக்க நாங்கள் முயற்சி செய்கிறோம், இது ஒவ்வொரு குடிமகனுக்கும் அவர்களின் பின்னணி அல்லது இருப்பிடத்தைப் பொருட்படுத்தாமல் அணுகக்கூடியதாக அமைகிறது.",
+          "aim.purpose_title": "🚀 எங்கள் குறிக்கோள்",
+          "aim.purpose_desc": "LegalAid AI-யின் குறிக்கோள், சட்டரீதியான கேள்விகளுக்கு நம்பகமான முதல் தொடர்பு புள்ளியை வழங்குவதன் மூலம் தனிநபர்களை மேம்படுத்துவதாகும். சட்ட நிச்சயமற்ற தன்மைக்கும் தொழில்முறை உதவிக்கும் இடையிலான இடைவெளியைக் குறைக்கிறோம், பயனர்கள் தங்கள் உரிமைகளைப் புரிந்துகொள்ளவும், சட்ட அமைப்பை நம்பிக்கையுடன் வழிநடத்தவும் உதவும் வகையில் இலவச, உடனடி AI-இயங்கும் வழிகாட்டுதலை வழங்குகிறோம்."
+        }
+      },
+      kn: {
+        translation: {
+          "hero.welcome": "👋 LegalAid AI ಗೆ ಸ್ವಾಗತ",
+          "hero.title": "ನಿಮ್ಮ ಕಾನೂನು ಹಕ್ಕುಗಳು, <br> <span class='text-yellow-400'>ಎಐ ಮೂಲಕ ಸರಳೀಕರಿಸಲಾಗಿದೆ</span>",
+          "hero.subtitle": "ತಕ್ಷಣದ ಮಾರ್ಗದರ್ಶನ, ಒಪ್ಪಂದ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ವಕೀಲ ಸಂಪರ್ಕ — ಎಲ್ಲವೂ ಒಂದೇ ವೇದಿಕೆಯಲ್ಲಿ.",
+          "ask_ai": "ಎಐ ಅನ್ನು ಕೇಳಿ",
+          "know_rights": "ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ತಿಳಿಯಿರಿ",
+          "features.ai": "ಎಐ ಸಹಾಯಕ",
+          "features.ai_desc": "ಆಧುನಿಕ ಎಐ ಮೂಲಕ ಕಾನೂನು ಪ್ರಶ್ನೆಗಳಿಗೆ ತಕ್ಷಣದ ಉತ್ತರಗಳನ್ನು ಪಡೆಯಿರಿ.",
+          "features.doc": "ಡಾಕ್ಯುಮೆಂಟ್ ವಿಶ್ಲೇಷಕ",
+          "features.doc_desc": "ಒಪ್ಪಂದಗಳು ಅಥವಾ ಕಾನೂನು ಡಾಕ್ಯುಮೆಂಟ್‌ಗಳನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ ಮತ್ತು ತ್ವರಿತ ವಿಶ್ಲೇಷಣೆ ಪಡೆಯಿರಿ.",
+          "features.multi": "ಬಹುಭಾಷೆ",
+          "features.multi_desc": "ಹೆಚ್ಚು ಭಾಷೆಗಳಲ್ಲಿ ಕಾನೂನು ಮಾರ್ಗದರ್ಶನವನ್ನು ಪಡೆಯಿರಿ.",
+          "features.free": "ಉಚಿತ ಮಾರ್ಗದರ್ಶನ",
+          "features.free_desc": "ಪ್ರತಿೊಬ್ಬರಿಗೂ ಉಚಿತ ಮೂಲಭೂತ ಕಾನೂನು ಅರಿವು ಮತ್ತು ಸಹಾಯ.",
+          "about.title": "ನಮ್ಮ ಬಗ್ಗೆ",
+          "about.desc1": "LegalAid AI ಎಲ್ಲರಿಗೂ ಕಾನೂನು ಜ್ಞಾನವನ್ನು ಸುಲಭವಾಗಿ ಲಭ್ಯವಾಗಿಸಲು ಸಮರ್ಪಿತವಾಗಿದೆ. ನಮ್ಮ ಗುರಿ ಉನ್ನತ ಎಐ ಬಳಸಿ ಕಾನೂನು ಹಕ್ಕುಗಳು ಮತ್ತು ಪ್ರಕ್ರಿಯೆಗಳನ್ನು ಸರಳೀಕರಿಸುವುದು, ಬಳಕೆದಾರರು ಮಾಹಿತಿ ಆಧಾರಿತ ನಿರ್ಧಾರಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಲು ಮತ್ತು ಅಗತ್ಯವಿದ್ದಾಗ ವೃತ್ತಿಪರರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಲು.",
+          "about.desc2": "ನಮ್ಮ ಅಪ್ಲಿಕೇಶನ್‌ನ ಉದ್ದೇಶ ನಾಗರಿಕರು ಮತ್ತು ಕಾನೂನು ಮಾಹಿತಿಯ ನಡುವೆ ಇರುವ ಅಂತರವನ್ನು ಕಡಿಮೆ ಮಾಡುವುದು, ತಕ್ಷಣದ ಸಹಾಯ, ಡಾಕ್ಯುಮೆಂಟ್ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ಬಹುಭಾಷಾ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಉಚಿತವಾಗಿ ಒದಗಿಸುವುದು.",
+          "disclaimer.title": "ಅಸ್ವೀಕರಣ",
+          "disclaimer.desc": "LegalAid AI ನೀಡುವ ಎಲ್ಲಾ ಸಲಹೆ ಮತ್ತು ಮಾರ್ಗದರ್ಶನ ಕೃತಕ ಬುದ್ಧಿಮತ್ತಿಯಿಂದ ಉತ್ಪನ್ನವಾಗಿದ್ದು, ಮಾಹಿತಿ ಉದ್ದೇಶಕ್ಕಾಗಿ ಮಾತ್ರ. ಇದು ವೃತ್ತಿಪರ ಕಾನೂನು ಸಲಹೆ ಅಲ್ಲ ಅಥವಾ ವಕೀಲ-ಗ್ರಾಹಕ ಸಂಬಂಧವನ್ನು ಸ್ಥಾಪಿಸುವುದಿಲ್ಲ. ಸಂಕೀರ್ಣ ಅಥವಾ ತುರ್ತು ವಿಷಯಗಳಿಗೆ, ದಯವಿಟ್ಟು ಅರ್ಹ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+          "contact.title": "ಸಂಪರ್ಕ",
+          "contact.email": "ಸಹಾಯ ಇಮೇಲ್:",
+          "support.title": "ಸಹಾಯ ಮತ್ತು ಹೆಲ್ಪ್‌ಲೈನ್",
+          "support.helplines": "ತುರ್ತು ಹೆಲ್ಪ್‌ಲೈನ್ ಸಂಖ್ಯೆ:",
+          "footer.disclaimer": "ಅಸ್ವೀಕರಣ: ಈ ವೇದಿಕೆ ಎಐ-ಉತ್ಪನ್ನ ಮಾರ್ಗದರ್ಶನವನ್ನು ಒದಗಿಸುತ್ತದೆ, ವೃತ್ತಿಪರ ಕಾನೂನು ಸಲಹೆ ಅಲ್ಲ.",
+          "faq.q1": "ಎಐ ಲೀಗಲ್ ಏಡ್ ಎಂದರೇನು?",
+          "faq.a1": "ಎಐ ಲೀಗಲ್ ಏಡ್ ಒಂದು ಸ್ಮಾರ್ಟ್ ವೇದಿಕೆಯಾಗಿದ್ದು, ಎಐ-ಚಾಲಿತ ತಂತ್ರಜ್ಞಾನವನ್ನು ಬಳಸಿ ತಕ್ಷಣದ ಕಾನೂನು ಮಾಹಿತಿ, ಮಾರ್ಗದರ್ಶನ ಮತ್ತು ಸಂಪನ್ಮೂಲಗಳನ್ನು ಒದಗಿಸುತ್ತದೆ.",
+          "faq.q2": "ಎಐ ವಕೀಲರನ್ನು ಬದಲಿಸಬಹುದೇ?",
+          "faq.a2": "ಇಲ್ಲ. ಎಐ ಮೂಲಭೂತ ಕಾನೂನು ಮಾಹಿತಿಯೊಂದಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ, ಆದರೆ ನ್ಯಾಯಾಲಯದ ಪ್ರಾತಿನಿಧ್ಯ ಮತ್ತು ಸಂಕೀರ್ಣ ಪ್ರಕರಣಗಳಿಗೆ ವೃತ್ತಿಪರ ವಕೀಲರು ಬೇಕಾಗುತ್ತಾರೆ.",
+          "faq.q3": "ನನ್ನ ಡೇಟಾ ಸುರಕ್ಷಿತವೇ?",
+          "faq.a3": "ಹೌದು, ನಿಮ್ಮ ಸಂಭಾಷಣೆಗಳನ್ನು ಮತ್ತು ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ದಾಖಲೆಗಳನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ಸುರಕ್ಷಿತವಾಗಿಡಲು ನಾವು ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಬಳಸುತ್ತೇವೆ.",
+          "faq.q4": "ಇದು ಯಾವ ಕಾನೂನುಗಳನ್ನು ಒಳಗೊಂಡಿದೆ?",
+          "faq.a4": "ನಮ್ಮ ವ್ಯವಸ್ಥೆಯು ಸಿವಿಲ್, ಕ್ರಿಮินಲ್, ಕುಟುಂಬ, ಕಾರ್ಮಿಕ ಮತ್ತು ಗ್ರಾಹಕ ಸಂರಕ್ಷಣಾ ಕಾನೂನುಗಳನ್ನು ಒಳಗೊಂಡಿದೆ, ಮತ್ತು ಮಾಹಿತಿಯನ್ನು ನಿಖರವಾಗಿಡಲು ನಿರಂತರವಾಗಿ ನವೀಕರಿಸಲಾಗುತ್ತದೆ.",
+          "faq.q5": "ನಾನು ನಿಜವಾದ ವಕೀಲರೊಂದಿಗೆ ಮಾತನಾಡಬಹುದೇ?",
+          "faq.a5": "ಹೌದು. ಎಐ ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ಪರಿಹರಿಸಲು ಸಾಧ್ಯವಾಗದಿದ್ದರೆ, ನಾವು ನಿಮ್ಮನ್ನು ನೈಜ-ಸಮಯದ ಸಮಾಲೋಚನೆಗಾಗಿ ಪರಿಶೀಲಿಸಿದ ಕಾನೂನು ತಜ್ಞರೊಂದಿಗೆ ಸಂಪರ್ಕಿಸುತ್ತೇವೆ.",
+          "faq.q6": "ಕಾನೂನು ಡೇಟಾಬೇಸ್ ಎಷ್ಟು ಬಾರಿ ನವೀಕರಿಸಲಾಗುತ್ತದೆ?",
+          "faq.a6": "ನೀವು ಕಾನೂನುಗಳು ಮತ್ತು ನಿಯಮಗಳ ಬಗ್ಗೆ ಇತ್ತೀಚಿನ ಮಾಹಿತಿ ಮತ್ತು ಮಾರ್ಗದರ್ಶನವನ್ನು ಪಡೆಯುವುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಲು ನಮ್ಮ ಕಾನೂನು ಡೇಟಾಬೇಸ್ ಅನ್ನು ತಜ್ಞರು ವಾರಕ್ಕೊಮ್ಮೆ ಪರಿಶೀಲಿಸುತ್ತಾರೆ ಮತ್ತು ನವೀಕರಿಸುತ್ತಾರೆ.",
+          "kyr.title": "ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ತಿಳಿಯಿರಿ",
+          "kyr.consumer.title": "ಗ್ರಾಹಕರ ಹಕ್ಕುಗಳು",
+          "kyr.consumer.desc": "ಅಪಾಯಕಾರಿ ಸರಕುಗಳ ವಿರುದ್ಧ ಸುರಕ್ಷತೆಯ ಹಕ್ಕು, ಗುಣಮಟ್ಟ ಮತ್ತು ಬೆಲೆಯ ಬಗ್ಗೆ ಮಾಹಿತಿ ಪಡೆಯುವ ಹಕ್ಕು, ವಿವಿಧ ಸರಕುಗಳಿಂದ ಆಯ್ಕೆ ಮಾಡುವ ಹಕ್ಕು, ಮತ್ತು ಅನ್ಯಾಯದ ವ್ಯಾಪಾರ ಪದ್ಧತಿಗಳ ವಿರುದ್ಧ ಪರಿಹಾರವನ್ನು ಕೋರುವ ಹಕ್ಕು.",
+          "kyr.employee.title": "ನೌಕರರ ಹಕ್ಕುಗಳು",
+          "kyr.employee.desc": "ಸಮಾನ ಕೆಲಸಕ್ಕೆ ಸಮಾನ ವೇತನದ ಹಕ್ಕು, ಕೆಲಸದ ಸ್ಥಳದಲ್ಲಿ ಕಿರುಕುಳದಿಂದ ರಕ್ಷಣೆ, ಸಂಘಗಳನ್ನು ರಚಿಸುವ ಹಕ್ಕು, ಮತ್ತು ಭವಿಷ್ಯ ನಿಧಿ ಮತ್ತು ಗ್ರಾಚ್ಯುಟಿಯಂತಹ ಸಾಮಾಜಿಕ ಭದ್ರತಾ ಪ್ರಯೋಜನಗಳಿಗೆ ಅರ್ಹತೆ.",
+          "kyr.fundamental.title": "ಮೂಲಭೂತ ಹಕ್ಕುಗಳು",
+          "kyr.fundamental.desc": "ಸಮಾನತೆಯ ಹಕ್ಕು, ವಾಕ್ ಮತ್ತು ಅಭಿವ್ಯಕ್ತಿ ಸ್ವಾತಂತ್ರ್ಯ, ಜೀವಿಸುವ ಮತ್ತು ವೈಯಕ್ತಿಕ ಸ್ವಾತಂತ್ರ್ಯದ ಹಕ್ಕು, ಮತ್ತು ಈ ಹಕ್ಕುಗಳ ಜಾರಿಗಾಗಿ ಸಾಂವಿಧಾನಿಕ ಪರಿಹಾರಗಳ ಹಕ್ಕು.",
+          "kyr.rti.title": "ಮಾಹಿತಿ ಹಕ್ಕು",
+          "kyr.rti.desc": "ಯಾವುದೇ ಸಾರ್ವಜನಿಕ ಪ್ರಾಧಿಕಾರದಿಂದ ಮಾಹಿತಿಯನ್ನು ಕೋರುವ ಯಾವುದೇ ನಾಗರಿಕರ ಹಕ್ಕು, ಇದು ಪ್ರತಿಯೊಂದು ಸಾರ್ವಜನಿಕ ಪ್ರಾಧಿಕಾರದ ಕಾರ್ಯನಿರ್ವಹಣೆಯಲ್ಲಿ ಪಾರದರ್ಶಕತೆ ಮತ್ತು ಜವಾಬ್ದಾರಿಯನ್ನು ಉತ್ತೇಜಿಸುತ್ತದೆ.",
+          "kyr.cyber.title": "ಡಿಜಿಟಲ್ ಮತ್ತು ಸೈಬರ್ ಹಕ್ಕುಗಳು",
+          "kyr.cyber.desc": "ಡೇಟಾ ಗೌಪ್ಯತೆಯ ಹಕ್ಕು, ಆನ್‌ಲೈನ್ ಕಿರುಕುಳದಿಂದ ರಕ್ಷಣೆ, ಮತ್ತು ಅಂತರ್ಜಾಲದಲ್ಲಿ ವಾಕ್ ಸ್ವಾತಂತ್ರ್ಯವನ್ನು ಒಳಗೊಂಡಿದೆ, ಇದು ಐಟಿ ಕಾಯ್ದೆ ಮತ್ತು ಡೇಟಾ ಸಂರಕ್ಷಣಾ ಕಾನೂನುಗಳಿಂದ ನಿಯಂತ್ರಿಸಲ್ಪಡುತ್ತದೆ.",
+          "kyr.arrest.title": "ಬಂಧಿತ ವ್ಯಕ್ತಿಯ ಹಕ್ಕುಗಳು",
+          "kyr.arrest.desc": "ಬಂಧನದ ಆಧಾರಗಳನ್ನು ತಿಳಿಯುವ ಹಕ್ಕು, ಆಯ್ಕೆಯ ಕಾನೂನು ವೃತ್ತಿಗಾರರೊಂದಿಗೆ ಸಮಾಲೋಚಿಸುವ ಹಕ್ಕು, ಮತ್ತು ಬಂಧನದ 24 ಗಂಟೆಗಳ ಒಳಗೆ ಮ್ಯಾಜಿಸ್ಟ್ರೇಟ್ ಮುಂದೆ ಹಾಜರುಪಡಿಸುವ ಹಕ್ಕು.",
+          "dky.title": "ನಿಮಗೆ ಗೊತ್ತೆ??",
+          "dky.news1.title": "ಕಾರ್ಪೊರೇಟ್ ಕಾನೂನು ಅಪ್‌ಡೇಟ್",
+          "dky.news1.text": "SEBI ಪಟ್ಟಿ ಮಾಡಲಾದ ಕಂಪನಿಗಳಿಗೆ ಹೊಸ ESG ಪ್ರಕಟಣೆ ನಿಯಮಗಳನ್ನು ಪರಿಚಯಿಸಿದೆ, ಇದು ಕಾರ್ಪೊರೇಟ್ ಆಡಳಿತದಲ್ಲಿ ಪಾರದರ್ಶಕತೆಯನ್ನು ಹೆಚ್ಚಿಸುತ್ತದೆ.",
+          "dky.news2.title": "ನೌಕರರ ಕಾನೂನುಗಳು",
+          "dky.news2.text": "ಸುಪ್ರೀಂ ಕೋರ್ಟ್ ಸಮಾನ ಕೆಲಸಕ್ಕೆ ಸಮಾನ ವೇತನದ ಹಕ್ಕನ್ನು ಎತ್ತಿಹಿಡಿದಿದೆ, ಇದು ಗುತ್ತಿಗೆ ನೌಕರರ ರಕ್ಷಣೆಯನ್ನು ಬಲಪಡಿಸುತ್ತದೆ.",
+          "dky.news3.title": "ಕಾರ್ಮಿಕ ಕಾನೂನು",
+          "dky.news3.text": "ಅನುಸರಣೆಯನ್ನು ಸರಳಗೊಳಿಸಲು ಮತ್ತು ಕಾರ್ಮಿಕರಿಗೆ ಸಾಮಾಜಿಕ ಭದ್ರತೆಯನ್ನು ಸುಧಾರಿಸಲು ಹೊಸ ಕಾರ್ಮಿಕ ಸಂಹಿತೆಗಳು ಈ ವರ್ಷ ಜಾರಿಗೆ ಬರಲಿವೆ.",
+          "dky.news4.title": "ಮಾನವ ಹಕ್ಕುಗಳು",
+          "dky.news4.text": "ಭಾರತವು ವಿಕಲಚೇತನ ವ್ಯಕ್ತಿಗಳ ಹಕ್ಕುಗಳ ಮೇಲಿನ ಯುಎನ್ ಸಮಾವೇಶವನ್ನು ಅನುಮೋದಿಸಿದೆ, ಇದು ಮಾನವ ಹಕ್ಕುಗಳ ರಕ್ಷಣೆಯನ್ನು ಬಲಪಡಿಸುತ್ತದೆ.",
+          "dky.news5.title": "ಭೂಮಿ ಕಾನೂನುಗಳು",
+          "dky.news5.text": "ಆಸ್ತಿ ವಿವಾದಗಳನ್ನು ಕಡಿಮೆ ಮಾಡಲು ಮತ್ತು ಭೂ ಮಾಲೀಕತ್ವದಲ್ಲಿ ಪಾರದರ್ಶಕತೆಯನ್ನು ಸುಧಾರಿಸಲು ಡಿಜಿಟಲ್ ಭೂ ದಾಖಲೆಗಳ ಉಪಕ್ರಮವನ್ನು ಪ್ರಾರಂಭಿಸಲಾಗಿದೆ.",
+          "dky.news6.title": "ಮಹಿಳಾ ಮತ್ತು ಮಕ್ಕಳ ಹಕ್ಕುಗಳು",
+          "dky.news6.text": "POSH ಕಾಯಿದೆಯ ತಿದ್ದುಪಡಿಗಳು ಗಿಗ್ ಮತ್ತು ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಕೆಲಸಗಾರರಿಗೆ ಕೆಲಸದ ಸ್ಥಳದಲ್ಲಿ ಕಿರುಕುಳದ ರಕ್ಷಣೆಯನ್ನು ವಿಸ್ತರಿಸುತ್ತವೆ.",
+          "footer.contact": "ಸಂಪರ್ಕ:",
+          "kb.title": "ಜ್ಞಾನದ ಮೂಲ",
+          "kb.subtitle": "ಕಾನೂನು ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಒಂದು-ನಿಲುಗಡೆ ಸಂಪನ್ಮೂಲ.",
+          "kb.search_placeholder": "ಜ್ಞಾನದ ಮೂಲವನ್ನು ಹುಡುಕಿ... ಉದಾ., 'ಭಾರತದಲ್ಲಿ ವಿಚ್ಛೇದನ ಹಕ್ಕುಗಳು'",
+          "kb.search_desc": "ಎಐ-ಚಾಲಿತ ಹುಡುಕಾಟವು ಸಂಬಂಧಿತ ಮಾರ್ಗದರ್ಶಿಗಳು, ದಾಖಲೆಗಳು ಮತ್ತು ಲೇಖನಗಳನ್ನು ತರುತ್ತದೆ.",
+          "aim.title": "ನಮ್ಮ ಗುರಿ ಮತ್ತು ಉದ್ದೇಶ",
+          "aim.aim_title": "🎯 ನಮ್ಮ ಗುರಿ",
+          "aim.aim_desc": "ನಮ್ಮ ಪ್ರಾಥಮಿಕ ಗುರಿ ಕಾನೂನು ಜ್ಞಾನವನ್ನು ಪ್ರಜಾಪ್ರಭುತ್ವಗೊಳಿಸುವುದು. ನಾವು ಸಂಕೀರ್ಣ ಕಾನೂನು ಪರಿಭಾಷೆ ಮತ್ತು ಪ್ರಕ್ರಿಯೆಗಳನ್ನು ಸರಳ, ಅರ್ಥವಾಗುವ ಮಾಹಿತಿಗೆ ವಿಭಜಿಸಲು ಪ್ರಯತ್ನಿಸುತ್ತೇವೆ, ಇದು ಪ್ರತಿಯೊಬ್ಬ ನಾಗರಿಕನಿಗೂ ಅವರ ಹಿನ್ನೆಲೆ ಅಥವಾ ಸ್ಥಳವನ್ನು ಲೆಕ್ಕಿಸದೆ ಲಭ್ಯವಾಗುವಂತೆ ಮಾಡುತ್ತದೆ.",
+          "aim.purpose_title": "🚀 ನಮ್ಮ ಉದ್ದೇಶ",
+          "aim.purpose_desc": "LegalAid AI ಯ ಉದ್ದೇಶವು ಕಾನೂನು ಪ್ರಶ್ನೆಗಳಿಗೆ ವಿಶ್ವಾಸಾರ್ಹ ಮೊದಲ ಸಂಪರ್ಕ ಬಿಂದುವನ್ನು ಒದಗಿಸುವ ಮೂಲಕ ವ್ಯಕ್ತಿಗಳನ್ನು ಸಬಲೀಕರಣಗೊಳಿಸುವುದು. ನಾವು ಕಾನೂನು ಅನಿಶ್ಚಿತತೆ ಮತ್ತು ವೃತ್ತಿಪರ ಸಹಾಯದ ನಡುವಿನ ಅಂತರವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತೇವೆ, ಬಳಕೆದಾರರಿಗೆ ತಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಮತ್ತು ಕಾನೂನು ವ್ಯವಸ್ಥೆಯನ್ನು ಆತ್ಮವಿಶ್ವಾಸದಿಂದ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಸಹಾಯ ಮಾಡಲು ಉಚಿತ, ತ್ವರಿತ AI-ಚಾಲಿತ ಮಾರ್ಗದರ್ಶನವನ್ನು ನೀಡುತ್ತೇವೆ."
+        }
+      }
+    };
+
+    i18next.init({
+      resources,
+      fallbackLng: 'en',
+      lng: 'en', // Set default language to English
+      debug: false
+    }, function(err, t) {
+      updateContent();
+    });
+
+    function updateContent() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n');
+            // Check for attribute targeting syntax e.g., [placeholder]key
+            const match = key.match(/^\[(.*?)\](.*)$/);
+            if (match) {
+                const attr = match[1]; // e.g., 'placeholder'
+                const i18nKey = match[2]; // e.g., 'kb.search_placeholder'
+                el.setAttribute(attr, i18next.t(i18nKey));
+            } else {
+                el.innerHTML = i18next.t(key);
+            }
+        });
+    }
+
+    function changeLanguage(lng) {
+      i18next.changeLanguage(lng, (err, t) => {
+        if (err) return console.error('Error changing language:', err);
+        updateContent();
+        runHeroAnimation(); // Re-run hero animation for a smooth transition
+        window.dispatchEvent(new CustomEvent('languageChanged')); // Notify other scripts
+      });
+    }
+
+    // Pre-loader logic
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      const mainContent = document.getElementById('main-content');
+
+      preloader.style.opacity = '0';
+      
+      setTimeout(() => {
+        preloader.style.display = 'none';
+        mainContent.classList.remove('loading');
+        runHeroAnimation(); // Start animations after content is loaded and visible
+        initDky3dBackground();
+      }, 750); // Match CSS transition duration
+    });
+  </script>
+
+  <!-- Animations, News Slider, Chatbot Scripts -->
+  <script>
+    // 3D "Did You Know??" Cover Flow Carousel
+    const dkyCarousel = document.getElementById('dky-carousel');
+    const dkyNewsKeys = ["news1", "news2", "news3", "news4", "news5", "news6"];
+    const dkyDots = document.querySelectorAll('.dot');
+    const dkyPrevBtn = document.getElementById('dky-prev');
+    const dkyNextBtn = document.getElementById('dky-next');
+    let dkyCurrentIndex = 0;
+    let dkyInterval;
+
+    function setupDkyCarousel() {
+        dkyCarousel.innerHTML = ''; // Clear existing slides
+        dkyNewsKeys.forEach((key, i) => { // Loop through all news items
+            const slide = document.createElement('div'); // Create a new slide element
+            slide.className = 'dky-slide'; // Assign the base class
+
+            const title = i18next.t(`dky.${key}.title`); // Get translated title
+            const text = i18next.t(`dky.${key}.text`); // Get translated text
+            slide.innerHTML = `
+                <h4 class="text-xl font-bold text-yellow-400 mb-2">${title}</h4>
+                <p class="text-gray-200">${text}</p>
+            `;
+            dkyCarousel.appendChild(slide); // Add slide to the carousel container
+        });
+        updateDkyCarousel(); // Position the slides initially
+    }
+
+    function updateDkyCarousel() { // Function to update the visual state of the carousel
+        const slides = dkyCarousel.querySelectorAll('.dky-slide'); // Get all slide elements
+        const numSlides = slides.length; // Total number of slides
+
+        slides.forEach((slide, i) => { // Iterate over each slide
+            let offset = i - dkyCurrentIndex; // Calculate the raw offset from the current slide
+
+            // Adjust offset for circularity (shortest path around the loop)
+            if (offset > numSlides / 2) {
+                offset -= numSlides;
+            } else if (offset < -numSlides / 2) {
+                offset += numSlides;
+            }
+
+            const absOffset = Math.abs(offset); // Absolute value of the adjusted offset
+
+            // Calculate transform properties for a cover-flow like effect
+            const scale = 1 - absOffset * 0.2; // Scale down slides further away
+            const translateX = offset * 80; // Horizontal position based on offset
+            const rotateY = -offset * 40; // Rotate slides based on offset for 3D perspective
+            const opacity = Math.max(0, 1 - absOffset * 0.5); // Fade out slides further away
+
+            // Apply calculated styles
+            slide.style.transform = `translateX(${translateX}%) scale(${scale}) rotateY(${rotateY}deg)`;
+            slide.style.opacity = opacity;
+            slide.style.zIndex = numSlides - absOffset; // Ensure correct layering (current on top)
+        });
+
+        // Update navigation dots
+        dkyDots.forEach((dot, index) => {
+            dot.classList.toggle('opacity-100', index === dkyCurrentIndex); // Highlight current dot
+            dot.classList.toggle('opacity-50', index !== dkyCurrentIndex); // Dim other dots
+        });
+    }
+
+    function startDkyInterval() { // Function to start/restart the auto-play interval
+        clearInterval(dkyInterval); // Clear any existing interval
+        dkyInterval = setInterval(() => { // Set a new interval
+            dkyCurrentIndex = (dkyCurrentIndex + 1) % dkyNewsKeys.length; // Move to the next slide, wrapping around
+            updateDkyCarousel(); // Update carousel visuals
+        }, 5000); // Change slide every 5 seconds
+    }
+
+    // Event listeners for navigation buttons
+    dkyNextBtn.addEventListener('click', () => { // Next button click
+        dkyCurrentIndex = (dkyCurrentIndex + 1) % dkyNewsKeys.length; // Move to next slide
+        updateDkyCarousel(); // Update visuals
+        startDkyInterval(); // Restart auto-play
+    });
+
+    dkyPrevBtn.addEventListener('click', () => { // Previous button click
+        dkyCurrentIndex = (dkyCurrentIndex - 1 + dkyNewsKeys.length) % dkyNewsKeys.length; // Move to previous slide, wrapping
+        updateDkyCarousel(); // Update visuals
+        startDkyInterval(); // Restart auto-play
+    });
+
+    // Event listeners for navigation dots
+    dkyDots.forEach((dot, index) => { // Loop through each dot
+        dot.addEventListener('click', () => { // Dot click
+            dkyCurrentIndex = index; // Set current slide to clicked dot's index
+            updateDkyCarousel(); // Update visuals
+            startDkyInterval(); // Restart auto-play
+        });
+    });
+
+    // Initial setup and language change handling
+    if (i18next.isInitialized) { // If i18next is already initialized
+        setupDkyCarousel(); // Setup carousel
+        startDkyInterval(); // Start auto-play
+    } else { // If i18next is not yet initialized
+        i18next.on('initialized', () => { // Wait for initialization event
+            setupDkyCarousel(); // Setup carousel
+            startDkyInterval(); // Start auto-play
+        });
+    }
+    // Update carousel when language changes
+    window.addEventListener('languageChanged', () => setupDkyCarousel());
+
+    // 3D Background for "Did You Know" section
+    function initDky3dBackground() {
+        const container = document.getElementById('dky-bg-container');
+        if (!container) return;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        container.appendChild(renderer.domElement);
+
+        const starCount = 2000;
+        const positions = new Float32Array(starCount * 3);
+        const starGeometry = new THREE.BufferGeometry();
+
+        for (let i = 0; i < starCount; i++) {
+            positions[i * 3 + 0] = (Math.random() - 0.5) * 15;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+        }
+
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xfde047, // A slightly lighter yellow
+            size: 0.025,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        camera.position.z = 3;
+
+        function animateDkyBg() {
+            requestAnimationFrame(animateDkyBg);
+            stars.rotation.x += 0.0001;
+            stars.rotation.y += 0.0002;
+            renderer.render(scene, camera);
+        }
+        animateDkyBg();
+
+        window.addEventListener('resize', () => {
+            if(container.offsetWidth > 0 && container.offsetHeight > 0) {
+                camera.aspect = container.offsetWidth / container.offsetHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+            }
+        });
+    }
+
+    // Floating AI Chatbot Widget (mock)
+    const chatbotBubble = document.getElementById('chatbot-bubble');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const closeChatbot = document.getElementById('closeChatbot');
+    const chatbotMessages = document.getElementById('chatbot-messages'); // Ensure this element exists
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotSend = document.getElementById('chatbot-send');
+    chatbotBubble.onclick = () => {
+      chatbotWindow.style.display = 'flex';
+      chatbotBubble.style.display = 'none';
+      chatbotInput.focus();
+    };
+    closeChatbot.onclick = () => {
+      chatbotWindow.classList.add('hidden');
+      chatbotBubble.style.display = 'flex';
+    };
+    function addMessage(text, from = 'user') {
+      const msg = document.createElement('div');
+      msg.className = from === 'user' ? 'text-right mb-2' : 'text-left mb-2';
+      msg.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${from === 'user' ? 'bg-yellow-400 text-black' : 'bg-gray-700 text-white'}">${text}</span>`;
+      chatbotMessages.appendChild(msg);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    function mockAIResponse(input) {
+      // Simple mock responses
+      if (input.toLowerCase().includes('labour')) return "Labour laws protect workers' rights and ensure fair treatment.";
+      if (input.toLowerCase().includes('corporate')) return "Corporate law governs company formation, management, and compliance.";
+      if (input.toLowerCase().includes('rights')) return "Human rights are fundamental rights available to all citizens.";
+      return "I'm your LegalAid AI assistant. Please ask a legal question!";
+    }
+    chatbotSend.onclick = () => {
+      const val = chatbotInput.value.trim();
+      if (val) {
+        addMessage(val, 'user');
+        setTimeout(() => {
+          addMessage(mockAIResponse(val), 'ai');
+        }, 700);
+        chatbotInput.value = '';
+      }
+    };
+    chatbotInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') chatbotSend.click();
+    });
+
+    // Hero Section Parallax Effect
+    const heroText = document.querySelector('#hero-section > div:first-child');
+    const hero3d = document.getElementById('3d-container');
+    window.addEventListener('mousemove', (e) => {
+        if (!heroText || !hero3d) return;
+        // Calculate movement based on cursor position from center
+        const x = (e.clientX - window.innerWidth / 2) / 35;
+        const y = (e.clientY - window.innerHeight / 2) / 35;
+        // Apply opposite transforms for parallax effect
+        heroText.style.transform = `translateX(${-x}px) translateY(${-y}px) translateZ(0)`;
+        hero3d.style.transform = `translateX(${x}px) translateY(${y}px) translateZ(0)`;
+    });
+  </script>
+  <script>
+    // --- Profile Dropdown Logic ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        const justLoggedIn = sessionStorage.getItem('justLoggedIn');
+        if (justLoggedIn) {
+            sessionStorage.removeItem('justLoggedIn');
+            // Brief delay to ensure session is established before fetching profile
+            await new Promise(resolve => setTimeout(resolve, 100)); 
+        }
+
+        try {
+            // Fetch logged-in user data from the server
+            const response = await fetch('/api/profile');
+            if (!response.ok) {
+                // If not logged in, redirect to the public home page
+                // Check if the response status is 401 (Unauthorized)
+                if (response.status === 401) { 
+                    console.log("Not logged in, redirecting to login page.");
+                    window.location.href = 'home.html';
+                }
+                // If the response is not ok for any other reason, also redirect.
+                // This handles cases where the server might be temporarily down.
+                return;
+            }
+            const loggedInUser = await response.json();
+
+            // Populate user info
+            document.getElementById('profile-name').textContent = loggedInUser.first_name;
+            document.getElementById('dropdown-name').textContent = `${loggedInUser.first_name} ${loggedInUser.last_name}`;
+            document.getElementById('dropdown-email').textContent = loggedInUser.email;
+
+            // Set dashboard link based on role
+            const dashboardLink = document.getElementById('dashboard-link');
+            if (loggedInUser.role === 'lawyer') {
+                dashboardLink.href = 'lawyersdashboard.html';
+            } else {
+                dashboardLink.href = 'userdashboard.html';
+            }
+
+            // Dropdown toggle functionality
+            const profileBtn = document.getElementById('profile-btn');
+            const profileMenu = document.getElementById('profile-menu');
+
+            profileBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                profileMenu.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+                    profileMenu.classList.add('hidden');
+                }
+            });
+
+            // Close dropdown with Escape key
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !profileMenu.classList.contains('hidden')) {
+                    profileMenu.classList.add('hidden');
+                }
+            });
+
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/logout');
+                // Redirect to home page after logout
+                window.location.href = 'home.html';
+            });
+
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            // If there's a network error fetching the profile, it's safer to redirect to the public home page.
+            window.location.href = 'home.html';
+        }
+    });
+
+    // Know Your Rights Accordion
+    document.querySelectorAll('.kyr-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const wasActive = card.classList.contains('active');
+        // Close all cards
+        document.querySelectorAll('.kyr-card').forEach(otherCard => {
+          otherCard.classList.remove('active');
+        });
+        // Toggle the clicked card
+        if (!wasActive) {
+          card.classList.add('active');
+        }
+      });
+    });
+  </script>
+  <script>
+    // Scroll-triggered animations
+    const observerOptions = {
+      root: null, // Use the viewport as the root
+      rootMargin: '0px',
+      threshold: 0.2 // Trigger when 20% of the element is visible
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target); // Animate only once
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

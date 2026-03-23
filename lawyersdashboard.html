@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ... existing head content ... -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lawyer Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: hsl(213, 64%, 52%); /* slate-200 */
+
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden; /* Prevent horizontal scroll during animations */
+    } 
+    .sidebar {
+      transition: width 0.3s ease-in-out;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6); /* slate-900 with opacity */
+      backdrop-filter: blur(12px);
+      border-radius: 1rem;
+      border: 1px solid rgba(51, 65, 85, 0.5); /* slate-700 */
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.4); /* cyan-400 */
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+    #bgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      z-index: -10;
+      width: 100%;
+      height: 100%;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .status-active { background-color: rgba(52, 211, 153, 0.1); color: #34d399; } /* green-400 */
+    .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; } /* amber-400 */
+    .status-closed { background-color: rgba(248, 113, 113, 0.1); color: #f87171; } /* red-400 */
+ 
+    /* Collapsed Sidebar Styles */
+    .sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .sidebar.collapsed .sidebar-text,
+    .sidebar.collapsed .sidebar-logo-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    } 
+    .sidebar .nav-link-text {
+      transition: opacity 0.2s ease, width 0.2s ease;
+    }
+    .sidebar .sidebar-logo-text {
+      transition: opacity 0.2s ease, width 0.2s ease;
+    }
+    main {
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    /* WhatsApp-like chat styles */
+    .chat-history { padding-bottom: 110px; } /* avoid overlap with input */
+    .message-row { display:flex; gap:8px; align-items:flex-end; margin-bottom:10px; }
+    .message-row.incoming { justify-content:flex-start; }
+    .message-row.outgoing { justify-content:flex-end; }
+    .avatar { width:36px; height:36px; border-radius:50%; flex-shrink:0; }
+    .message-bubble {
+      max-width:72%;
+      padding:10px 12px;
+      border-radius:18px;
+      line-height:1.2;
+      word-break:break-word;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .message-bubble.incoming { background: #1f2937; color: #e5e7eb; border-bottom-left-radius:4px; } /* dark incoming */
+    .message-bubble.outgoing { background: linear-gradient(90deg,#06b6d4,#0284c7); color:#fff; border-bottom-right-radius:4px; }
+    .message-meta { display:flex; gap:6px; align-items:center; margin-top:6px; font-size:11px; opacity:0.85; }
+    .message-time { color:rgba(255,255,255,0.85); font-size:11px; }
+    .message-status { color: rgba(255,255,255,0.85); font-size:12px; margin-left:4px; }
+    /* Make input stick to bottom visually */
+    .chat-input-bar { position: sticky; bottom: 0; background: rgba(15,23,42,0.6); padding: 12px; border-top: 1px solid rgba(71,85,105,0.6); z-index: 10; }
+    .chat-input-bar .form-input { padding-right: 3.5rem; }
+    /* smaller screens tweaks */
+    @media (max-width: 640px) {
+      .message-bubble { max-width: 80%; }
+    }
+  </style>
+</head>
+<body class="flex">
+
+  <!-- Background Animation -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar w-64 bg-slate-900/80 flex-shrink-0 flex flex-col justify-between min-h-screen border-r border-slate-800">
+    <div>
+      <div class="flex items-center h-16 mb-4 px-4">
+        <h1 class="text-2xl font-bold text-cyan-400 flex items-center gap-2 w-full justify-center">
+          <span>⚖️</span>
+          <span class="sidebar-logo-text">LegalPro</span>
+        </h1>
+      </div>
+      <nav class="flex flex-col gap-2 px-4">
+        <a href="#" id="dashboard-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg bg-cyan-500/10 text-cyan-300 font-semibold transition-colors group relative">
+          <i class="fas fa-tachometer-alt w-5 text-center"></i> <span class="nav-link-text">Dashboard</span>
+        </a>
+        <a href="#" id="my-cases-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative">
+          <i class="fas fa-briefcase w-5 text-center"></i> <span class="nav-link-text">My Cases</span>
+        </a>
+        <a href="#" id="messages-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative">
+          <i class="fas fa-envelope w-5 text-center"></i> <span class="nav-link-text">Messages</span>
+        </a>
+        <a href="#" id="profile-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative">
+          <i class="fas fa-user-circle w-5 text-center"></i> <span class="nav-link-text">Profile</span>
+        </a>
+      </nav>
+    </div>
+    <div class="border-t border-slate-800 pt-4 px-4 pb-4">
+      <a href="#" id="logout-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative">
+        <i class="fas fa-sign-out-alt w-5 text-center"></i> <span class="nav-link-text">Logout</span>
+      </a>
+      <button id="sidebar-toggle" class="w-full flex items-center gap-3 px-4 py-2 mt-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative">
+        <i id="toggle-icon" class="fas fa-chevron-left w-5 text-center transition-transform"></i> <span class="nav-link-text">Hide</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto relative">
+    
+    <button id="sidebar-show-btn" class="hidden fixed bottom-8 left-8 z-50 text-slate-300 hover:text-white px-4 py-2 rounded-lg bg-slate-800/80 backdrop-blur-sm shadow-lg transition-transform hover:scale-105 font-semibold">
+      Show
+    </button>
+    <!-- Top Bar -->
+    <div id="dashboard-view" class="p-8">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Dashboard</h1>
+          <p id="header-welcome-message" class="text-slate-400">Welcome back!</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-lg bg-slate-800/60 focus:ring-2 focus:ring-cyan-400 outline-none w-64 text-white transition-all duration-300 focus:w-72">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          </div>
+          <button class="relative text-slate-400 hover:text-white">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute -top-1 -right-1 bg-red-500 w-4 h-4 text-xs rounded-full flex items-center justify-center">3</span>
+          </button>
+          <div class="flex items-center gap-3 cursor-pointer">
+            <img id="header-profile-img" src="https://i.pravatar.cc/40" class="w-10 h-10 rounded-full border-2 border-cyan-400" alt="Profile">
+            <div class="hidden md:block">
+              <p id="header-profile-name" class="font-semibold text-white">Advocate</p>
+              <p class="text-xs text-slate-400">Advocate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-cyan-500/10 to-transparent">
+          <i class="fas fa-briefcase text-3xl text-cyan-400"></i>
+          <div>
+            <h2 class="text-sm text-slate-400">Active Cases</h2>
+            <p id="stats-active-cases" class="text-3xl font-bold text-white">0</p>
+          </div>
+        </div>
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-green-500/10 to-transparent">
+          <i class="fas fa-check-circle text-3xl text-green-400"></i>
+          <div>
+            <h2 class="text-sm text-slate-400">Cases Won</h2>
+            <p id="stats-cases-won" class="text-3xl font-bold text-white">0</p> 
+          </div>
+        </div>
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-amber-500/10 to-transparent">
+          <i class="fas fa-calendar-alt text-3xl text-amber-400"></i>
+          <div>
+            <h2 class="text-sm text-slate-400">Upcoming Hearings</h2>
+            <p id="stats-upcoming-hearings" class="text-3xl font-bold text-white">0</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Recent Cases Table -->
+      <div class="glass-card overflow-x-auto rounded-xl p-4">
+        <h2 class="text-xl font-semibold mb-4">Recent Cases</h2>
+        <p class="text-slate-400 text-center py-8">You have no recent cases to display.</p>
+      </div>
+    </div>
+
+    <!-- View for My Cases (Initially Hidden) -->
+    <div id="my-cases-view" class="hidden p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-white">My Cases</h1>
+        <button onclick="openAddCaseModal()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-transform transform hover:scale-105">
+          <i class="fas fa-plus"></i> Add New Case
+        </button>
+      </div>
+      <div id="my-cases-container" class="glass-card overflow-x-auto rounded-xl p-4">
+        <!-- Cases table will be injected here by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Modal for Viewing/Editing Case Details -->
+    <div id="case-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700 max-h-[90vh] overflow-y-auto">
+        <button onclick="closeCaseDetailsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+        <!-- The form will be injected here, replacing the static content -->
+        <div id="case-details-content">
+          <!-- Case details will be injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Adding a New Case -->
+    <div id="add-case-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700">
+        <button onclick="closeAddCaseModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+        <h2 class="text-2xl font-bold text-cyan-400 mb-6">Add a New Case</h2>
+        <form id="add-case-form" class="space-y-4">
+          <div>
+            <label for="case-title" class="block text-sm font-medium text-slate-400 mb-1">Case Title</label>
+            <input type="text" id="case-title" name="case_title" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600" placeholder="e.g., Corporate Merger Dispute" required>
+          </div>
+          <div>
+            <label for="case-lawyer" class="block text-sm font-medium text-slate-400 mb-1">Assigned Lawyer</label>
+            <input type="text" id="case-lawyer" name="case_lawyer" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600" placeholder="e.g., John Doe">
+          </div>
+          <div>
+            <label for="case-description" class="block text-sm font-medium text-slate-400 mb-1">Case Description</label>
+            <textarea id="case-description" name="case_description" rows="3" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600" placeholder="Briefly describe the issue..."></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="case-status" class="block text-sm font-medium text-slate-400 mb-1">Status</label>
+              <select id="case-status" name="status" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600">
+                <option value="Pending" selected>Pending</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+            <div>
+              <label for="next-hearing" class="block text-sm font-medium text-slate-400 mb-1">Next Hearing Date</label>
+              <input type="date" id="next-hearing" name="nextHearing" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600">
+            </div>
+          </div>
+          <div>
+            <label for="case-documents" class="block text-sm font-medium text-slate-400 mb-1">Related Documents</label>
+            <input type="file" id="case-documents" name="documents" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+          </div>
+          <div class="text-right pt-4">
+            <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg">Save Case</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- View for Messages (Initially Hidden) -->
+    <div id="messages-view" class="hidden p-8 h-full">
+      <div class="glass-card rounded-xl flex h-[85vh] relative overflow-hidden">
+        <!-- Conversation List -->
+        <div id="conversation-list" class="w-full md:w-1/3 bg-slate-900/50 border-r border-slate-700 overflow-y-auto transition-transform duration-300 ease-in-out flex-shrink-0">
+          <div class="p-4 border-b border-slate-700">
+            <input type="text" placeholder="Search conversations..." class="w-full p-2 rounded-lg bg-slate-800 border border-slate-600 focus:ring-2 focus:ring-cyan-500 outline-none text-sm">
+          </div>
+          <!-- Conversations will be injected here -->
+          <div class="p-4 text-center text-slate-500">Loading conversations...</div>
+        </div>
+        <!-- Chat Area -->
+        <div id="chat-area" class="w-full md:w-2/3 flex flex-col bg-slate-800/70">
+          <!-- Chat Header -->
+          <div id="chat-header" class="flex-shrink-0 bg-slate-900/50 border-b border-slate-700 p-4 shadow-md flex items-center">
+             <button id="back-to-conversations" class="text-slate-300 hover:text-white mr-4 p-2 rounded-full hover:bg-slate-700 transition-colors md:hidden">
+                <i class="fas fa-arrow-left"></i>
+             </button>
+             <div id="client-info-content" class="flex items-center gap-4">
+                <!-- Client info will be injected here -->
+                <p class="text-slate-400">Select a conversation to start chatting.</p>
+             </div>
+          </div>
+
+          <!-- Chat History & Input Container -->
+          <div class="flex-grow flex flex-col overflow-hidden"> 
+            <!-- Chat History -->
+            <div id="chat-history" class="flex-grow p-6 overflow-y-auto space-y-6">
+              <!-- Messages will be injected here -->
+            </div>
+            <!-- Chat Input -->
+            <div class="chat-input-bar p-4 border-t border-slate-700 bg-slate-900/30 flex-shrink-0">
+              <div class="relative">
+                <!-- File preview area -->
+                <div id="lawyer-file-preview-container" class="hidden items-center gap-2 bg-slate-700/50 p-2 rounded-lg mb-2">
+                  <i class="fas fa-file-alt text-cyan-400"></i>
+                  <span id="lawyer-file-preview-name" class="text-sm text-slate-300 truncate"></span>
+                  <button id="lawyer-remove-file-btn" class="ml-auto text-slate-400 hover:text-red-400 p-1 rounded-full"><i class="fas fa-times"></i></button>
+                </div>
+                <!-- Main input area -->
+                <input type="file" id="lawyer-file-input" class="hidden">
+                <label for="lawyer-file-input" class="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-cyan-400 transition-colors cursor-pointer">
+                  <i class="fas fa-paperclip"></i>
+                </label>
+                <input type="text" id="lawyer-chat-input" placeholder="Type your message..." class="w-full p-3 pl-12 pr-12 rounded-lg form-input bg-slate-700/50 border-slate-600" />
+                <button id="lawyer-send-btn" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-cyan-500 hover:bg-slate-700 transition-colors" title="Send Message"><i class="fas fa-paper-plane"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View for the Profile Section (Initially Hidden) -->
+    <div id="profile-view" class="hidden p-8">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-white">My Profile</h1>
+          <p class="text-slate-400">Manage your professional and personal information.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Profile Picture and Verification -->
+        <div class="lg:col-span-1 space-y-8">
+          <div class="glass-card p-6 text-center">
+            <h2 class="text-xl font-semibold mb-4">Profile Picture</h2>
+            <img id="profile-section-img" src="https://i.pravatar.cc/150?u=lawyer" class="w-32 h-32 rounded-full mx-auto border-4 border-cyan-400 mb-4" alt="Profile Picture">
+          </div>
+
+          <!-- Profile Completion Prompt -->
+          <div class="glass-card p-4 text-center border-l-4 border-yellow-400/80 bg-yellow-900/10">
+            <p class="font-bold text-yellow-300 text-sm flex items-center justify-center gap-2">
+              <i class="fas fa-info-circle"></i> A complete profile helps you connect with more clients.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Forms -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- Professional Information -->
+          <div class="glass-card p-6">
+            <h2 class="text-xl font-semibold mb-4">Professional Information</h2>
+            <form id="profile-form" class="space-y-4">
+              <div>
+                <label for="avatar-upload" class="block text-sm font-medium text-slate-200 mb-1">Profile Picture</label>
+                <input type="file" id="avatar-upload" name="avatar" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+              </div>
+
+              <!-- Personal Details -->
+              <div>
+                <label for="full-name" class="block text-sm font-medium text-slate-200 mb-1">Full Name</label>
+                <input type="text" id="full-name" name="full_name" class="w-full p-2 rounded-lg form-input" placeholder="e.g., John Doe">
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="location" class="block text-sm font-medium text-slate-200 mb-1">Location (City, State)</label>
+                  <input type="text" id="location" name="location" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Mumbai, MH">
+                </div>
+                <div>
+                  <label for="languages" class="block text-sm font-medium text-slate-200 mb-1">Languages Spoken</label>
+                  <input type="text" id="languages" name="languages" class="w-full p-2 rounded-lg form-input" placeholder="e.g., English, Hindi, Spanish">
+                </div>
+              </div>
+
+              <!-- Professional Expertise -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="experience" class="block text-sm font-medium text-slate-200 mb-1">Years of Experience</label>
+                  <input type="number" id="experience" name="experience" class="w-full p-2 rounded-lg form-input" placeholder="e.g., 12">
+                </div>
+                <div>
+                  <label for="specialization" class="block text-sm font-medium text-slate-200 mb-1">Specialization</label>
+                  <select id="specialization" name="specialization" class="w-full p-2 rounded-lg form-input">
+                    <option>Civil Law</option>
+                    <option>Criminal Law</option>
+                    <option>Corporate Law</option>
+                    <option>Family Law</option>
+                    <option>Intellectual Property</option>
+                    <option>Tax Law</option>
+                    <option>Real Estate Law</option>
+                    <option>Labor & Employment Law</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="consultation_fee" class="block text-sm font-medium text-slate-200 mb-1">Consultation Fee</label>
+                  <input type="number" id="consultation_fee" name="consultation_fee" class="w-full p-2 rounded-lg form-input" placeholder="e.g., 2500">
+                </div>
+                <div>
+                  <label for="availability_status" class="block text-sm font-medium text-slate-200 mb-1">Availability Status</label>
+                  <select id="availability_status" name="availability_status" class="w-full p-2 rounded-lg form-input">
+                    <option selected>Available</option>
+                    <option>Busy</option>
+                    <option>Offline</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label for="short_bio" class="block text-sm font-medium text-slate-200 mb-1">Short Bio</label>
+                <textarea id="short_bio" name="short_bio" rows="3" class="w-full p-2 rounded-lg form-input" placeholder="A brief summary of your expertise and approach..."></textarea>
+              </div>
+
+              <div class="text-right">
+                <button type="submit" id="save-profile-btn" class="btn-primary text-white font-bold py-2 px-4 rounded-lg">Save changes</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Client Visibility Toggle -->
+          <div class="glass-card p-6">
+            <h2 class="text-xl font-semibold mb-4">Client Visibility</h2>
+            <div class="flex items-center justify-between">
+              <p class="text-slate-300">Connect with clients</p>
+              <label for="connect-toggle" class="relative inline-flex items-center cursor-pointer">
+                <!-- The 'form' attribute links this input to the main profile form -->
+                <input type="checkbox" id="connect-toggle" name="connect_with_clients" form="profile-form" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-4 peer-focus:ring-cyan-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+              </label>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">
+              When turned on, your profile will be visible to potential clients on the "Find Lawyers" page.
+            </p>
+          </div>
+
+          <!-- Account Management -->
+          <div class="glass-card p-6 border-l-4 border-red-500/50">
+              <h2 class="text-xl font-bold mb-3 flex items-center gap-2 text-red-400">
+                  <i class="fas fa-exclamation-triangle"></i>Account Management
+              </h2>
+              <p class="text-slate-400 mb-6 text-sm">
+                  Deactivating will temporarily suspend your profile. Deleting is a permanent action and cannot be undone.
+              </p>
+              <div class="flex flex-col sm:flex-row gap-4">
+                 
+                  <button onclick="return confirm('Are you sure you want to permanently delete your account? This action cannot be undone.')" class="w-full flex-1 bg-red-600/90 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2">
+                      <i class="fas fa-trash-alt"></i>Delete Account
+                  </button>
+              </div>
+          </div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("bgCanvas");
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const starCount = 5000;
+    const positions = new Float32Array(starCount * 3);
+    const geometry = new THREE.BufferGeometry();
+
+    for (let i = 0; i < starCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 20;
+        positions[i3 + 1] = (Math.random() - 0.5) * 20;
+        positions[i3 + 2] = (Math.random() - 0.5) * 20;
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+        color: 0x22d3ee, // cyan-400
+        size: 0.015,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending
+    });
+
+    const stars = new THREE.Points(geometry, material);
+    scene.add(stars);
+
+    camera.position.z = 10;
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - window.innerWidth / 2) / 100;
+        mouseY = (event.clientY - window.innerHeight / 2) / 100;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Parallax effect
+      camera.position.x += (mouseX - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      // Slow rotation
+      stars.rotation.x += 0.0001;
+      stars.rotation.y += 0.0002;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Sidebar Toggle Functionality
+    const sidebar = document.getElementById('sidebar');
+    const toggleButton = document.getElementById('sidebar-toggle');
+    const showButton = document.getElementById('sidebar-show-btn');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const navLinkTexts = document.querySelectorAll('.nav-link-text');
+    const logoText = document.querySelector('.sidebar-logo-text');
+    const mainContent = document.querySelector('main');
+
+    function setSidebarState(collapsed) {
+      if (collapsed) {
+        sidebar.classList.add('collapsed');
+        showButton.classList.remove('hidden');
+        localStorage.setItem('sidebarCollapsed', 'true');
+      } else {
+        sidebar.classList.remove('collapsed');
+        showButton.classList.add('hidden');
+        localStorage.setItem('sidebarCollapsed', 'false');
+      }
+    }
+
+    toggleButton.addEventListener('click', () => {
+      setSidebarState(true);
+    });
+
+    showButton.addEventListener('click', () => {
+      setSidebarState(false);
+    });
+
+    // Check localStorage on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- NEW: Chat polling state + helpers (must be declared before switchView) ---
+      let chatPollingInterval = null;
+      let currentMessageCount = 0;
+
+      function startChatPolling() {
+        if (chatPollingInterval) clearInterval(chatPollingInterval);
+        chatPollingInterval = setInterval(async () => {
+          try {
+            const resp = await fetch('http://127.0.0.1:5000/api/chat/history');
+            if (!resp.ok) return;
+            const messages = await resp.json();
+            if (messages.length !== currentMessageCount) {
+              currentMessageCount = messages.length;
+              if (currentChatClientId || currentChatClientName) {
+                try { await renderLawyerChatHistory(); } catch (e) { console.error('refresh open chat failed', e); }
+              }
+            }
+          } catch (err) {
+            console.error('Chat polling failed:', err);
+          }
+        }, 3000);
+      }
+
+      function stopChatPolling() {
+        if (chatPollingInterval) {
+          clearInterval(chatPollingInterval);
+          chatPollingInterval = null;
+        }
+      }
+
+      const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      // Apply initial state without transition on load
+      sidebar.style.transition = 'none';
+      mainContent.style.transition = 'none';
+      if (isCollapsed) {
+        setSidebarState(true);
+      }
+      // Re-enable transitions after initial load
+      setTimeout(() => {
+        sidebar.style.transition = 'width 0.3s ease-in-out';
+        mainContent.style.transition = 'margin-left 0.3s ease-in-out';
+      }, 10);
+
+      function switchView(viewId) {
+        currentActiveView = viewId;
+        // Ensure the lawyer's name is loaded before switching to messages
+        if (!currentLawyer.name || currentLawyer.name === 'Advocate') loadProfileData();
+
+        // Hide all views
+        Object.values(views).forEach(view => {
+          if (view) view.classList.add('hidden');
+        });
+
+        // Show the selected view
+        const activeView = views[viewId];
+        if (activeView) {
+          activeView.classList.remove('hidden');
+        }
+
+        // If switching to profile view, load the data
+        if (viewId === 'profile-link') {
+            loadProfileData();
+        }
+
+        // If switching to messages view, render the conversations
+        if (viewId === 'messages-link') {
+            if (!currentChatClientId && !currentChatClientName) {
+                renderMessagesView();
+            }
+        }
+
+        // If switching to my cases view, render the cases
+        if (viewId === 'my-cases-link') {
+            renderMyCasesView();
+        }
+        // If switching to dashboard view, update stats
+        if (viewId === 'dashboard-link') {
+            if (typeof updateDashboardStats === 'function') updateDashboardStats();
+        }
+
+        // --- FIX: Start polling when switching to messages view ---
+        if (viewId === 'messages-link') {
+            startChatPolling();
+        }
+
+        if (viewId !== 'messages-link' && chatPollingInterval) {
+            stopChatPolling();
+        }
+
+
+        // Update active link style
+        navLinks.forEach(link => {
+          link.classList.remove('bg-cyan-500/10', 'text-cyan-300', 'font-semibold');
+          if (link.id === viewId) {
+            link.classList.add('bg-cyan-500/10', 'text-cyan-300', 'font-semibold');
+          }
+        });
+      }
+
+      // --- View Toggling Logic ---
+      const dashboardView = document.getElementById('dashboard-view');
+      const profileView = document.getElementById('profile-view');
+      const profileForm = document.getElementById('profile-form');
+      const profileImage = document.getElementById('profile-section-img');
+      const messagesView = document.getElementById('messages-view');
+      const navLinks = document.querySelectorAll('.nav-link');
+      const myCasesView = document.getElementById('my-cases-view');
+      
+      const views = {
+        'dashboard-link': dashboardView,
+        'profile-link': profileView,
+        'my-cases-link': myCasesView,
+        'messages-link': messagesView,
+      };
+
+      // Attach click handlers to sidebar links so switchView() is invoked
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = e.currentTarget.id;
+          if (views[targetId]) switchView(targetId);
+        });
+      });
+
+      // Logout functionality
+      document.getElementById('logout-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'login.html';
+      });
+      
+      // --- Case Management Logic (Copied from userdashboard) ---
+      async function renderMyCasesView() {
+          const container = document.getElementById('my-cases-container');
+          let allCases = [];
+
+          try {
+              const response = await fetch('http://127.0.0.1:5000/api/lawyer/cases');
+              if (!response.ok) throw new Error('Failed to load cases');
+              allCases = await response.json();
+          } catch (error) {
+              console.error("Error fetching cases:", error);
+              container.innerHTML = `<p class="text-red-400 text-center py-8">Could not load case information.</p>`;
+              return;
+          }
+
+          if (allCases.length === 0) {
+              container.innerHTML = `<p class="text-slate-400 text-center py-8">You have no active or past cases.</p>`;
+              return;
+          }
+
+          const statusClasses = {
+              'Active': 'status-active',
+              'Pending': 'status-pending',
+              'Closed': 'status-closed',
+              'On Hold': 'status-pending' // Using pending style for On Hold
+          };
+
+          const tableHTML = `
+              <table class="w-full text-left">
+                  <thead><tr class="text-slate-400 border-b border-slate-700">
+                      <th class="px-4 py-3 font-semibold">Case Title</th><th class="px-4 py-3 font-semibold">Assigned Lawyer</th>
+                      <th class="px-4 py-3 font-semibold">Status</th><th class="px-4 py-3 font-semibold">Next Hearing</th>
+                      <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                  </tr></thead>
+                  <tbody>${allCases.map(caseItem => `
+                      <tr class="border-b border-slate-800 hover:bg-slate-800/40">
+                          <td class="px-4 py-4 font-semibold text-white">${caseItem.title}<div class="text-xs text-slate-500 font-normal">ID: ${caseItem.caseId}</div></td>
+                          <td class="px-4 py-4">${caseItem.lawyer}</td>
+                          <td class="px-4 py-4"><span class="status-badge ${statusClasses[caseItem.status] || 'status-pending'}">${caseItem.status}</span></td>
+                          <td class="px-4 py-4">${caseItem.nextHearing || 'N/A'}</td>
+                          <td class="px-4 py-4 text-center"><button onclick="openCaseDetailsModal('${caseItem.caseId}')" class="text-cyan-400 hover:underline text-sm">View Details</button></td>
+                      </tr>`).join('')}</tbody></table>`;
+          container.innerHTML = tableHTML;
+      }
+
+      async function openCaseDetailsModal(caseId) {
+          const response = await fetch('http://127.0.0.1:5000/api/lawyer/cases');
+          const allCases = await response.json();
+          const caseItem = allCases.find(c => c.caseId === caseId);
+          if (!caseItem) return;
+
+          const modal = document.getElementById('case-details-modal');
+          const content = document.getElementById('case-details-content');
+          const statuses = ['Pending', 'Active', 'On Hold', 'Closed'];
+
+          content.innerHTML = `
+              <form id="update-case-form" class="space-y-4">
+                  <input type="hidden" name="caseId" value="${caseItem.caseId}">
+                  <h2 class="text-2xl font-bold text-cyan-400 mb-1">Edit Case Details</h2>
+                  <p class="text-sm text-slate-500 mb-6">Case ID: ${caseItem.caseId}</p>
+                  <div>
+                      <label for="edit-case-title" class="block text-sm font-medium text-slate-400 mb-1">Case Title</label>
+                      <input type="text" id="edit-case-title" name="title" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600" value="${caseItem.title}" required>
+                  </div>
+                  <div>
+                      <label for="edit-case-description" class="block text-sm font-medium text-slate-400 mb-1">Case Description</label>
+                      <textarea id="edit-case-description" name="description" rows="3" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600">${caseItem.description}</textarea>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                          <label for="edit-case-status" class="block text-sm font-medium text-slate-400 mb-1">Status</label>
+                          <select id="edit-case-status" name="status" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600">
+                              ${statuses.map(s => `<option value="${s}" ${caseItem.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                          </select>
+                      </div>
+                      <div>
+                          <label for="edit-next-hearing" class="block text-sm font-medium text-slate-400 mb-1">Next Hearing Date</label>
+                          <input type="date" id="edit-next-hearing" name="nextHearing" class="w-full p-2 rounded-lg form-input bg-slate-700 border-slate-600" value="${caseItem.nextHearing || ''}">
+                      </div>
+                  </div>
+                  <div>
+                      <h4 class="font-semibold text-lg text-white mt-4 mb-2">Case Documents</h4>
+                      <ul class="space-y-2 mb-4">${caseItem.documents.length > 0 ? caseItem.documents.map(doc => `
+                          <li class="flex items-center justify-between bg-slate-700/50 p-3 rounded-lg">
+                              <span class="flex items-center gap-2 text-slate-300"><i class="fas fa-file-alt text-cyan-400"></i> ${doc.name}</span>
+                              <a href="http://127.0.0.1:5000/${doc.url}" target="_blank" class="text-cyan-400 hover:underline text-sm font-semibold">View Document</a>
+                          </li>`).join('') : '<p class="text-slate-500 text-sm">No documents uploaded yet.</p>'}
+                  </ul>
+                  <label for="edit-case-documents" class="block text-sm font-medium text-slate-400 mb-1">Upload New Documents</label>
+                  <input type="file" id="edit-case-documents" name="documents" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+              </div>
+              <div class="text-right pt-4">
+                  <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg">Save Changes</button>
+              </div>
+          </form>
+        `;
+
+        modal.classList.remove('hidden');
+        modal.querySelector('.bg-slate-800').classList.remove('scale-95');
+        document.getElementById('update-case-form').addEventListener('submit', handleUpdateCaseSubmit);
+      }
+
+      function closeCaseDetailsModal() {
+          const modal = document.getElementById('case-details-modal');
+          modal.querySelector('.bg-slate-800').classList.add('scale-95');
+          modal.classList.add('hidden');
+      }
+
+      function openAddCaseModal() {
+          const modal = document.getElementById('add-case-modal');
+          modal.classList.remove('hidden');
+          modal.querySelector('.bg-slate-800').classList.remove('scale-95');
+      }
+
+      function closeAddCaseModal() {
+          const modal = document.getElementById('add-case-modal');
+          modal.querySelector('.bg-slate-800').classList.add('scale-95');
+          modal.classList.add('hidden');
+          document.getElementById('add-case-form').reset();
+      }
+
+      async function handleAddCaseSubmit(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          try {
+            const response = await fetch('http://127.0.0.1:5000/api/lawyer/cases', {
+                  method: 'POST',
+                  body: formData
+              });
+
+              if (response.ok) {
+                  await renderMyCasesView();
+                  alert('New case added successfully!');
+                  closeAddCaseModal();
+              } else {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Server responded with an error.');
+              }
+          } catch (error) {
+              console.error('Error adding new case:', error);
+              alert('An error occurred while adding the case. Please try again.');
+          }
+      }
+      
+      async function handleUpdateCaseSubmit(e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          try {
+              const response = await fetch('http://127.0.0.1:5000/api/lawyer/cases/update', {
+                  method: 'POST',
+                  body: formData
+              });
+
+              if (response.ok) {
+                  await renderMyCasesView();
+                  alert('Case updated successfully!');
+                  closeCaseDetailsModal();
+              } else {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Server responded with an error.');
+              }
+          } catch (error) {
+              console.error('Error updating case:', error);
+              alert(`An error occurred while updating the case. Error: ${error.message}`);
+          }
+      }
+
+      // --- Profile Data Logic ---
+      async function loadProfileData() {
+          try {
+              const response = await fetch('http://127.0.0.1:5000/api/lawyer/profile');
+              if (!response.ok) throw new Error('Failed to fetch profile');
+              const data = await response.json();
+
+              // Store lawyer name for message filtering
+              currentLawyer.name = data.full_name || 'Advocate';
+              currentLawyer.avatar_url = data.avatar_url || ''; // This was the missing piece
+
+              // --- NEW: Update Header Elements ---
+              document.getElementById('header-profile-name').textContent = data.full_name || 'Advocate';
+              document.getElementById('header-welcome-message').textContent = `Welcome back, ${data.full_name || 'Advocate'}!`;
+              document.getElementById('header-profile-img').src = data.avatar_url || 'https://i.pravatar.cc/40';
+              
+              // Populate form fields
+              document.getElementById('full-name').value = data.full_name || '';
+              document.getElementById('location').value = data.location || ''; 
+              document.getElementById('languages').value = data.languages || '';
+              document.getElementById('experience').value = data.experience || '';
+              document.getElementById('specialization').value = data.specialization || '';
+              document.getElementById('consultation_fee').value = data.consultation_fee || '';
+              document.getElementById('availability_status').value = data.availability_status || 'Available';
+              document.getElementById('short_bio').value = data.short_bio || '';
+              if (data.avatar_url) {
+                  profileImage.src = data.avatar_url;
+              }
+              // Set the toggle state
+              document.getElementById('connect-toggle').checked = data.connect_with_clients || false;
+          } catch (error) {
+              console.error("Could not load profile data:", error);
+          }
+      }
+              
+      profileForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          
+          try {
+              const response = await fetch('http://127.0.0.1:5000/api/lawyer/profile', {
+                  method: 'POST',
+                  body: formData // Browser sets Content-Type for FormData
+              });
+
+              if (response.ok) {
+                  alert('Profile saved successfully!');
+                  loadProfileData(); // Reload data to show changes (like new avatar)
+              } else {
+                  const error = await response.json();
+                  alert(`Error: ${error.error || 'Failed to save profile.'}`);
+              }
+          } catch (error) {
+              console.error("Error saving profile:", error);
+              alert('An error occurred while saving. Please check the console.');
+          }
+      });
+
+      async function renderUserMessagesView() {
+        await renderMessagesView();
+      }
+
+      async function renderMessagesView() {
+        // fetch profiles
+        try {
+            const profileResponse = await fetch('http://127.0.0.1:5000/api/all-profiles');
+            if (profileResponse.ok) allPublicProfiles = await profileResponse.json();
+        } catch (err) {
+            console.error("Failed to load user profiles:", err);
+        }
+
+        let allMessages = [];
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/history');
+            if (response.ok) allMessages = await response.json();
+        } catch (error) {
+            console.error("Failed to load chat history:", error);
+            document.getElementById('conversation-list').innerHTML = `<p class="p-4 text-center text-red-400">Could not load conversations.</p>`;
+            return;
+        }
+        currentMessageCount = allMessages.length;
+
+        // Helper extractors (handle sender as object OR string)
+        const getSenderName = (m) => {
+          if (!m) return null;
+          if (m.sender == null) return null;
+          return (typeof m.sender === 'object') ? (m.sender.name || m.sender.full_name || null) : String(m.sender);
+        };
+        const getSenderId = (m) => {
+          if (!m || typeof m.sender !== 'object') return null;
+          return m.sender.id ? String(m.sender.id) : null;
+        };
+
+        // Include any message that involves the current lawyer (sender or recipient), even if sender is string
+        const lawyerMessages = allMessages.filter(msg => {
+          const senderName = getSenderName(msg);
+          const recipientName = msg.recipient || msg.recipient_name || null;
+          const senderId = getSenderId(msg);
+          const recipientId = msg.recipient_id ? String(msg.recipient_id) : null;
+          return senderName === currentLawyer.name
+              || recipientName === currentLawyer.name
+              || (senderId && currentLawyer.identifier && senderId === String(currentLawyer.identifier))
+              || (recipientId && currentLawyer.identifier && recipientId === String(currentLawyer.identifier));
+        });
+
+        // Group by the "other" participant using robust keys (id / email / name)
+        const conversations = lawyerMessages.reduce((acc, msg) => {
+          const senderName = getSenderName(msg);
+          const senderId = getSenderId(msg);
+          const recipientName = msg.recipient || null;
+          const recipientId = msg.recipient_id ? String(msg.recipient_id) : null;
+          const isFromLawyer = (senderName === currentLawyer.name) || (senderId && currentLawyer.identifier && senderId === String(currentLawyer.identifier));
+
+          const otherKey = isFromLawyer
+            ? (recipientId || msg.recipient_email || recipientName)
+            : (senderId || (msg.sender && msg.sender.email) || senderName);
+
+          if (!otherKey) return acc;
+
+          const profile = allPublicProfiles.find(p =>
+            (p.id && String(p.id) === String(otherKey)) ||
+            (p.email && p.email === otherKey) ||
+            ((p.full_name || p.name) === otherKey)
+          ) || (isFromLawyer ? { name: recipientName, avatar_url: `https://i.pravatar.cc/40?u=${recipientName}` } : (typeof msg.sender === 'object' ? msg.sender : { name: senderName }));
+
+          if (!acc[otherKey]) acc[otherKey] = { clientKey: otherKey, client: profile, messages: [msg] };
+          else acc[otherKey].messages.push(msg);
+          return acc;
+        }, {});
+
+        const conversationValues = Object.values(conversations);
+        if (conversationValues.length === 0) {
+          document.getElementById('conversation-list').innerHTML = '<p class="p-4 text-center text-slate-500">No messages yet.</p>';
+          document.getElementById('chat-area').classList.add('hidden');
+          return;
+        }
+
+        conversationValues.forEach(c => { c.messages.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)); c.lastMessage = c.messages[c.messages.length-1]; });
+        conversationValues.sort((a,b) => new Date(b.lastMessage.timestamp) - new Date(a.lastMessage.timestamp));
+
+        // Auto-open first conversation if none is selected
+        if (conversationValues.length > 0 && !currentChatClientId && !currentChatClientName) {
+          const firstConvo = conversationValues[0];
+          currentChatClientId = firstConvo.clientKey;
+          currentChatClientName = firstConvo.client.full_name || firstConvo.client.name || String(firstConvo.clientKey);
+          document.getElementById('chat-area').classList.remove('hidden');
+          const clientAvatar = firstConvo.client.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(currentChatClientName)}`;
+          document.getElementById('client-info-content').innerHTML = `
+            <img src="${clientAvatar}" class="w-10 h-10 rounded-full mr-3" alt="${currentChatClientName}">
+            <div><h3 class="font-semibold text-white">${currentChatClientName}</h3><p class="text-xs text-slate-400">Active now</p></div>
+          `;
+          setTimeout(() => renderLawyerChatHistory(), 100);
+        }
+
+        // render with stable clientKey and display name (include data attributes)
+        document.getElementById('conversation-list').innerHTML = conversationValues.map(convo => {
+          const client = convo.client;
+          const displayName = client.full_name || client.name || String(convo.clientKey);
+          const lastMsg = convo.lastMessage || {};
+          const isActive = String(currentChatClientId || currentChatClientName) === String(convo.clientKey) || String(currentChatClientName) === displayName;
+          const safeId = String(convo.clientKey).replace(/'/g, "\\'");
+          const safeName = String(displayName).replace(/'/g, "\\'");
+          const lastText = lastMsg.text || (lastMsg.fileName ? `[file] ${lastMsg.fileName}` : '');
+          const time = lastMsg.timestamp ? new Date(lastMsg.timestamp.replace('Z', '')).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+
+          return `
+            <div data-client-id="${safeId}" data-client-name="${safeName}" onclick="openChat('${safeId}','${safeName}')" class="conversation-item flex items-center p-4 cursor-pointer border-b border-slate-800 transition-colors duration-200 ${isActive ? 'bg-cyan-500/10' : 'hover:bg-slate-800/60'}">
+              <img src="${client.avatar_url || 'https://i.pravatar.cc/40'}" class="w-10 h-10 rounded-full mr-3" alt="${displayName}">
+              <div class="flex-grow overflow-hidden">
+                <h3 class="font-semibold text-white truncate">${displayName}</h3>
+                <p class="text-sm text-slate-400 truncate">${lastText}</p>
+              </div>
+              <span class="text-xs text-slate-500 flex-shrink-0">${time}</span>
+            </div>
+          `;
+        }).join('');
+       }
+
+       async function renderLawyerChatHistory() {
+        if (!currentChatClientId && !currentChatClientName) return;
+        const chatHistory = document.getElementById('chat-history');
+        let allMessages = [];
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/chat/history');
+          if (response.ok) allMessages = await response.json();
+        } catch (err) {
+          console.error('Failed to load chat history:', err);
+          chatHistory.innerHTML = `<p class="text-center text-red-400">Could not load messages.</p>`;
+          return;
+        }
+        
+        const getName = m => (!m ? null : (typeof m.sender === 'object' ? (m.sender.name || m.sender.full_name) : String(m.sender)));
+        const getId = m => (m && typeof m.sender === 'object' && m.sender.id ? String(m.sender.id) : null);
+
+        const conversation = allMessages.filter(msg => {
+          const sName = getName(msg), rName = msg.recipient || null;
+          return (sName === currentChatClientName && rName === currentLawyer.name) || (sName === currentLawyer.name && rName === currentChatClientName);
+        });
+
+        chatHistory.innerHTML = conversation.map((msg, i) => {
+          const senderName = getName(msg);
+          const isLawyer = senderName === currentLawyer.name;
+          const clientProfile = allPublicProfiles.find(p => (String(p.id) === String(currentChatClientId)) || (p.email === currentChatClientId) || ((p.full_name || p.name) === currentChatClientName));
+          const clientAvatar = clientProfile?.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(currentChatClientName || currentChatClientId)}`;
+          const time = msg.timestamp ? new Date(msg.timestamp.replace('Z', '')).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+
+          // build message content (text + file preview)
+          let inner = '';
+          if (msg.text) inner += `<div class="mb-1">${msg.text}</div>`;
+          const fileUrl = msg.fileUrl || msg.file || '';
+          const fileName = msg.fileName || msg.file_name || '';
+          if (fileUrl) {
+            const full = fileUrl.startsWith('http') ? fileUrl : `http://127.0.0.1:5000/${String(fileUrl).replace(/^\/+/, '')}`;
+            if (/\.(jpg|jpeg|png|gif|webp)$/i.test(fileName)) inner += `<a href="${full}" target="_blank"><img src="${full}" class="rounded-lg max-w-xs"></a>`;
+            else inner += `<a href="${full}" target="_blank" class="flex items-center gap-2"><i class="fas fa-file-alt text-cyan-400"></i><span class="truncate">${fileName}</span></a>`;
+          }
+
+          return `
+            <div class="message-row ${isLawyer ? 'outgoing' : 'incoming'} group">
+              ${!isLawyer ? `<img class="avatar" src="${clientAvatar}" alt="avatar">` : ''}
+              <div class="message-bubble ${isLawyer ? 'outgoing' : 'incoming'}">
+                ${inner}
+                <div class="message-meta">
+                  <span class="message-time">${time}</span>
+                  ${isLawyer ? `<span class="message-status">✓✓</span>` : ''}
+                </div>
+              </div>
+              ${isLawyer ? (currentLawyer.avatar_url ? `<img class="avatar" src="${currentLawyer.avatar_url}" alt="you">` : '') : ''}
+              ${isLawyer && msg.id ? `<div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 ml-2"><button onclick="editLawyerMessage('${msg.id}')" class="text-slate-300 hover:text-cyan-400 bg-slate-700/50 hover:bg-slate-700 p-2 rounded-lg transition-colors" title="Edit message"><i class="fas fa-edit text-base"></i></button><button onclick="deleteLawyerMessage('${msg.id}')" class="text-slate-300 hover:text-red-400 bg-slate-700/50 hover:bg-slate-700 p-2 rounded-lg transition-colors" title="Delete message"><i class="fas fa-trash text-base"></i></button></div>` : ''}
+            </div>
+          `;
+        }).join('');
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+       }
+
+      // --- Global Functions for Modal and Case Management ---
+      // --- Chat Functions ---
+      async function openChat(clientId, clientName) {
+        currentChatClientId = clientId;
+        currentChatClientName = clientName;
+        document.getElementById('chat-area').classList.remove('hidden');
+        const clientProfile = allPublicProfiles.find(p => (String(p.id) === String(clientId)) || (p.email === clientId) || ((p.full_name || p.name) === clientName));
+        const clientAvatar = clientProfile?.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(clientName || clientId)}`;
+        document.getElementById('client-info-content').innerHTML = `
+          <img src="${clientAvatar}" class="w-10 h-10 rounded-full mr-3" alt="${clientName}">
+          <div><h3 class="font-semibold text-white">${clientName}</h3><p class="text-xs text-slate-400">Active now</p></div>
+        `;
+        await renderLawyerChatHistory();
+        if (currentActiveView !== 'messages-link') {
+          switchView('messages-link');
+        }
+      }
+
+      async function sendReply() {
+        const input = document.getElementById('lawyer-chat-input');
+        const fileInput = document.getElementById('lawyer-file-input');
+        const text = input.value.trim();
+        const file = fileInput.files[0];
+        if (!text && !file) return;
+        const formData = new FormData();
+        formData.append('sender_name', currentLawyer.name);
+        formData.append('sender_avatar_url', currentLawyer.avatar_url || '');
+        formData.append('recipient', currentChatClientName || currentChatClientId);
+        if (text) formData.append('text', text);
+        if (file) formData.append('file', file);
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/chat/send', { method: 'POST', body: formData });
+          if (response.ok) { input.value = ''; fileInput.value = ''; document.getElementById('lawyer-file-preview-container').classList.add('hidden'); await renderLawyerChatHistory(); }
+        } catch (err) { console.error('Failed to send message:', err); }
+      }
+
+      function openClientDetailsModal(clientId) {
+        openChat(clientId, clientId);
+      }
+
+      function closeClientDetailsModal() {}
+
+      // Attach event listeners
+      document.getElementById('lawyer-send-btn').addEventListener('click', sendReply);
+      document.getElementById('lawyer-chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendReply(); });
+      document.getElementById('lawyer-file-input').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          document.getElementById('lawyer-file-preview-name').textContent = file.name;
+          document.getElementById('lawyer-file-preview-container').classList.remove('hidden');
+          document.getElementById('lawyer-file-preview-container').classList.add('flex');
+        }
+      });
+      document.getElementById('lawyer-remove-file-btn').addEventListener('click', function() {
+        document.getElementById('lawyer-file-input').value = '';
+        document.getElementById('lawyer-file-preview-container').classList.add('hidden');
+        document.getElementById('lawyer-file-preview-container').classList.remove('flex');
+      });
+
+      window.openCaseDetailsModal = openCaseDetailsModal;
+      window.closeCaseDetailsModal = closeCaseDetailsModal;
+      window.openAddCaseModal = openAddCaseModal;
+      window.closeAddCaseModal = closeAddCaseModal;
+      window.handleAddCaseSubmit = handleAddCaseSubmit;
+      async function editLawyerMessage(msgId) {
+        const newText = prompt("Edit your message:");
+        if (!newText || !newText.trim()) return;
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/chat/edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: msgId, text: newText.trim() })
+          });
+          if (response.ok) await renderLawyerChatHistory();
+        } catch (error) {
+          console.error('Error editing message:', error);
+        }
+      }
+
+      async function deleteLawyerMessage(msgId) {
+        if (!confirm("Delete this message?")) return;
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/chat/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: msgId })
+          });
+          if (response.ok) await renderLawyerChatHistory();
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }
+
+      window.openChat = openChat;
+      window.sendReply = sendReply;
+      window.openClientDetailsModal = openClientDetailsModal;
+      window.closeClientDetailsModal = closeClientDetailsModal;
+      window.editLawyerMessage = editLawyerMessage;
+      window.deleteLawyerMessage = deleteLawyerMessage;
+
+      // Load profile data on initial page load to update the header
+      loadProfileData();
+
+      // Attach form submit listener for adding cases
+      document.getElementById('add-case-form').addEventListener('submit', handleAddCaseSubmit);
+
+      // Ensure an initial active view is set
+      switchView('dashboard-link');
+    });
+
+    // Global variables for chat state
+    let currentLawyer = { name: 'Advocate', avatar_url: '', identifier: null };
+    let currentChatClientId = null;
+    let currentChatClientName = null;
+    let allPublicProfiles = []; // To store all user and lawyer profiles
+    let currentActiveView = 'dashboard-link'; 
+  </script>
+</body>
+</html>

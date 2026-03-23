@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Scenario Simulators | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        purple: {
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Simulator Card Specifics */
+        .simulator-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+            cursor: pointer;
+        }
+        .simulator-card:hover {
+            box-shadow: 0 12px 25px rgba(167, 139, 250, 0.25); /* Purple glow */
+            transform: translateY(-4px);
+            border-color: #a78bfa;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+        .start-btn { 
+            background: #8b5cf6; /* Purple */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+        }
+        .start-btn:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions */
+        .bg-purple { background-color: #8b5cf6; } 
+        .bg-teal { background-color: #0d9488; } 
+        .bg-red { background-color: #dc2626; } 
+
+        /* Modal Styles */
+        #simulatorModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 30px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            border: 2px solid #a78bfa;
+        }
+        #simulatorModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Simulator specific styling */
+        .scenario-text {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .decision-button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #334155;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: left;
+        }
+        .decision-button:hover {
+            background: #475569;
+        }
+        .feedback-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        .feedback-correct {
+            background: #10b98120;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        .feedback-incorrect {
+            background: #dc262620;
+            color: #dc2626;
+            border: 1px solid #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-purple-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-route"></i></div>
+                <h1 class="hero-title text-white">Choose Your Legal <span>Scenario</span></h1>
+                <p class="hero-subtitle">
+                    Test your legal intuition through immersive, interactive decision trees. See how different actions lead to different legal outcomes.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Simulators -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Decision Point <span>Simulations</span></h2>
+                <div class="download-grid" id="simulatorContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Need Real Legal Advice?</h2>
+                    <p class="text-slate-400 mb-8">Our simulators are for education only. For your specific case, connect directly with a verified legal expert.</p>
+                    <a href="findlawyers.html" class="start-btn !bg-gold-600 hover:!bg-gold-500 text-white">
+                        <i class="fas fa-user-tie"></i> Find a Verified Lawyer
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This tool is for educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <!-- Simulator Modal HTML -->
+    <div id="simulatorModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-2xl font-serif font-bold text-purple-400"></h3>
+                <button onclick="closeSimulatorModal()" class="text-xl text-slate-500 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Dynamic content area -->
+            <div id="simulatorStage" class="space-y-4">
+                <p class="scenario-text" id="scenarioText"></p>
+                <div id="decisionButtons" class="space-y-2">
+                    <!-- Decision buttons injected here -->
+                </div>
+                <div id="feedback" class="hidden">
+                    <!-- Feedback injected here -->
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-6">
+                 <button id="restartButton" onclick="startScenario(currentScenarioId)" class="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-bold hidden">
+                    <i class="fas fa-redo mr-2"></i> Restart
+                </button>
+                <button id="closeButton" onclick="closeSimulatorModal()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold ml-auto">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- Global State ---
+    let currentScenarioId = null;
+    let currentStage = 0;
+    
+    // --- Scenario Data ---
+    const SCENARIOS = {
+        "tenant_eviction": {
+            title: "Tenant Eviction: When Rent is Overdue",
+            icon: "fa-house-damage", color: "bg-red", 
+            desc: "Your tenant hasn't paid rent for three months. Navigate the mandatory legal steps to legally reclaim your property.",
+            stages: [
+                {
+                    text: "Stage 1/1: Your tenant has defaulted on rent for 3 months. You want them out immediately. What is your first legal action?",
+                    options: [
+                        { text: "Option A: Change the lock immediately while they are away.", next: 1, correct: false },
+                        { text: "Option B: Hire a lawyer and issue a formal Legal Notice to Vacate/Demand Payment.", next: 1, correct: true },
+                        { text: "Option C: Call the police to forcefully remove the tenant.", next: 1, correct: false }
+                    ],
+                    feedback: [
+                        { 
+                            text: "Incorrect. Changing locks is illegal and constitutes unlawful dispossession. The tenant can sue you for breach of peace and illegal eviction. You must follow the due process of law. [Image of tenant eviction notice flow chart]", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Correct. The first mandatory step is serving a legal notice (Section 106, Transfer of Property Act) giving the tenant a defined period (usually 15 days or 30 days, depending on the lease type) to either pay the arrears or vacate.", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Incorrect. Police intervention for eviction is usually only permitted after a formal court order (Eviction Decree). This action is premature and ineffective. ", 
+                            isFinal: true 
+                        }
+                    ]
+                }
+            ]
+        },
+        "digital_contract": {
+            title: "Digital Contract Dispute: Breach of Service",
+            icon: "fa-laptop-code", color: "bg-teal", 
+            desc: "A developer failed to deliver key features after being paid 70% for a website. Learn the right steps to terminate the contract and recover your payment.",
+            stages: [
+                 {
+                    text: "Stage 1/1: You paid a developer ₹70,000 but the promised website features were not delivered by the deadline. You decide to terminate the contract. What action is crucial to validate your termination?",
+                    options: [
+                        { text: "Option A: Send an email stating the contract is terminated and demand a refund.", next: 1, correct: false },
+                        { text: "Option B: Send a formal communication clearly stating the 'Breach of Contract' and demanding rectification or compensation within a reasonable time (e.g., 7 days).", next: 1, correct: true },
+                        { text: "Option C: Post a negative review on social media to pressure the developer.", next: 1, correct: false }
+                    ],
+                    feedback: [
+                        { 
+                            text: "Incorrect. While email works, a formal notice detailing the breach (breach of warranty/time being of the essence) is legally necessary to lay the foundation for a suit for damages (Sec. 73, Contract Act).", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Correct. Clear written notice establishing the default and demanding a remedy is essential. This converts the issue into a 'Cause of Action' for later legal proceedings if they fail to comply. ", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Incorrect. While tempting, social media pressure has no legal standing and could invite a defamation suit if claims are exaggerated. Focus on documented formal communication.", 
+                            isFinal: true 
+                        }
+                    ]
+                }
+            ]
+        },
+        "traffic_accident": {
+            title: "Minor Road Accident: Documentation Steps",
+            icon: "fa-car-crash", color: "bg-blue", 
+            desc: "You were involved in a minor traffic accident causing property damage. What documentation is most crucial for a successful MACT claim later?",
+             stages: [
+                 {
+                    text: "Stage 1/1: You are involved in a minor fender-bender. The other driver admits fault but wants to settle privately. What is the single most important legal document you must obtain immediately?",
+                    options: [
+                        { text: "Option A: A signed admission of guilt from the other driver.", next: 1, correct: false },
+                        { text: "Option B: File a First Information Report (FIR) or, at least, a General Diary (GD) entry at the nearest police station.", next: 1, correct: true },
+                        { text: "Option C: Take photographs of the damage and exchange insurance details.", next: 1, correct: false }
+                    ],
+                    feedback: [
+                        { 
+                            text: "Incorrect. While useful, a private signed admission can be easily retracted in court. You need official police documentation.", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Correct. The FIR/GD/Accident Report is mandatory evidence for the insurance company and the MACT Tribunal, as it legally establishes the incident's occurrence and primary facts. ", 
+                            isFinal: true 
+                        },
+                        { 
+                            text: "Incorrect. Photos and insurance details are necessary, but the official police record (FIR/GD) is the primary document required to validate any future compensation claim.", 
+                            isFinal: true 
+                        }
+                    ]
+                }
+            ]
+        },
+        "cheque_bounce": {
+            title: "Cheque Bounce: Navigating the 30/15/30 Timeline",
+            icon: "fa-money-check-alt", color: "bg-purple", 
+            desc: "A client's cheque for ₹1.5 Lakh bounced due to 'Insufficient Funds'. Navigate the strict criminal legal deadlines.",
+            stages: [
+                {
+                    text: "Stage 1/3: You received the Cheque Return Memo from the bank today. What is the maximum deadline to send the formal Legal Demand Notice to the drawer?",
+                    options: [
+                        { text: "Option A: 60 days from receiving the return memo.", correct: false },
+                        { text: "Option B: 30 days from receiving the return memo.", correct: true },
+                        { text: "Option C: 15 days from receiving the return memo.", correct: false }
+                    ],
+                    feedback: [
+                        { text: "Incorrect. 60 days is too late. The law mandates strict adherence to timelines under Section 138 of the Negotiable Instruments Act. ", isFinal: true },
+                        { text: "Correct. The demand notice must be issued within 30 days of receiving the cheque return memo. The case proceeds to the next critical deadline.", isFinal: false },
+                        { text: "Incorrect. 15 days is the payment window after the notice is *received*, not the notice sending deadline.", isFinal: true }
+                    ]
+                },
+                {
+                    text: "Stage 2/3: You sent the notice, and the drawer received it 5 days ago but has not paid. What is the next key deadline you must observe?",
+                    options: [
+                        { text: "Option A: The drawer has 15 days from the date of receipt to pay before the cause of action arises.", correct: true },
+                        { text: "Option B: Wait 6 months, as per the Limitation Act.", correct: false }
+                    ],
+                    feedback: [
+                        { text: "Correct. The drawer has exactly 15 days (a 'grace period') from receiving the notice to clear the payment. If they fail, the criminal offence is deemed complete.", isFinal: false },
+                        { text: "Incorrect. You cannot wait 6 months; the entire process has strict, short timelines.", isFinal: true }
+                    ]
+                },
+                {
+                    text: "Stage 3/3: The 15-day payment window has now expired without payment. What is the final deadline to file the criminal complaint in the Magistrate's Court?",
+                    options: [
+                        { text: "Option A: 30 days from the expiry of the 15-day payment period.", correct: true },
+                        { text: "Option B: 60 days from the expiry of the 15-day payment period.", correct: false }
+                    ],
+                    feedback: [
+                        { text: "Congratulations! You correctly navigated the strict timeline. The complaint must be filed within 30 days of the end of the 15-day payment window. Your case is now legally actionable.", isFinal: true, success: true },
+                        { text: "Incorrect. 60 days is too long. If you miss the 30-day window, the court usually loses jurisdiction over the matter (though sometimes condonable).", isFinal: true, success: false }
+                    ]
+                }
+            ]
+        }
+    };
+
+    // --- Modal Control Functions ---
+    function renderScenarioCards() {
+        const container = document.getElementById('simulatorContainer');
+        if (!container) return;
+        
+        container.innerHTML = Object.entries(SCENARIOS).map(([id, c]) => `
+            <div id="${id}" class="simulator-card" onclick="openSimulatorModal('${id}')">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header">
+                        <div class="card-icon ${c.color} shadow-lg shadow-black/30">
+                            <i class="fas ${c.icon}"></i>
+                        </div>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="javascript:void(0)" class="start-btn">
+                    <i class="fas fa-play-circle mr-2"></i> Start Simulation
+                </a>
+            </div>
+        `).join('');
+    }
+
+    function openSimulatorModal(id) {
+        currentScenarioId = id;
+        document.getElementById('modalTitle').textContent = SCENARIOS[id].title;
+        
+        const modal = document.getElementById('simulatorModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('open'), 10);
+        
+        startScenario(id);
+    }
+
+    function closeSimulatorModal() {
+        const modal = document.getElementById('simulatorModal');
+        modal.classList.remove('open');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            currentScenarioId = null;
+        }, 400); 
+    }
+
+    function startScenario(id) {
+        currentStage = 0;
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('restartButton').classList.add('hidden');
+        renderStage(id, currentStage);
+    }
+
+    function renderStage(scenarioId, stageIndex) {
+        const scenario = SCENARIOS[scenarioId];
+        const stage = scenario.stages[stageIndex];
+
+        // Reset visibility for the new stage
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('decisionButtons').classList.remove('hidden');
+        
+        document.getElementById('scenarioText').innerHTML = stage.text;
+        
+        const decisionButtons = document.getElementById('decisionButtons');
+        decisionButtons.innerHTML = '';
+        
+        stage.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'decision-button';
+            button.textContent = option.text;
+            button.onclick = () => handleDecision(scenarioId, stageIndex, index);
+            decisionButtons.appendChild(button);
+        });
+    }
+
+    function handleDecision(scenarioId, stageIndex, decisionIndex) {
+        const scenario = SCENARIOS[scenarioId];
+        const stage = scenario.stages[stageIndex];
+        const feedbackEl = document.getElementById('feedback');
+        
+        const isCorrect = stage.options[decisionIndex].correct;
+        const feedbackItem = stage.feedback[decisionIndex];
+        const feedbackText = feedbackItem.text;
+        const isFinal = feedbackItem.isFinal;
+
+        // Display feedback
+        feedbackEl.classList.remove('hidden');
+        feedbackEl.innerHTML = feedbackText;
+        feedbackEl.className = `feedback-box ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+        
+        // Disable decision buttons
+        document.getElementById('decisionButtons').classList.add('hidden');
+        
+        if (isFinal) {
+            document.getElementById('restartButton').classList.remove('hidden');
+        } else {
+            // Wait briefly, then advance to the next stage
+            setTimeout(() => {
+                currentStage++;
+                renderStage(scenarioId, currentStage);
+            }, 1800); // 1.8 second delay before advancing
+        }
+    }
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderScenarioCards);
+    document.getElementById('simulatorModal').addEventListener('click', (e) => {
+        if (e.target.id === 'simulatorModal') {
+            closeSimulatorModal();
+        }
+    });
+    </script>
+</body>
+</html>

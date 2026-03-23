@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurisdiction Finder | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        finder: {
+                            400: '#3b82f6', // Blue
+                            500: '#2563eb',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+
+        /* Input Styles */
+        .custom-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .custom-input:focus {
+            border-color: #fbbf24;
+        }
+        label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Result Box Styling */
+        .result-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-info {
+            color: #cbd5e1;
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 3px solid #fbbf24;
+        }
+        .result-info strong { color: white; }
+
+        /* Step Card Styling */
+        .step-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-finder-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Intro -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-finder-400/10 text-finder-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-finder-400/20">
+                    <i class="fas fa-location-arrow"></i> Critical Tool
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Legal Jurisdiction <span class="text-finder-400">Finder</span></h1>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Determine the correct court or legal forum to approach based on the nature and monetary value of your dispute (Section 15, CPC).
+                </p>
+            </div>
+
+            <!-- Finder Layout -->
+            <div class="grid lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Panel: Inputs -->
+                <div class="lg:col-span-7 glass-panel rounded-2xl p-6 md:p-8">
+                    <h3 class="text-xl text-white font-bold mb-6 border-b border-slate-700 pb-3">Dispute Parameters</h3>
+
+                    <div class="space-y-6">
+                        
+                        <div>
+                            <label for="disputeType">Select Dispute Type</label>
+                            <select id="disputeType" class="custom-input" onchange="findJurisdiction()">
+                                <option value="civil">General Civil Suit (Property/Contract)</option>
+                                <option value="consumer">Consumer Complaint (COPRA 2019)</option>
+                                <option value="mact">Motor Accident Claims (MACT)</option>
+                                <option value="family">Family Law (Divorce/Maintenance)</option>
+                                <option value="cheque">Cheque Bounce (Criminal - Sec 138)</option>
+                            </select>
+                        </div>
+
+                        <div id="monetaryInputGroup">
+                            <label for="monetaryValue">Monetary Value of Claim (₹)</label>
+                            <input type="number" id="monetaryValue" class="custom-input" placeholder="e.g. 1500000 (15 Lakhs)" oninput="findJurisdiction()">
+                        </div>
+
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                            <i class="fas fa-map-marker-alt text-gold-400 mr-2"></i>
+                            For **Territorial Jurisdiction** (location), you can generally file where the cause of action arose OR where the defendant resides/works.
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Panel: Result -->
+                <div class="lg:col-span-5">
+                    <div class="glass-panel rounded-2xl p-6 md:p-8" id="resultContainer">
+                        <h3 class="result-title text-finder-400"><i class="fas fa-crosshairs"></i> Jurisdiction Result</h3>
+                        
+                        <div class="result-box mt-4 space-y-3" id="resultOutput">
+                            <p class="text-slate-400">Select a dispute type and enter the monetary value to find the appropriate court or tribunal.</p>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="text-white font-bold mb-3">Understanding the Types:</h4>
+                            <div class="step-card">
+                                <p class="text-sm text-slate-400"><strong>Pecuniary Jurisdiction:</strong> Determined by the monetary value of the claim. This ensures cases are distributed correctly across District and High Courts.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- MACT Specific Instructions -->
+            <div id="mactNote" class="hidden mt-12 step-card lg:col-span-12">
+                <div class="result-title text-gold-400"><i class="fas fa-exclamation-triangle"></i> Note for MACT Claims</div>
+                <p class="text-slate-400">The MACT (Motor Accident Claims Tribunal) is a specific tribunal. Claims can be filed where the accident occurred, where the claimant resides, or where the defendant (owner/insurer) resides. **Monetary value is irrelevant** for MACT, as MACT has unlimited pecuniary jurisdiction.</p>
+            </div>
+
+            <!-- Cheque Note Specific Instructions -->
+            <div id="chequeNote" class="hidden mt-12 step-card lg:col-span-12">
+                <div class="result-title text-gold-400"><i class="fas fa-exclamation-triangle"></i> Note for Cheque Bounce Cases</div>
+                <p class="text-slate-400">Cheque bounce is a **Criminal Offense** (Sec 138 NI Act). The complaint must be filed in the Judicial Magistrate's court located where the **payee's bank branch** (where the cheque was presented) is situated.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Pecuniary Jurisdiction Data (Highly State-Dependent, using generalized estimates) ---
+        // Values in Lakhs (L)
+        const PECUNIARY_LIMITS = {
+            'civil': {
+                'Munsiff/Civil Judge': 5, // 5 Lakhs
+                'Civil Court Senior Division': 20, // 20 Lakhs
+                'District Court': 100, // 1 Crore
+                'High Court': 100 // Over 1 Crore (varies wildly by state/city)
+            },
+            'consumer': {
+                'District Commission': 100, // Up to 1 Crore
+                'State Commission': 1000, // 1 Cr to 10 Cr
+                'National Commission': 1000 // Over 10 Cr
+            }
+        };
+        
+        // --- 2. Main Logic ---
+
+        function findJurisdiction() {
+            const disputeType = document.getElementById('disputeType').value;
+            const valueLakhs = (parseFloat(document.getElementById('monetaryValue').value) || 0) / 100000;
+            const monetaryGroup = document.getElementById('monetaryInputGroup');
+
+            // Hide all notes initially
+            document.getElementById('mactNote').classList.add('hidden');
+            document.getElementById('chequeNote').classList.add('hidden');
+            
+            let outputHtml = '';
+
+            // Handle special cases first
+            if (disputeType === 'mact') {
+                monetaryGroup.classList.add('hidden');
+                document.getElementById('mactNote').classList.remove('hidden');
+                
+                outputHtml = `
+                    <p class="result-info">
+                        <strong>Jurisdiction:</strong> Motor Accident Claims Tribunal (MACT).
+                    </p>
+                    <p class="result-info">
+                        <strong>Pecuniary Limit:</strong> Unlimited. Monetary value is irrelevant.
+                    </p>
+                    <p class="result-info">
+                        <strong>Territorial Basis:</strong> Accident site, claimant's residence, or defendant's residence.
+                    </p>`;
+            } else if (disputeType === 'cheque') {
+                monetaryGroup.classList.add('hidden');
+                document.getElementById('chequeNote').classList.remove('hidden');
+
+                outputHtml = `
+                    <p class="result-info">
+                        <strong>Jurisdiction:</strong> Judicial Magistrate First Class (JMFC).
+                    </p>
+                    <p class="result-info">
+                        <strong>Pecuniary Limit:</strong> Irrelevant, as it's a criminal matter.
+                    </p>
+                    <p class="result-info">
+                        <strong>Territorial Basis:</strong> Where the payee's bank branch (presenting the cheque) is located.
+                    </p>`;
+            } else {
+                monetaryGroup.classList.remove('hidden');
+                if (valueLakhs === 0) {
+                    outputHtml = `<p class="text-slate-400">Please enter the claim value above to determine the court.</p>`;
+                } else if (disputeType === 'family') {
+                    // Family law (Divorce/Custody) is generally handled by Family Courts, regardless of monetary value.
+                    outputHtml = `
+                        <p class="result-info">
+                            <strong>Jurisdiction:</strong> Family Court.
+                        </p>
+                        <p class="result-info">
+                            <strong>Pecuniary Limit:</strong> Family Courts handle all matters related to marriage, divorce, and maintenance regardless of the amount.
+                        </p>
+                        <p class="result-info">
+                            <strong>Territorial Basis:</strong> Where the marriage was solemnized, where the parties last resided together, or where the petitioner/respondent currently resides (Sec 19, Family Courts Act).
+                        </p>`;
+                } else {
+                    outputHtml = determinePecuniaryJurisdiction(disputeType, valueLakhs);
+                }
+            }
+
+            document.getElementById('resultOutput').innerHTML = outputHtml;
+        }
+        
+        // --- 3. Pecuniary Logic ---
+        function determinePecuniaryJurisdiction(disputeType, valueLakhs) {
+            if (disputeType === 'consumer') {
+                if (valueLakhs <= PECUNIARY_LIMITS.consumer['District Commission']) {
+                    return getConsumerResult('District Commission', 'Up to ₹1 Crore');
+                } else if (valueLakhs <= PECUNIARY_LIMITS.consumer['State Commission']) {
+                    return getConsumerResult('State Commission', '₹1 Crore to ₹10 Crore');
+                } else {
+                    return getConsumerResult('National Commission', 'Above ₹10 Crore');
+                }
+            } else if (disputeType === 'civil') {
+                // Civil jurisdiction varies highly by state. This provides a generalized Tier System.
+                if (valueLakhs <= PECUNIARY_LIMITS.civil['Munsiff/Civil Judge']) {
+                     return getCivilResult('Munsiff/Civil Judge', `Up to ${PECUNIARY_LIMITS.civil['Munsiff/Civil Judge']} Lakhs`);
+                } else if (valueLakhs <= PECUNIARY_LIMITS.civil['Civil Court Senior Division']) {
+                    return getCivilResult('Civil Judge (Senior Division)', `Up to ${PECUNIARY_LIMITS.civil['Civil Court Senior Division']} Lakhs`);
+                } else if (valueLakhs <= PECUNIARY_LIMITS.civil['District Court']) {
+                    return getCivilResult('District Court', `Up to ${PECUNIARY_LIMITS.civil['District Court']} Lakhs (1 Crore)`);
+                } else {
+                    return getCivilResult('High Court / Commercial Court', `Over ${PECUNIARY_LIMITS.civil['District Court']} Lakhs`);
+                }
+            }
+            return `<p class="text-slate-400">Jurisdiction determination pending for selected type.</p>`;
+        }
+
+        function getConsumerResult(forum, limitText) {
+            return `
+                <p class="result-info">
+                    <strong>Legal Forum:</strong> ${forum}
+                </p>
+                <p class="result-info">
+                    <strong>Pecuniary Limit:</strong> ${limitText}
+                </p>
+                <p class="result-info">
+                    <strong>Territorial Basis:</strong> Where the opponent resides OR where the cause of action arose OR where the consumer resides.
+                </p>`;
+        }
+
+        function getCivilResult(forum, limitText) {
+            return `
+                <p class="result-info">
+                    <strong>Legal Forum:</strong> ${forum}
+                </p>
+                <p class="result-info">
+                    <strong>Pecuniary Limit (Estimated):</strong> ${limitText}
+                </p>
+                <p class="result-info">
+                    <strong>Territorial Basis:</strong> Where the defendant resides/works or where the property is located (if applicable).
+                </p>`;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            findJurisdiction();
+        });
+
+    </script>
+</body>
+</html>

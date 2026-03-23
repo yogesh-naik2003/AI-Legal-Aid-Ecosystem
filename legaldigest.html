@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal News Digest | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        news: {
+                            400: '#06b6d4', // Cyan
+                            500: '#0891b2',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* News Card Specifics */
+        .news-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+            cursor: pointer;
+        }
+        .news-card:hover {
+            box-shadow: 0 12px 25px rgba(6, 182, 212, 0.25); /* Cyan glow */
+            transform: translateY(-4px);
+            border-color: #06b6d4;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+        .read-btn { 
+            background: #06b6d4; /* News Cyan */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+        }
+        .read-btn:hover {
+            background: #0891b2;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions */
+        .bg-news { background-color: #06b6d4; } 
+        .bg-blue { background-color: #3b82f6; } 
+        .bg-red { background-color: #dc2626; } 
+
+        /* Modal Styles */
+        #newsModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 30px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            border: 2px solid #06b6d4;
+        }
+        #newsModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* News specific styling */
+        .summary-block {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #fbbf24;
+        }
+        .summary-block strong {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-news-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-news-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-newspaper"></i></div>
+                <h1 class="hero-title text-white">Legal News <span>Digest</span></h1>
+                <p class="hero-subtitle">
+                    Weekly summaries of crucial judgments, legislative updates, and regulatory changes in India, presented in plain, actionable language.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: News Digests -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Latest Updates <span>(This Week)</span></h2>
+                <div class="download-grid" id="newsContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">How Does This Affect Me?</h2>
+                    <p class="text-slate-400 mb-8">If you're unsure how a new ruling impacts your specific case, use our AI to analyze the implications.</p>
+                    <a href="askai.html" class="read-btn !bg-gold-600 hover:!bg-gold-500 text-white">
+                        <i class="fas fa-microchip"></i> Analyze the Impact
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This information is for general awareness only.</p>
+        </div>
+    </footer>
+    
+    <!-- News Modal HTML -->
+    <div id="newsModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-2xl font-serif font-bold text-news-400"></h3>
+                <button onclick="closeNewsModal()" class="text-xl text-slate-500 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Dynamic content area -->
+            <div id="modalContent" class="text-slate-400 mb-6 space-y-4">
+                <!-- News content dynamically injected here -->
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button onclick="closeNewsModal()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- News Data ---
+    const newsDigests = [
+        { 
+            id: "sc_cheque", icon: "fa-money-check-alt", title: "SC Ruling: Cheque Bounce Case Jurisdiction", date: "Nov 25, 2024", category: "Criminal/Banking", 
+            desc: "Supreme Court clarifies where a Section 138 complaint must be filed, reducing forum shopping.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Where to File a Cheque Bounce Case</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">Key Ruling:</strong> The SC ruled that the jurisdiction for a Section 138 NI Act case must be where the **branch of the payee (complainant) is located**, where the cheque was presented. This prevents litigants from choosing favorable jurisdictions far from the drawer's location.
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">Practical Effect:</strong> Debtors gain predictability, and creditors must file cases closer to home, simplifying proceedings but limiting strategic options.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: Supreme Court of India Judgment.</span>
+            `
+        },
+        { 
+            id: "epra_plastic", icon: "fa-leaf", title: "EPR for Plastic Packaging: Fines Begin", date: "Nov 22, 2024", category: "Environmental/Corporate",
+            desc: "CPCB initiates penalty regime against non-compliant manufacturers failing to meet Extended Producer Responsibility targets.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Increased Corporate Environmental Liability</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">Regulatory Action:</strong> The Central Pollution Control Board (CPCB) has started issuing significant Environmental Compensation (EC) fines against major FMCG companies and importers who failed to fulfill their mandated Extended Producer Responsibility (EPR) targets for plastic packaging waste.
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">Actionable:</strong> Businesses must immediately audit their waste collection targets and procurement of Plastic Credits to avoid steep penalties, which are calculated based on the volume of uncollected waste.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: Central Pollution Control Board (CPCB) Notifications.</span>
+            `
+        },
+        { 
+            id: "marital_rape", icon: "fa-user-friends", title: "Marital Rape Exception: Review by Delhi HC", date: "Nov 20, 2024", category: "Family/Criminal",
+            desc: "Delhi High Court bench begins hearing fresh petitions seeking to criminalize marital rape, highlighting conflicting precedents.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Potential Shift in Sexual Assault Law</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">Current Status:</strong> Currently, Section 375 of the IPC exempts a man from charges of rape if the victim is his wife and is over 18. This exception is under intense legal scrutiny globally and nationally.
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">What's Next:</strong> The outcome of these hearings could lead to a landmark judgment, potentially striking down the exception and criminalizing non-consensual sexual acts within marriage, dramatically altering Family and Criminal Law.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: Delhi High Court Hearings.</span>
+            `
+        },
+        {
+            id: "ibcrules", icon: "fa-lock", title: "NCLT clarifies IBC resolution plan timelines", date: "Nov 18, 2024", category: "Corporate/Insolvency",
+            desc: "New guidelines from NCLAT streamline the Corporate Insolvency Resolution Process (CIRP) timeline enforcement.",
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Faster Insolvency Resolution</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">Key Clarification:</strong> The National Company Law Appellate Tribunal (NCLAT) emphasized strict adherence to the 330-day maximum limit for the Corporate Insolvency Resolution Process (CIRP) under the IBC.
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">Practical Effect:</strong> This puts pressure on Resolution Professionals (RPs) and the Committee of Creditors (CoC) to finalize or reject resolution plans promptly, accelerating the exit process for distressed companies. [Image of Corporate Insolvency Resolution Process (CIRP) flow chart]
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: NCLAT Judgment.</span>
+            `
+        },
+        {
+            id: "trafficfines", icon: "fa-car", title: "State High Courts Uphold Enhanced Traffic Fines", date: "Nov 15, 2024", category: "Criminal/Traffic",
+            desc: "Judicial review confirms the validity and implementation of substantially increased fines under the MV Act (2019 Amendment).",
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Stricter Road Safety Enforcement</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">Judicial Review:</strong> Various High Courts dismissed challenges to the steep increase in traffic penalties implemented by the Motor Vehicles Act, 2019, confirming that these fines serve a vital public safety purpose.
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">Driver Awareness:</strong> Drivers must be highly cognizant of increased fines for offenses like drunk driving (up to ₹10,000) and dangerous driving. The courts are prioritizing the deterrent effect of these penalties.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: Multiple State High Court Judgments.</span>
+            `
+        },
+        {
+            id: "shareholders", icon: "fa-chart-pie", title: "SEBI Mandate on Shareholder Voting Transparency", date: "Nov 12, 2024", category: "Corporate/SEBI",
+            desc: "SEBI introduces new rules requiring stricter disclosure regarding proxy advisory firm influence on shareholder voting decisions.",
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Impact: Corporate Governance & Transparency</p>
+                <div class="summary-block">
+                    <strong class="block mb-1">New Rule:</strong> Listed companies must now disclose whether shareholder votes on key resolutions were influenced by recommendations from Proxy Advisory Firms (PAFs).
+                </div>
+                <div class="summary-block">
+                    <strong class="block mb-1">Investor Protection:</strong> This aims to protect small and institutional investors by providing clarity on the governance mechanisms and reducing opaque influences on major corporate decisions.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Source: Securities and Exchange Board of India (SEBI) Circular.</span>
+            `
+        }
+    ];
+
+    function renderNewsCards() {
+        const container = document.getElementById('newsContainer');
+        if (!container) return;
+        
+        container.innerHTML = newsDigests.map(c => `
+            <div id="${c.id}" class="news-card" onclick="openNewsModal('${c.id}')">
+                <div class="content-wrapper flex flex-col h-full">
+                    <p class="text-news-400 text-sm font-medium mb-1 uppercase tracking-wider">${c.category}</p>
+                    <h3 class="card-title-text">${c.title}</h3>
+                    <p class="card-desc">${c.desc}</p>
+                    <div class="mt-auto pt-3 flex justify-between items-center">
+                        <span class="text-xs text-slate-500 italic">${c.date}</span>
+                        <a href="javascript:void(0)" class="read-btn px-4 py-2 text-sm">
+                            Read Full Digest
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openNewsModal(id) {
+        const digest = newsDigests.find(g => g.id === id);
+        if (!digest) return;
+
+        document.getElementById('modalTitle').textContent = digest.title;
+        document.getElementById('modalContent').innerHTML = digest.content;
+        
+        const modal = document.getElementById('newsModal');
+        modal.style.display = 'flex';
+        // Delay adding the 'open' class for CSS transition effect
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function closeNewsModal() {
+        const modal = document.getElementById('newsModal');
+        modal.classList.remove('open');
+        // Delay hiding the modal until the transition finishes
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear content
+        }, 400); 
+    }
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('newsModal').addEventListener('click', (e) => {
+        if (e.target.id === 'newsModal') {
+            closeNewsModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderNewsCards);
+    </script>
+</body>
+</html>

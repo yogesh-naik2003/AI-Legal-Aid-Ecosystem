@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental & Pollution Norms | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        /* Custom style for key terms, replacing the old style */
+        .key-term-style { color: #fbbf24; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated, themed for Green/Cyan) -->
+        <!-- Top Left Green Glow -->
+        <div class="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-green-600/20 rounded-full blur-[100px] animate-float-slow mix-blend-screen"></div>
+        
+        <!-- Bottom Right Cyan/Blue Glow -->
+        <div class="absolute top-[40%] -right-[10%] w-[600px] h-[600px] bg-cyan-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Center Purple Glow (for depth) -->
+        <div class="absolute bottom-[10%] left-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <a href="#key-acts" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Pillars of Environmental Law</a>
+                        <a href="#waste-management" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Waste Management Rules</a>
+                        <a href="#ngt" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">The National Green Tribunal (NGT)</a>
+                        <a href="#penalties" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Penalties for Violation</a>
+                        <a href="#enforcement-trends" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Current Enforcement Trends</a>
+                        <a href="#citizen-role" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Citizen's Role & Remedies</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-green-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-green-500/30 shadow-lg shadow-green-500/10">
+                    <h4 class="text-white font-bold mb-2">Check Real-Time AQI</h4>
+                    <p class="text-xs text-slate-400 mb-4">Use the official CPCB SAMEER App to track air quality in major Indian cities immediately.</p>
+                    <a href="https://cpcb.nic.in/mobile_app_sameer/" target="_blank" class="block w-full text-center py-2 rounded-lg bg-green-600 hover:bg-green-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        <i class="fas fa-cloud mr-2"></i> Download SAMEER App
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-green-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Environmental Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Environmental & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-300">Pollution Control Norms</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    A guide to India's core environmental laws, waste management rules, and the legal avenues available to citizens for protecting the environment.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: Pillars of Environmental Law -->
+                <article id="key-acts" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Pillars of Environmental Law</h2>
+                        </div>
+                        <button onclick="copyLink('#key-acts')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">India's environmental jurisprudence is built upon several key acts that provide a framework for protection and regulation.</p>
+                    <ul class="space-y-4 text-slate-300">
+                        <li class="flex items-start gap-3"><i class="fas fa-landmark text-green-400 mt-1"></i><div><strong class="key-term-style">The Environment (Protection) Act, 1986:</strong> An 'umbrella' legislation that empowers the Central Government to take all necessary measures to protect and improve the environment.</div></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-water text-green-400 mt-1"></i><div><strong class="key-term-style">The Water (Prevention and Control of Pollution) Act, 1974:</strong> Establishes the Central and State Pollution Control Boards (CPCB & SPCBs) to prevent and control water pollution.</div></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-wind text-green-400 mt-1"></i><div><strong class="key-term-style">The Air (Prevention and Control of Pollution) Act, 1981:</strong> Empowers the Pollution Control Boards to set standards for air quality and regulate emissions from industrial plants and automobiles.</div></li>
+                    </ul>
+                </article>
+
+                <!-- Article 2: Waste Management Rules -->
+                <article id="waste-management" class="glass-panel rounded-2xl p-8 border-l-4 border-l-yellow-500 hover:border-l-yellow-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-recycle"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Waste Management Rules</h2>
+                        </div>
+                        <button onclick="copyLink('#waste-management')" class="text-slate-500 hover:text-yellow-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">Specific rules have been framed under the Environment (Protection) Act to manage different types of waste, placing responsibility on both producers and consumers.</p>
+                    <ol class="list-decimal list-inside space-y-3 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Solid Waste Management Rules, 2016:</strong> Mandates segregation of waste at source (wet, dry, domestic hazardous) and imposes duties on waste generators.</li>
+                        <li><strong class="text-slate-200">E-Waste (Management) Rules, 2016:</strong> Introduces the concept of <strong class="key-term-style">Extended Producer Responsibility (EPR)</strong>, making producers responsible for the collection and channelization of e-waste.</li>
+                        <li><strong class="text-slate-200">Plastic Waste Management Rules, 2016:</strong> Aims to phase out single-use plastics and holds producers, importers, and brand owners responsible for plastic waste management.</li>
+                        <li><strong class="text-slate-200">Hazardous & Other Wastes Rules, 2016:</strong> Regulates the generation, storage, treatment, and import/export of hazardous waste materials.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 3: The National Green Tribunal (NGT) -->
+                <article id="ngt" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">The National Green Tribunal (NGT)</h2>
+                        </div>
+                        <button onclick="copyLink('#ngt')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">Established under the <strong class="text-white">National Green Tribunal Act, 2010</strong>, the NGT is a specialized judicial body for the effective and expeditious disposal of cases relating to environmental protection.</p>
+                    
+                    <ul class="space-y-3 text-slate-300 mt-4">
+                        <li><strong class="key-term-style">Jurisdiction:</strong> The NGT has the power to hear all civil cases involving substantial questions relating to the environment.</li>
+                        <li><strong class="key-term-style">Principles:</strong> It is guided by key environmental principles: **sustainable development**, the **precautionary principle**, and the **polluter pays principle**.</li>
+                        <li><strong class="key-term-style">Binding Decisions:</strong> The NGT's orders are binding and it has the power to award compensation and order restitution of the environment (e.g., forcing industries to clean up pollution).</li>
+                    </ul>
+                </article>
+
+                <!-- Article 4: Penalties for Violation -->
+                <article id="penalties" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Penalties for Violation of Environmental Laws</h2>
+                        </div>
+                        <button onclick="copyLink('#penalties')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">Violations of environmental statutes carry significant legal consequences, including heavy fines and imprisonment, depending on the severity and recurrence of the offense.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Penalties under the Environment (Protection) Act, 1986</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">General Violation:</strong> Imprisonment for a term that may extend to **five years** or fine which may extend to **₹1 Lakh**, or both.</li>
+                        <li><strong class="key-term-style">Continuing Offence:</strong> An additional fine of up to **₹5,000** for every day the violation continues after conviction.</li>
+                        <li><strong class="key-term-style">Violation for over one year:</strong> Imprisonment for a term that may extend to **seven years**.</li>
+                    </ul>
+                    
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Penalties under the NGT Act, 2010</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Non-Compliance by Companies:</strong> Fine extending up to **₹25 Crore**.</li>
+                        <li><strong class="text-slate-200">Non-Compliance by Individuals:</strong> Fine extending up to **₹10 Crore**.</li>
+                        <li><strong class="text-slate-200">Environmental Compensation:</strong> The NGT can impose hefty compensation amounts based on the scale of pollution, often calculated using the 'polluter pays' principle.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 5: Current Enforcement Trends (New Article for Real-Time Relevance) -->
+                <article id="enforcement-trends" class="glass-panel rounded-2xl p-8 border-l-4 border-l-indigo-500 hover:border-l-indigo-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Current Enforcement Trends & Regulatory Focus</h2>
+                        </div>
+                        <button onclick="copyLink('#enforcement-trends')" class="text-slate-500 hover:text-indigo-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">The contemporary legal landscape is shifting towards corporate accountability and market-based mechanisms for environmental sustainability.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Emerging Regulatory Focus</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Green Credit Program (GCP):</strong> A new initiative aimed at incentivizing voluntary environmental actions (like water conservation, tree plantation) by individuals and entities, allowing them to earn tradable 'Green Credits'.</li>
+                        <li><strong class="key-term-style">Extended Producer Responsibility (EPR) Audit:</strong> Intensified scrutiny and penalty imposition by the CPCB on manufacturers who fail to meet EPR targets for E-Waste and Plastic Waste.</li>
+                        <li><strong class="key-term-style">ESG Reporting:</strong> The Securities and Exchange Board of India (SEBI) mandates the top listed companies to file a Business Responsibility and Sustainability Report (BRSR), linking financial performance to Environmental, Social, and Governance compliance.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">NGT's Focus Areas</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">River Pollution:</strong> Ordering States to pay massive fines for failure to treat sewage and industrial effluents flowing into major rivers.</li>
+                        <li><strong class="text-slate-200">Illegal Sand Mining:</strong> Strict measures and compensation orders against state governments and contractors involved in unauthorized sand and mineral extraction.</li>
+                        <li><strong class="text-slate-200">Air Quality:</strong> Imposing restrictions on construction and demolition activities in NCR regions based on rising AQI levels.</li>
+                    </ol>
+                </article>
+
+
+                <!-- Article 6: Citizen's Role & Legal Remedies (Renumbered to 6) -->
+                <article id="citizen-role" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Citizen's Role & Legal Remedies</h2>
+                        </div>
+                        <button onclick="copyLink('#citizen-role')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4 leading-relaxed">Citizens play a crucial role in environmental protection. The law provides several avenues for individuals to take action against pollution and environmental degradation.</p>
+                    <ol class="list-decimal list-inside space-y-3 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Public Interest Litigation (PIL):</strong> Any public-spirited citizen can approach the High Court (Article 226) or the Supreme Court (Article 32) to address large-scale environmental issues.</li>
+                        <li><strong class="text-slate-200">Approaching the NGT:</strong> Individuals can directly file an application with the National Green Tribunal for redressal of an environmental grievance.</li>
+                        <li><strong class="text-slate-200">Citizen's Complaint (EP Act):</strong> A person can file a complaint with a court after giving a mandatory **60-day notice** to the Central Government or its authorized officer regarding the violation.</li>
+                        <li><strong class="text-slate-200">Filing a Complaint with SPCB/CPCB:</strong> Citizens can report instances of pollution directly to their State Pollution Control Board or the Central Pollution Control Board.</li>
+                    </ol>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2025 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        if (mobileSearchInput) {
+             mobileSearchInput.addEventListener('input', filterArticles);
+        }
+       
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

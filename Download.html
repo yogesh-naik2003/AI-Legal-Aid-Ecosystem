@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloadable Guides | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Download Card Specifics */
+        .download-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+        }
+        .download-card:hover {
+            box-shadow: 0 12px 25px rgba(110, 231, 183, 0.25); /* Subtle green glow on hover */
+            transform: translateY(-4px);
+            border-color: #6ee7b7; /* Emerald-400 */
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 16px;
+            flex-grow: 1;
+        }
+        .download-btn {
+            background: #22c55e; /* Green-500 */
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+        }
+        .download-btn:hover {
+            background: #10b981; /* Emerald-500 */
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions based on card type */
+        .bg-tenant { background-color: #3b82f6; } /* Blue */
+        .bg-business { background-color: #10b981; } /* Emerald */
+        .bg-employee { background-color: #f59e0b; } /* Amber */
+        .bg-mact { background-color: #ef4444; } /* Red */
+        .bg-will { background-color: #8b5cf6; } /* Violet */
+        .bg-consumer { background-color: #06b6d4; } /* Cyan */
+
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-gold-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-file-pdf"></i></div>
+                <h1 class="hero-title text-white">Downloadable Legal <span>Guides & Templates</span></h1>
+                <p class="hero-subtitle">
+                    Access expert-designed PDF handbooks and editable document templates to manage common legal tasks efficiently and correctly.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Downloadable Guides -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Practical <span>Handbooks</span></h2>
+                <div class="download-grid" id="downloadGuidesContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Need a Specific Legal Document?</h2>
+                    <p class="text-slate-400 mb-8">If you need a contract, notice, or petition not listed here, use our AI tool for personalized drafting support.</p>
+                    <a href="askai.html" class="cta-btn !bg-indigo-600 hover:!bg-indigo-500 text-white">
+                        <i class="fas fa-file-contract"></i> Draft My Document with AI
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This platform provides AI-generated guidance for informational purposes only and does not constitute professional legal advice.</p>
+        </div>
+    </footer>
+
+    <script>
+    const downloadGuides = [
+        { id: "tenant-guide", icon: "fa-house-user", title: "Tenant Rights & Eviction Toolkit", desc: "Includes templates for Rent Agreements, legal grounds for eviction, and format for issuing a Vacate Notice.", color: "bg-tenant", url: "#tenant-guide.pdf" },
+        { id: "business-kit", icon: "fa-building", title: "New Business Launch Checklist (Pvt Ltd & LLP)", desc: "Guide to MoA & AoA drafting, MCA registration steps, and a summary of mandatory first-year compliance filings.", color: "bg-business", url: "#business-kit.pdf" },
+        { id: "employee-kit", icon: "fa-user-tie", title: "Legal Essentials for Employees", desc: "Understanding salary, gratuity, EPF calculation, and formal complaint templates for wage issues.", color: "bg-employee", url: "#employee-kit.pdf" },
+        { id: "mact-claims", icon: "fa-car-crash", title: "Motor Accident Claims Guide (MACT)", desc: "Step-by-step claims process, documentation checklist, and simple guide to compensation calculation.", color: "bg-mact", url: "#mact-claims.pdf" },
+        { id: "simple-will", icon: "fa-hand-holding-heart", title: "Drafting Your Simple Will", desc: "Non-lawyer guide to legal capacity, witnessing rules, and a ready-to-fill Will Template.", color: "bg-will", url: "#simple-will.pdf" },
+        { id: "consumer-guide", icon: "fa-shopping-cart", title: "Consumer Complaint Handbook", desc: "Guide to identifying Unfair Trade Practices, jurisdiction rules, and a sample Consumer Complaint Petition.", color: "bg-consumer", url: "#consumer-guide.pdf" }
+    ];
+
+    function renderDownloadCards() {
+        const container = document.getElementById('downloadGuidesContainer');
+        if (!container) return;
+        
+        container.innerHTML = downloadGuides.map(c => `
+            <div id="${c.id}" class="download-card">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header mb-4">
+                        <div class="card-icon ${c.color} shadow-lg shadow-black/30">
+                            <i class="fas ${c.icon}"></i>
+                        </div>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="${c.url}" class="download-btn" target="_blank" onclick="alert('Simulated Download: ${c.title}')">
+                    <i class="fas fa-file-download mr-2"></i> Download PDF
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderDownloadCards);
+
+    // Dummy alert function placeholder (using console log to avoid browser popups)
+    function alert(message) {
+        console.log(message);
+    }
+    </script>
+</body>
+</html>

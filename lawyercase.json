@@ -1,0 +1,30 @@
+[
+    {
+        "caseId": "LCASE-001",
+        "title": "IT case 010",
+        "lawyer": "Akaash nayer",
+        "description": "IT Case",
+        "status": "Active",
+        "nextHearing": "2025-11-03",
+        "documents": [
+            {
+                "name": "TOC_module-1.pdf",
+                "url": "static/uploads/cases/TOC_module-1.pdf"
+            }
+        ]
+    },
+    {
+        "caseId": "LCASE-002",
+        "title": "Divorce case",
+        "lawyer": "Smita agarwal",
+        "description": "Divorse",
+        "status": "On Hold",
+        "nextHearing": "2025-10-07",
+        "documents": [
+            {
+                "name": "Web_LabManual.docx",
+                "url": "static/uploads/cases/Web_LabManual.docx"
+            }
+        ]
+    }
+]

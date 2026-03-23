@@ -1,0 +1,15 @@
+[
+    {
+        "availability_status": "Available",
+        "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg",
+        "connect_with_clients": true,
+        "consultation_fee": "2000",
+        "experience": "15",
+        "full_name": "Yogesh Naik",
+        "languages": "English, Spanish",
+        "location": "Delhi",
+        "name": "Yogesh Naik",
+        "short_bio": " good at corporate law",
+        "specialization": "Corporate Law"
+    }
+]

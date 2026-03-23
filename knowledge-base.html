@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Knowledge Hub - LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        /* MODIFIED: Increased minmax to force a maximum of 3 columns on wide screens */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Card Styling */
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            text-align: left;
+            cursor: pointer;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            text-decoration: none;
+            color: #f8fafc;
+            position: relative;
+            min-height: 180px;
+        }
+        .card:hover {
+            box-shadow: 0 12px 25px rgba(251, 191, 36, 0.25);
+            transform: translateY(-6px) scale(1.02);
+            border-color: #fbbf24;
+            background: #152033;
+        }
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 18px;
+            color: #fbbf24;
+            transition: color .3s, transform .3s;
+        }
+        .card:hover i {
+            color: white;
+            transform: scale(1.1);
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            color: white;
+        }
+        .card-desc {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+        .card-preview {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: #f59e0b;
+            color: #111827;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        /* Hero Styling */
+        .hero-section {
+            background: linear-gradient(120deg, #0f172a 0%, #1e293b 100%);
+            padding: 150px 0 100px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            color: white;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 1rem auto 2rem;
+        }
+        .cta-btn {
+            background: #fbbf24;
+            color: #111827;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        }
+        .cta-btn:hover {
+            background: #f59e0b;
+            transform: scale(1.05);
+        }
+
+        /* AI Explainer Styling */
+        .ai-explainer-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            grid-column: 1 / -1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .ai-explainer-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ai-explainer-input:focus { border-color: #fbbf24; }
+        .ai-answer {
+            min-height: 60px;
+            padding: 16px;
+            background: #111827;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="homelogin.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Home</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                    <a href="findlawyers.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Find a Lawyer</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-gold-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-book-open"></i></div>
+                <h1 id="rotating-headline" class="hero-title text-white">Understand Your Rights. Solve Legal Problems. Fast.</h1>
+                <p class="hero-subtitle">
+                    AI-powered answers, expert-reviewed guides, and free legal templates — all in one place.
+                </p>
+                <a href="askai.html" class="cta-btn">
+                    <i class="fas fa-comments"></i> Get Instant Legal Help
+                </a>
+            </div>
+        </section>
+
+        <!-- Section 1: Explore Categories (Original Section 1) -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Core Legal <span>Categories</span></h2>
+                <div class="card-grid" id="featuredCategories">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Interactive Knowledge (Original Section 2) -->
+        <section class="section" style="background:#0f172a;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Interactive <span>Knowledge</span></h2>
+                <div class="card-grid">
+                    <!-- AI Explainer Card -->
+                    <div class="ai-explainer-card">
+                        <i class="fas fa-robot text-gold-400 text-3xl"></i>
+                        <h3 class="card-title text-white">AI-Powered Explainer</h3>
+                        <p class="card-desc">Get a simple explanation for any legal term or question.</p>
+                        <input type="text" placeholder="e.g., What is 'bail'?" id="aiInput" class="ai-explainer-input" />
+                        <button onclick="explainAI()" class="cta-btn">Explain</button>
+                        <div class="ai-answer" id="aiAnswer">Your answer will appear here...</div>
+                    </div>
+                    
+                    <!-- Original Interactive Cards -->
+                    <a href="#" class="card" data-icon="fa-sitemap">
+                        <i class="fas fa-sitemap"></i>
+                        <h3 class="card-title">Decision Tree Guides</h3>
+                        <p class="card-desc">Answer a few questions to find the right legal path for your issue.</p>
+                    </a>
+                    <a href="quiz.html" class="card" data-icon="fa-question-circle">
+                        <i class="fas fa-question-circle"></i>
+                        <h3 class="card-title">Legal Quizzes</h3>
+                        <p class="card-desc">Test your knowledge on various legal topics and learn as you go.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Popular & Trending (Original Section 3) -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Popular & <span>Trending</span></h2>
+                <div class="card-grid" id="trendingTopics">
+                    <!-- Trending Topics will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 4: Quick Access Tools (Mapping to Original Section 4/Quick Tools) -->
+        <section class="section" style="background:#0f172a;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Quick Access <span>Tools</span></h2>
+                <div class="card-grid" id="quickAccessTools">
+                    <!-- Quick Access Tools will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Practical Legal Help (Original Section 5) -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Practical Legal Help <span>& Learning</span></h2>
+                <div class="card-grid" id="practicalLearning">
+                    <!-- Practical Learning cards (Original Sections 5, 6, 7 consolidated) -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-card rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Ready to Dive Deeper?</h2>
+                    <p class="text-slate-400 mb-8">If you can't find your answer here, our AI is ready to assist you with your specific questions or connect you with a verified lawyer.</p>
+                    <div class="flex flex-col md:flex-row justify-center gap-4">
+                        <a href="askai.html" class="cta-btn"><i class="fas fa-comments"></i> Ask Our AI</a>
+                        <a href="findlawyers.html" class="cta-btn !bg-slate-700 hover:!bg-slate-600 text-white"><i class="fas fa-user-tie"></i> Find a Verified Lawyer</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This platform provides AI-generated guidance for informational purposes only and does not constitute professional legal advice.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Dynamic card data - UPDATED AND SORTED
+    // Sorting by Title alphabetically
+
+    const featured = [
+        { icon: "fa-landmark", title: "Civil Law: Property & Disputes", desc: "Guides on land disputes, tenancy rules, property transfer, and general civil litigation.", url: "civil-law.html" },
+        { icon: "fa-briefcase", title: "Consumer Protection & FIR", desc: "Detailed procedures for filing consumer complaints and registering a First Information Report (FIR).", url: "consumer-law.html" },
+        { icon: "fa-building", title: "Corporate & Business Law", desc: "Essentials for starting a business, contract law, and compliance for small enterprises.", url: "buiseness-law.html" },
+        { icon: "fa-hand-holding-usd", title: "Employment & Labour Laws", desc: "Rights concerning salary, working hours, termination, and workplace harassment rules.", url: "employment-law.html" },
+        { icon: "fa-user-friends", title: "Family Law: Marriage & Divorce", desc: "Understanding laws related to marriage registration, divorce, alimony, and child custody.", url: "family-law.html" },
+        { icon: "fa-car-crash", title: "Motor Vehicle & Accident Claims", desc: "Information on RTO rules, accident claims (MACT), and insurance procedures.", url: "motor-law.html" }
+    ].sort((a, b) => a.title.localeCompare(b.title)); // Sorting Featured Categories
+
+    
+    const trending = [
+        { icon: "fa-money-check-alt", title: "Cheque Bounce Procedure", desc: "Step-by-step legal procedure for filing a complaint under Section 138 of the NI Act.", url: "check.html", preview: "Popular" },
+        { icon: "fa-mobile-alt", title: "Digital Arrest Scams", desc: "A guide on recognizing and reporting the latest online scams and digital frauds.", url: "digital.html", preview: "Urgent Warning" },
+        { icon: "fa-leaf", title: "Environmental & Pollution Norms", desc: "Simplified guide to local rules on waste disposal and air/water pollution fines.", url: "environment.html", preview: "New Guide" }
+    ].sort((a, b) => a.title.localeCompare(b.title)); // Sorting Trending Topics
+    
+    // Original Quick Access Tools
+    const quickTools = [
+        { icon: "fa-stamp", title: "Document Verification Checker", desc: "Tool to check the authenticity or common errors in legal stamps/notarizations.", url: "verification.html" },
+        { icon: "fa-search-location", title: "Jurisdiction Finder", desc: "Simple tool to determine the correct court or authority to approach based on your location and issue.", url: "jurisdiction.html", preview: "Try Now" },
+        { icon: "fa-calendar-alt", title: "Statute of Limitations Checker", desc: "Find the time limit (limitation period) to file various types of lawsuits or appeals.", url: "limitation.html" }
+    ].sort((a, b) => a.title.localeCompare(b.title)); // Sorting Quick Tools
+
+    // Consolidated cards for the 'Practical Legal Help' section
+    const practicalLearning = [
+        { icon: "fa-clipboard-check", title: "Checklists & Cheat Sheets", desc: "Quick “What to do if…” guides for everyday legal situations.", url: "checklist.html" },
+        { icon: "fa-file-pdf", title: "Downloadable Guides", desc: "PDF handbooks for topics like “Tenant Rights” or “Starting a Business.”", url: "Download.html" },
+        { icon: "fa-user-graduate", title: "Expert Interviews", desc: "Lawyers explain trending legal topics in short articles or videos.", url: "interview.html" },
+        { icon: "fa-calculator", title: "Legal Cost Calculator", desc: "Estimate lawyer fees, stamp duty, or court costs for common cases.", url: "calculator.html", preview: "Featured Tool" },
+        { icon: "fa-newspaper", title: "Legal News Digest", desc: "Weekly summaries of important legal developments in plain language.", url: "legaldigest.html", preview: "New" },
+        { icon: "fa-poll", title: "Polls & Surveys", desc: "Share your legal awareness and see results from other visitors.", url: "poll.html" },
+        { icon: "fa-route", title: "Scenario Simulators", desc: "Interactive stories showing how different legal choices lead to different outcomes.", url: "scenario.html" },
+        { icon: "fa-map-marked-alt", title: "State/Region-Specific Pages", desc: "Tailored content for different Indian states with local laws and procedures.", url: "region.html" },
+        { icon: "fa-video", title: "Step-by-Step Video Tutorials", desc: "Short explainer videos for filling out forms or understanding legal processes.", url: "tutor.html" },
+        { icon: "fa-trophy", title: "Success Stories", desc: "Real-life examples of people resolving legal issues using our resources.", url: "story.html" },
+        { icon: "fa-comments", title: "User Q&A Forum", desc: "Ask and answer legal questions in a moderated space.", url: "#" },
+        { icon: "fa-certificate", title: "Verified Sources", desc: "See where our legal information comes from: laws, court rulings, government sites.", url: "#" }
+    ].sort((a, b) => a.title.localeCompare(b.title)); // Sorting Practical Learning
+
+    function renderCards(arr, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = arr.map((c) => {
+            const url = c.url || "#";
+            const badge = c.preview ? `<span class="card-preview">${c.preview}</span>` : '';
+            
+            return `<a href="${url}" class="card" data-icon="${c.icon}">
+                <i class="fas ${c.icon}"></i>
+                <div class="card-title">${c.title}</div>
+                <div class="card-desc">${c.desc}</div>
+                ${badge}
+            </a>`;
+        }).join('');
+    }
+
+    renderCards(featured, "featuredCategories");
+    renderCards(trending, "trendingTopics");
+    renderCards(quickTools, "quickAccessTools");
+    renderCards(practicalLearning, "practicalLearning");
+
+    // AI Explainer demo 
+    function explainAI() {
+        const input = document.getElementById('aiInput').value.trim().toLowerCase();
+        const answerEl = document.getElementById('aiAnswer');
+        answerEl.textContent = "Processing...";
+
+        if(!input) {
+            answerEl.textContent = "Please enter a legal term or question.";
+            return;
+        }
+        
+        // Simulating a network call and delayed response
+        setTimeout(() => {
+            let answerText = "The AI is currently formulating a concise answer for that legal query. Please try again or visit our 'Ask AI' page for detailed responses.";
+
+            if(input.includes("bail")) {
+                answerText = "Bail is a legal process allowing an accused person to be temporarily released from custody while awaiting trial, often by providing a financial guarantee to ensure their appearance in court.";
+            } else if(input.includes("fir")) {
+                answerText = "FIR stands for First Information Report. It's the document prepared by police when they receive information about a cognizable offense, officially starting the investigation.";
+            } else if(input.includes("cheque")) {
+                answerText = "A cheque bounce (dishonour of cheque) is an offense under the Negotiable Instruments Act, 1881, when a cheque is presented to the bank but is returned unpaid due to insufficient funds or other technical reasons.";
+            } else if(input.includes("property")) {
+                answerText = "Property law governs the various forms of ownership and tenancy in real property (land, buildings) and personal property (movable items).";
+            } else if(input.includes("divorce")) {
+                answerText = "Divorce is the legal dissolution of a marriage by a court or other competent body, terminating the legal ties and duties between the spouses.";
+            }
+            answerEl.textContent = answerText;
+        }, 800);
+    }
+
+    // Rotating headline animation 
+    const headlines = [
+        "Understand Your Rights. Solve Legal Problems. Fast.",
+        "Know Your Rights. Get Legal Help. Save Time & Money.",
+        "Expert Answers. Free Templates. Trusted Guidance."
+    ];
+    let headlineIdx = 0;
+    setInterval(() => {
+        headlineIdx = (headlineIdx + 1) % headlines.length;
+        const el = document.getElementById('rotating-headline');
+        if (el) {
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.textContent = headlines[headlineIdx];
+                el.style.opacity = 1;
+            }, 400);
+        }
+    }, 4500);
+    </script>
+</body>
+</html>

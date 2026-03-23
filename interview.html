@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Interviews & Insights | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Download Card Specifics - Used for Checklist Cards */
+        .download-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+        }
+        .download-card:hover {
+            box-shadow: 0 12px 25px rgba(251, 191, 36, 0.25); 
+            transform: translateY(-4px);
+            border-color: #fbbf24;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 16px;
+            flex-grow: 1;
+        }
+        .download-btn { /* Renamed to .access-btn for non-PDF links */
+            background: #22c55e; /* Green */
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+        }
+        .download-btn:hover {
+            background: #10b981;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions based on card type */
+        .bg-red { background-color: #dc2626; } 
+        .bg-teal { background-color: #0d9488; } 
+        .bg-rose { background-color: #f43f5e; } 
+        .bg-blue { background-color: #3b82f6; } 
+        .bg-amber { background-color: #eab308; } 
+        .bg-violet { background-color: #8b5cf6; } 
+        .bg-green { background-color: #10b981; }
+
+        /* Modal Styles */
+        #checklistModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px; /* Increased width for interview content */
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        #checklistModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .expert-quote {
+            border-left: 4px solid #fbbf24;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #f8fafc;
+            font-style: italic;
+        }
+        .expert-name {
+            display: block;
+            margin-top: 0.5rem;
+            font-style: normal;
+            font-weight: 600;
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-gold-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-user-graduate"></i></div>
+                <h1 class="hero-title text-white">Legal Expert Interviews & <span>Case Insights</span></h1>
+                <p class="hero-subtitle">
+                    Exclusive analysis and real-world advice from verified legal professionals on current case trends and complex regulatory compliance.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Expert Insights -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Deep Dive <span>Topics</span></h2>
+                <div class="download-grid" id="checklistGuidesContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Connect with a Verified Expert</h2>
+                    <p class="text-slate-400 mb-8">If you have a complex case, find a professional specializing in the relevant area of law.</p>
+                    <a href="findlawyers.html" class="cta-btn !bg-indigo-600 hover:!bg-indigo-500 text-white">
+                        <i class="fas fa-user-tie"></i> Find a Verified Lawyer
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This platform provides AI-generated guidance for informational purposes only and does not constitute professional legal advice.</p>
+        </div>
+    </footer>
+    
+    <!-- Interview Modal HTML -->
+    <div id="checklistModal">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="text-2xl font-serif font-bold text-gold-400 mb-4 border-b border-slate-700 pb-2"></h3>
+            <div id="modalContent" class="text-slate-400 mb-6 space-y-4">
+                <!-- Interview content dynamically injected here -->
+            </div>
+            <button onclick="closeChecklistModal()" class="download-btn !bg-red-600 hover:!bg-red-500 text-white">
+                <i class="fas fa-times mr-2"></i> Close
+            </button>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- Expert Interview Data ---
+    const expertInterviews = [
+        { 
+            id: "divorce-alimony", icon: "fa-hand-holding-usd", title: "Alimony & Financial Settlement Trends", color: "bg-rose", url: "#divorce-alimony",
+            desc: "Expert commentary on the shift towards lump-sum settlements and modern maintenance calculation under the HMA.", 
+            content: `
+                <p class="expert-quote">
+                    "Courts are increasingly favoring lump-sum alimony settlements, particularly in long-term marriages, to ensure a clean financial break. The calculation, post the *Rajnesh vs. Neha* guidelines, focuses heavily on the paying spouse's actual income and lifestyle, moving away from anecdotal claims."
+                    <span class="expert-name">— Adv. Meera Sharma, Family Law Specialist</span>
+                </p>
+                <h4 class="text-white font-semibold">Key Takeaway:</h4>
+                <p class="text-slate-300 ml-4">Transparency in financial disclosure is non-negotiable. Digital footprints and forensic accounting are standard tools used by the court today.</p>
+            `
+        },
+        { 
+            id: "cyber-evidence", icon: "fa-mobile-alt", title: "Admissibility of Digital Evidence (WhatsApp/Email)", color: "bg-amber", url: "#cyber-evidence",
+            desc: "An IT Law expert discusses how electronic chats, photos, and emails must be legally verified under the Evidence Act.", 
+            content: `
+                <h4 class="text-white font-semibold">The IT Act Requirement:</h4>
+                <p class="expert-quote">
+                    "Digital evidence—whether it’s a crucial WhatsApp chat or a suspicious email—is only admissible in court if accompanied by a **Certificate under Section 65B of the Indian Evidence Act**. Without this certificate, proving the evidence hasn't been tampered with is nearly impossible, rendering it useless."
+                    <span class="expert-name">— Adv. Rohit Verma, Cyber Law Consultant</span>
+                </p>
+                <h4 class="text-white font-semibold mt-3">Practical Tip:</h4>
+                <p class="text-slate-300 ml-4">When collecting digital proof, document the entire process (screenshotting, file extraction) to support the integrity certificate later.</p>
+            `
+        },
+        { 
+            id: "rera-mahindra", icon: "fa-building", title: "RERA: Rights of Home Buyers vs. Builders", color: "bg-teal", url: "#rera-mahindra",
+            desc: "A Property Law expert on the powers of RERA in compelling compensation for project delays.", 
+            content: `
+                <h4 class="text-white font-semibold">RERA's Authority:</h4>
+                <p class="expert-quote">
+                    "The Real Estate (Regulation and Development) Act (RERA) has fundamentally changed the game. If a builder defaults on the promised possession date, RERA Tribunals now routinely order a refund of the amount paid along with interest, often at the marginal cost of funds based lending rate (MCLR)."
+                    <span class="expert-name">— Adv. Prerna Kulkarni, RERA Tribunal Counsel</span>
+                </p>
+                <h4 class="text-white font-semibold mt-3">Your Claim:</h4>
+                <p class="text-slate-300 ml-4">Home buyers can claim interest for every month of delay. Always approach the state RERA body first, not the consumer court, for quicker resolution on RERA-registered projects.</p>
+            `
+        },
+        { 
+            id: "startup-nda", icon: "fa-lightbulb", title: "Contract Drafting for Startups (NDA/IP)", color: "bg-violet", url: "#startup-nda",
+            desc: "Corporate Counsel insights on essential contract clauses every new business needs for IP and trade secret protection.", 
+            content: `
+                <h4 class="text-white font-semibold">Protecting Core Assets:</h4>
+                <p class="expert-quote">
+                    "For a startup, an airtight **Work for Hire** clause is non-negotiable in employment contracts. It must clearly state that all intellectual property developed by the employee *during* employment belongs exclusively to the company. Relying only on a generic NDA is insufficient."
+                    <span class="expert-name">— Mr. Vivek Jain, Corporate Legal Advisor</span>
+                </p>
+                <h4 class="text-white font-semibold mt-3">The Non-Compete Myth:</h4>
+                <p class="text-slate-300 ml-4">While post-employment non-compete clauses are largely unenforceable in India (Sec. 27, Contract Act), strong confidentiality and non-solicitation clauses remain critical and are enforceable.</p>
+            `
+        },
+        { 
+            id: "consumer-court", icon: "fa-gavel", title: "Fast Track: How Consumer Court Works", color: "bg-blue", url: "#consumer-court",
+            desc: "A guide on the expedited process in District Consumer Commissions and key evidence needed for success.", 
+            content: `
+                <h4 class="text-white font-semibold">Focus on Documentation:</h4>
+                <p class="expert-quote">
+                    "The key to winning a consumer case is documentation. You must present the retail invoice, the warranty card, and any email correspondence detailing the service deficiency. Unlike civil courts, oral arguments are minimized, making the affidavit and evidence sheet the backbone of your case."
+                    <span class="expert-name">— Adv. Sanjay Mehra, Consumer Law Counsel</span>
+                </p>
+                <h4 class="text-white font-semibold mt-3">Speed of Justice:</h4>
+                <p class="text-slate-300 ml-4">Due to simplified procedures, consumer courts aim to resolve cases much faster. Complaints often proceed to a decision within 9 to 12 months, provided both parties cooperate.</p>
+            `
+        },
+        { 
+            id: "posh-compliance", icon: "fa-user-shield", title: "PoSH: Corporate Compliance Checklist", color: "bg-red", url: "#posh-compliance",
+            desc: "Mandatory steps for companies with 10+ employees to ensure PoSH Act compliance (ICC formation, policies).", 
+            content: `
+                <h4 class="text-white font-semibold">Mandatory Compliance Check:</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-gold-400">Internal Complaints Committee (ICC):</strong> Must be formed (minimum 4 members; 50% women; 1 external member).</li>
+                    <li><strong class="text-gold-400">Annual Report:</strong> Must be filed with the District Officer regarding the number of complaints received and disposed of.</li>
+                    <li><strong class="text-gold-400">Policy Dissemination:</strong> Policy document must be clearly communicated and displayed at the workplace.</li>
+                </ul>
+                <p class="expert-quote mt-3">
+                    "Non-compliance with the PoSH Act, even if no complaint is filed, exposes the company to a non-bailable fine of ₹50,000 and possible cancellation of the business license upon repeated failure."
+                    <span class="expert-name">— Ms. Anjali Rao, HR & Compliance Consultant</span>
+                </p>
+            `
+        }
+    ];
+
+    function renderDownloadCards() {
+        const container = document.getElementById('checklistGuidesContainer');
+        if (!container) return;
+        
+        container.innerHTML = expertInterviews.map(c => `
+            <div id="${c.id}" class="download-card">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header mb-4">
+                        <div class="card-icon ${c.color} shadow-lg shadow-black/30">
+                            <i class="fas ${c.icon}"></i>
+                        </div>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="javascript:void(0)" class="download-btn" onclick="openChecklistModal('${c.id}')">
+                    <i class="fas fa-podcast mr-2"></i> View Expert Insight
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openChecklistModal(id) {
+        const guide = expertInterviews.find(g => g.id === id);
+        if (!guide) return;
+
+        document.getElementById('modalTitle').textContent = guide.title;
+        document.getElementById('modalContent').innerHTML = guide.content;
+        
+        const modal = document.getElementById('checklistModal');
+        modal.style.display = 'flex';
+        // Delay adding the 'open' class for CSS transition effect
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function closeChecklistModal() {
+        const modal = document.getElementById('checklistModal');
+        modal.classList.remove('open');
+        // Delay hiding the modal until the transition finishes
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear content
+        }, 300); 
+    }
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('checklistModal').addEventListener('click', (e) => {
+        if (e.target.id === 'checklistModal') {
+            closeChecklistModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderDownloadCards);
+    </script>
+</body>
+</html>

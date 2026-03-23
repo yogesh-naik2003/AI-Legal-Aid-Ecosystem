@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Cost Calculator | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            900: '#064e3b',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(20px, -20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Tab Switcher Styling */
+        .calc-tab {
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+            font-weight: 500;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .calc-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        .calc-tab.active {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border-color: #fbbf24;
+        }
+
+        /* Input Styling */
+        .custom-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .custom-input:focus {
+            border-color: #fbbf24;
+        }
+        label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+        /* Removed .invoice-card and .dotted-line CSS */
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        <div class="absolute -top-[15%] -left-[10%] w-[600px] h-[600px] bg-emerald-900/30 rounded-full blur-[120px] animate-float-slow"></div>
+        <div class="absolute bottom-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[120px] animate-float-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Intro -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-emerald-500/20">
+                    <i class="fas fa-calculator"></i> Beta Tool
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Smart Legal Cost <span class="text-gold-400">Estimator</span></h1>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Calculate estimated court fees, stamp duties, and professional charges based on Indian legal standards. 
+                    <span class="block mt-2 text-sm text-slate-500 italic">*Note: These are estimates. Actual costs vary by state and lawyer.*</span>
+                </p>
+            </div>
+
+            <!-- Calculator Layout -->
+            <div class="grid lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Panel: Inputs -->
+                <div class="lg:col-span-7 glass-panel rounded-2xl p-6 md:p-8">
+                    
+                    <!-- Tab Navigation -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                        <button class="calc-tab active" onclick="switchTab('courtFees')">
+                            <i class="fas fa-gavel"></i> Court Fees
+                        </button>
+                        <button class="calc-tab" onclick="switchTab('stampDuty')">
+                            <i class="fas fa-stamp"></i> Stamp Duty
+                        </button>
+                        <button class="calc-tab" onclick="switchTab('legalServices')">
+                            <i class="fas fa-user-tie"></i> Lawyer Fees
+                        </button>
+                        <button class="calc-tab" onclick="switchTab('businessReg')">
+                            <i class="fas fa-building"></i> Startup Reg
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: Court Fees -->
+                    <div id="tab-courtFees" class="tab-content block space-y-6">
+                        <h3 class="text-xl text-white font-bold mb-4">Civil Suit Court Fee Calculator</h3>
+                        <div>
+                            <label>Total Claim Value / Suit Amount (₹)</label>
+                            <input type="number" id="claimAmount" class="custom-input" placeholder="e.g. 500000" oninput="calculateCourtFees()">
+                        </div>
+                        <div>
+                            <label>State Jurisdiction</label>
+                            <select id="courtState" class="custom-input" onchange="calculateCourtFees()">
+                                <option value="standard">General (Central Standard)</option>
+                                <option value="delhi">Delhi</option>
+                                <option value="maharashtra">Maharashtra (Mumbai)</option>
+                                <option value="karnataka">Karnataka (Bangalore)</option>
+                            </select>
+                        </div>
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                            <i class="fas fa-info-circle text-gold-400 mr-2"></i>
+                            Ad Valorem court fees typically range between 1% to 3% of the suit value, decreasing as the value increases.
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Stamp Duty -->
+                    <div id="tab-stampDuty" class="tab-content hidden space-y-6">
+                        <h3 class="text-xl text-white font-bold mb-4">Property Stamp Duty Estimator</h3>
+                        <div>
+                            <label>Market Value of Property (₹)</label>
+                            <input type="number" id="propertyValue" class="custom-input" placeholder="e.g. 5000000" oninput="calculateStampDuty()">
+                        </div>
+                        <div>
+                            <label>State</label>
+                            <select id="stampState" class="custom-input" onchange="calculateStampDuty()">
+                                <option value="5">Karnataka (approx 5% + Cess)</option>
+                                <option value="6">Maharashtra (approx 6%)</option>
+                                <option value="6">Delhi (approx 4-6%)</option>
+                                <option value="7">Tamil Nadu (approx 7%)</option>
+                                <option value="7">Uttar Pradesh (approx 7%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Gender of Buyer</label>
+                            <select id="buyerGender" class="custom-input" onchange="calculateStampDuty()">
+                                <option value="0">Male / Joint</option>
+                                <option value="1">Female (Rebate applicable in some states)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Lawyer Fees -->
+                    <div id="tab-legalServices" class="tab-content hidden space-y-6">
+                        <h3 class="text-xl text-white font-bold mb-4">Professional Retainer Fee Estimator</h3>
+                        
+                        <div>
+                            <label>Case Type</label>
+                            <select id="caseType" class="custom-input" onchange="calculateLawyerFees()">
+                                <option value="divorce">Family Law (Contested Divorce/Maintenance)</option>
+                                <option value="civil_recovery">Civil Suit / Money Recovery</option>
+                                <option value="criminal_bail">Criminal Case / Bail Application</option>
+                                <option value="consumer">Consumer Protection Complaint</option>
+                                <option value="corporate">Corporate Compliance/Drafting</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Court Level</label>
+                            <select id="courtLevel" class="custom-input" onchange="calculateLawyerFees()">
+                                <option value="district">District Court / Tribunal</option>
+                                <option value="high">High Court</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label>Lawyer Experience & Quality (Influences Retainer Fee)</label>
+                            <input type="range" id="expRange" min="1" max="5" step="1" value="3" oninput="calculateLawyerFees()">
+                            <div class="flex justify-between text-xs text-slate-400 mt-2">
+                                <span>1 - Starter/Junior</span>
+                                <span>3 - Senior/Mid-Tier</span>
+                                <span>5 - Highly Specialized/Expert</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                            <i class="fas fa-info-circle text-gold-400 mr-2"></i>
+                            This calculates the initial retainer or litigation fees (excluding consultation). Costs are averaged across major metropolitan legal markets.
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Business Reg -->
+                    <div id="tab-businessReg" class="tab-content hidden space-y-6">
+                        <h3 class="text-xl text-white font-bold mb-4">Startup Registration Costs</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 border border-slate-700 rounded-lg hover:border-gold-400 cursor-pointer transition-all" onclick="selectBiz('pvt')">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <input type="radio" name="bizType" id="pvt" checked onchange="calculateBiz()">
+                                    <span class="font-bold text-white">Pvt Ltd Company</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Best for funding & scale.</p>
+                            </div>
+                            <div class="p-4 border border-slate-700 rounded-lg hover:border-gold-400 cursor-pointer transition-all" onclick="selectBiz('llp')">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <input type="radio" name="bizType" id="llp" onchange="calculateBiz()">
+                                    <span class="font-bold text-white">LLP</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Lower compliance.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label>Authorized Capital (₹)</label>
+                            <select id="authCapital" class="custom-input" onchange="calculateBiz()">
+                                <option value="100000">₹ 1 Lakh</option>
+                                <option value="500000">₹ 5 Lakhs</option>
+                                <option value="1000000">₹ 10 Lakhs</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Panel: Result (Simple Summary Panel) -->
+                <div class="lg:col-span-5">
+                    <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl transform transition-all duration-500" id="resultsPanel">
+                        
+                        <!-- Header -->
+                        <div class="border-b border-slate-700 pb-4 mb-4">
+                            <h4 class="text-2xl font-serif font-bold text-white">Estimated Cost Breakdown</h4>
+                            <p class="text-sm text-slate-400" id="currentDateDisplay">Date: <span id="currentDate"></span></p>
+                        </div>
+
+                        <!-- Dynamic Breakdown -->
+                        <div class="space-y-3 mb-6" id="breakdownContainer">
+                            <!-- Items inserted by JS -->
+                        </div>
+
+                        <div class="border-t border-slate-700 pt-4"></div>
+
+                        <!-- Total -->
+                        <div class="flex justify-between items-end mb-6">
+                            <span class="text-slate-400 font-bold text-lg uppercase">Total Estimated Cost</span>
+                            <span class="text-4xl font-bold text-emerald-400" id="totalCostDisplay">₹ 0</span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-3">
+                            <button onclick="printEstimate()" class="flex-1 bg-navy-900 text-white py-3 rounded-lg font-sans font-bold hover:bg-navy-800 transition-colors">
+                                <i class="fas fa-print mr-2"></i> Print Estimate
+                            </button>
+                            <button onclick="window.location.href='findlawyers.html'" class="flex-1 border-2 border-gold-400 text-gold-400 py-3 rounded-lg font-sans font-bold hover:bg-gold-400/10 transition-colors">
+                                Find Lawyer
+                            </button>
+                        </div>
+
+                        <!-- Disclaimer -->
+                        <div class="mt-6 p-3 bg-red-900/50 border border-red-700 rounded text-xs text-red-300 leading-tight">
+                            <strong>Caution:</strong> This is an estimate for planning purposes. Always confirm final fees and costs with a qualified professional.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. State Management ---
+        let currentTab = 'courtFees';
+        const dateEl = document.getElementById('currentDate');
+        dateEl.innerText = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize all inputs to ensure calculation runs cleanly on load
+            const claimInput = document.getElementById('claimAmount');
+            if (claimInput && !claimInput.value) claimInput.value = 500000;
+            const propertyInput = document.getElementById('propertyValue');
+            if (propertyInput && !propertyInput.value) propertyInput.value = 5000000;
+            
+            // Run initial calculation for the active tab (Court Fees)
+            calculateCourtFees();
+        });
+
+
+        // --- 2. Tab Switching Logic ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            // Update Buttons
+            document.querySelectorAll('.calc-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            // Show selected
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            // Trigger calc for the new tab to update invoice immediately
+            if(tabId === 'courtFees') calculateCourtFees();
+            if(tabId === 'stampDuty') calculateStampDuty();
+            if(tabId === 'legalServices') calculateLawyerFees();
+            if(tabId === 'businessReg') calculateBiz();
+        }
+
+        // --- 3. Calculation Functions ---
+
+        // Helper: Format Currency
+        const formatMoney = (amount) => {
+            if (isNaN(amount) || amount === null) amount = 0;
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Math.round(amount));
+        }
+
+        // Helper: Update Invoice UI (Modified for simple display)
+        const updateInvoice = (items, total) => {
+            const container = document.getElementById('breakdownContainer');
+            container.innerHTML = '';
+            
+            items.forEach(item => {
+                container.innerHTML += `
+                <div class="flex justify-between text-sm items-center py-2 border-b border-slate-800 last:border-b-0">
+                    <span class="text-slate-400">${item.label}</span>
+                    <span class="font-bold text-white">${formatMoney(item.value)}</span>
+                </div>`;
+            });
+
+            document.getElementById('totalCostDisplay').innerText = formatMoney(total);
+        }
+
+        // A. Court Fees (Simplified Ad Valorem Logic)
+        function calculateCourtFees() {
+            const amount = parseFloat(document.getElementById('claimAmount').value) || 0;
+            const state = document.getElementById('courtState').value;
+            
+            let baseFee = 0;
+            
+            if (amount <= 0) baseFee = 0;
+            else if (amount <= 100000) baseFee = amount * 0.05; // 5%
+            else if (amount <= 500000) baseFee = 5000 + (amount - 100000) * 0.04; 
+            else baseFee = 21000 + (amount - 500000) * 0.03;
+
+            // State Multiplier (Arbitrary for demo)
+            let multiplier = 1;
+            if(state === 'delhi') multiplier = 1.1;
+            if(state === 'karnataka') multiplier = 1.2;
+
+            const total = Math.round(baseFee * multiplier);
+            
+            updateInvoice([
+                { label: 'Claim Amount', value: amount },
+                { label: 'Ad Valorem Rate', value: total },
+                { label: 'Legal Welfare Fund', value: 50 }
+            ], total + 50);
+        }
+
+        // B. Stamp Duty
+        function calculateStampDuty() {
+            const value = parseFloat(document.getElementById('propertyValue').value) || 0;
+            const rate = parseFloat(document.getElementById('stampState').value); 
+            const isFemale = document.getElementById('buyerGender').value === "1";
+
+            let finalRate = rate;
+            if (isFemale) finalRate = rate - 1; 
+            if (finalRate < 0) finalRate = rate; // Safety check
+
+            const duty = (value * finalRate) / 100;
+            const regFee = Math.min((value * 0.01), 30000); 
+
+            updateInvoice([
+                { label: `Stamp Duty (${finalRate}%)`, value: duty },
+                { label: 'Registration Fee', value: regFee },
+                { label: 'Scanning/Handling', value: 1000 }
+            ], duty + regFee + 1000);
+        }
+
+        // C. Lawyer Fees (Enhanced Real-World Logic)
+        const FEE_MATRIX = {
+            'divorce': { 'district': 50000, 'high': 150000 },
+            'civil_recovery': { 'district': 60000, 'high': 180000 },
+            'criminal_bail': { 'district': 20000, 'high': 75000 },
+            'consumer': { 'district': 15000, 'high': 30000 },
+            'corporate': { 'district': 10000, 'high': 35000 } // Drafting/Initial Advice Retainer
+        };
+
+        function calculateLawyerFees() {
+            const caseType = document.getElementById('caseType').value;
+            const courtLevel = document.getElementById('courtLevel').value;
+            const expLevel = parseInt(document.getElementById('expRange').value);
+            
+            // 1. Get Base Retainer Fee (based on Case Type and Court Level)
+            let baseRetainer = FEE_MATRIX[caseType][courtLevel];
+            
+            // 2. Adjust Fee based on Experience/Quality (Multiplier for 1 to 5 scale)
+            let expMultiplier = 1; 
+            if (expLevel === 1) expMultiplier = 0.7;
+            else if (expLevel === 2) expMultiplier = 1.0;
+            else if (expLevel === 3) expMultiplier = 1.5;
+            else if (expLevel === 4) expMultiplier = 2.0;
+            else if (expLevel === 5) expMultiplier = 2.5;
+
+            const professionalFeeAdjusted = baseRetainer * expMultiplier;
+            const feeAdjustmentAmount = professionalFeeAdjusted - baseRetainer;
+
+            const gst = professionalFeeAdjusted * 0.18; // 18% GST (Mandatory)
+            const courtStamps = courtLevel === 'high' ? 2500 : 1000; // Miscellaneous Court/Notary Stamps
+            
+            const totalFee = professionalFeeAdjusted + courtStamps + gst;
+
+            updateInvoice([
+                { label: 'Base Retainer Estimate', value: baseRetainer },
+                { label: `Experience Adjustment (${(expMultiplier*100).toFixed(0)}%)`, value: feeAdjustmentAmount },
+                { label: 'Professional Fee (Adjusted)', value: professionalFeeAdjusted },
+                { label: 'Misc. Court Stamps/Notary', value: courtStamps },
+                { label: 'GST (18%)', value: gst }
+            ], totalFee);
+        }
+
+        // D. Business Reg (No Change)
+        function selectBiz(id) {
+            document.getElementById(id).checked = true;
+            calculateBiz();
+        }
+
+        function calculateBiz() {
+            const isPvt = document.getElementById('pvt').checked;
+            const capital = parseInt(document.getElementById('authCapital').value);
+            
+            let govtFee = isPvt ? 1000 : 500; // Base filing
+            // Capital fee logic (simplified for demo)
+            govtFee += (capital / 10000) * 100;
+
+            const dscAndDin = 2500; // Digital Signatures
+            const profFee = isPvt ? 12000 : 8000; // CA/CS charges
+
+            updateInvoice([
+                { label: 'Govt Filing Fees (MCA)', value: govtFee },
+                { label: 'DSC & DIN Charges', value: dscAndDin },
+                { label: 'Professional Fees (CA/CS)', value: profFee }
+            ], govtFee + dscAndDin + profFee);
+        }
+
+        // --- 4. Utilities ---
+        function printEstimate() {
+            const printContent = document.getElementById('resultsPanel').innerHTML;
+            const originalContents = document.body.innerHTML;
+            
+            // Simple print hack
+            document.body.innerHTML = `<div style="padding:40px; font-family:sans-serif;">${printContent}</div>`;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload(); // Reload to restore event listeners
+        }
+
+    </script>
+</body>
+</html>

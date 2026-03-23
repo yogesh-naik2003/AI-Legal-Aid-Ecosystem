@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Vehicle & Accident Claims | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        /* Custom style for key terms, replacing the old style */
+        .key-term-style {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <!-- Top Right Gold Glow -->
+        <div class="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[100px] animate-float-slow"></div>
+        
+        <!-- Bottom Left Blue Glow -->
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Bottom Right Purple Glow -->
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <a href="#vehicle-docs" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Vehicle Documents & Penalties</a>
+                        <a href="#mact-specialized-court" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">MACT: Compensation Court</a>
+                        <a href="#claims-flow" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Filing & Adjudication Flow</a>
+                        <a href="#compensation-calc" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Compensation Calculation</a>
+                        <a href="#hit-and-run" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Hit-and-Run & Uninsured Claims</a>
+                        <a href="#driver-owner-duties" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Driver & Owner Duties</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-indigo-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                    <h4 class="text-white font-bold mb-2">Need specific advice?</h4>
+                    <p class="text-xs text-slate-400 mb-4">Our AI assistant can analyze your specific situation instantly.</p>
+                    <a href="askai.html" class="block w-full text-center py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        Ask LegalAid AI
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-gold-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Motor Vehicle Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Motor Vehicle & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Accident Claims</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    Detailed information on mandatory vehicle documentation, key traffic offenses, and the entire process of seeking compensation through the **Motor Accident Claims Tribunal (MACT)**.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: Mandatory Vehicle Documents and Traffic Penalties -->
+                <article id="vehicle-docs" class="glass-panel rounded-2xl p-8 border-l-4 border-l-gold-500 hover:border-l-gold-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Mandatory Vehicle Documents and Traffic Penalties</h2>
+                        </div>
+                        <button onclick="copyLink('#vehicle-docs')" class="text-slate-500 hover:text-gold-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The <strong class="text-white">Motor Vehicles Act, 1988 (MV Act)</strong> mandates essential documentation and safety rules. The 2019 Amendment significantly increased fines to promote stricter adherence and road safety.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Essential Documents (Sections 3 & 39, MV Act)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Driving License (DL):</strong> **Mandatory** for driving. Driving without a license carries a fine of up to **₹5,000**.</li>
+                        <li><strong class="key-term-style">Registration Certificate (RC):</strong> All vehicles must be registered with the RTO. Must be carried/accessible.</li>
+                        <li><strong class="key-term-style">Third-Party Insurance:</strong> **Compulsory** for all motor vehicles. Driving without valid insurance (Section 146) carries a fine of **₹2,000** (first offence).</li>
+                        <li><strong class="key-term-style">PUC Certificate:</strong> **Pollution Under Control** Certificate is mandatory for checking vehicle emissions compliance.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Key Violations and Penalties</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Drunk Driving (Sec. 185):</strong> Permissible limit is **30mg alcohol per 100ml blood**. First offense fine is **₹10,000** and/or 6 months imprisonment.</li>
+                        <li><strong class="text-slate-200">Not Wearing Helmet/Seat Belt:</strong> Fine of **₹1,000** and/or community service.</li>
+                        <li><strong class="text-slate-200">Over Speeding (Sec. 112):</strong> Fines are significantly increased, varying by the class of vehicle (LMV or Heavy Vehicle).</li>
+                        <li><strong class="text-slate-200">Dangerous Driving (Sec. 184):</strong> Fine up to **₹5,000** and/or imprisonment.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 2: MACT: The Specialized Accident Compensation Court -->
+                <article id="mact-specialized-court" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">MACT: The Specialized Accident Compensation Court</h2>
+                        </div>
+                        <button onclick="copyLink('#mact-specialized-court')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The <strong class="text-white">Motor Accident Claims Tribunal (MACT)</strong>, established under **Section 165** of the MV Act, is a specialized quasi-judicial body created to provide quicker, dedicated adjudication of accident compensation claims than traditional Civil Courts.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Who Can File a Claim (Sec. 166)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">The injured person.</strong></li>
+                        <li><strong class="key-term-style">The owner of the damaged property.</strong></li>
+                        <li><strong class="key-term-style">Legal representatives</strong> of the deceased person.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Jurisdiction & Time Limit</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="key-term-style">Jurisdiction:</strong> The claim can be filed before the MACT that covers the area where: (a) the **accident occurred**, (b) the **claimant resides**, OR (c) the **defendant (insurer/owner) resides**.</li>
+                        <li><strong class="key-term-style">Time Limit:</strong> Claims must ideally be filed within **six months** from the date of the accident. While the Tribunal has discretion to condone delays, timely filing is highly recommended.</li>
+                    </ol>
+                    [Image of a MACT claims process flow chart]
+                </article>
+
+                <!-- Article 3: Procedural Flow: Filing and Adjudication at MACT -->
+                <article id="claims-flow" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-list-ol"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Procedural Flow: Filing and Adjudication at MACT</h2>
+                        </div>
+                        <button onclick="copyLink('#claims-flow')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Filing a compensation petition (**Claim Petition** under Sec. 166) requires meticulous documentation, especially concerning medical expenses and loss of income. The process is adversarial but simplified compared to civil litigation.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Mandatory Steps Post-Accident</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Immediate Reporting:</strong> File an **FIR** (First Information Report) with the police. The police also prepare a **Detailed Accident Report (DAR)** for the MACT.</li>
+                        <li><strong class="text-slate-200">Seek Medical Aid:</strong> Obtain and retain all original medical bills, prescriptions, and disability certificates.</li>
+                        <li><strong class="text-slate-200">Inform Insurer:</strong> Notify your own insurer (for own-damage claim) and the third-party insurer (for liability claim).</li>
+                        <li><strong class="text-slate-200">Filing Petition:</strong> Submit the Claim Petition to the relevant MACT with supporting documents (FIR, medical records, income proof, insurance details).</li>
+                        <li><strong class="text-slate-200">Notice & Written Statement:</strong> The MACT issues **Notice** to the respondents (Driver, Owner, and Insurer), who then file their **Written Statement** contesting the claim/liability.</li>
+                        <li><strong class="text-slate-200">Evidence & Award:</strong> Parties present evidence (witnesses, doctors) and the Tribunal determines liability and the final compensation **Award**.</li>
+                    </ol>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Crucial Documents Needed for Filing</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li>Copy of the **FIR** and **DAR**.</li>
+                        <li>Original medical bills, discharge summary, and **Disability Certificate** (if applicable).</li>
+                        <li>Proof of age, occupation, and monthly income of the injured/deceased.</li>
+                        <li>Vehicle Registration and Insurance policy copy.</li>
+                    </ul>
+                </article>
+                
+                <!-- Article 4: How Compensation is Calculated (Loss of Dependency) -->
+                <article id="compensation-calc" class="glass-panel rounded-2xl p-8 border-l-4 border-l-orange-500 hover:border-l-orange-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">How Compensation is Calculated (Loss of Dependency)</h2>
+                        </div>
+                        <button onclick="copyLink('#compensation-calc')" class="text-slate-500 hover:text-orange-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Compensation for death or permanent disability is calculated based on complex legal formulas established by Supreme Court judgments, focusing primarily on the economic loss suffered by the victim's family (<strong class="text-white">Loss of Dependency</strong>).</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Calculation Components in Fatal Cases</h4>
+                    <p class="text-slate-400">The total compensation is the sum of Pecuniary and Non-Pecuniary losses:</p>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Loss of Dependency (Pecuniary Loss):</strong> **(Annual Income - Personal Expenses) x Multiplier.**
+                            <ul class="list-disc list-inside ml-5 text-sm">
+                                <li>**Future Prospects:** A percentage is mandatorily added to the income (e.g., 50% for under 40, salaried) to account for future promotions/increments.</li>
+                                <li>**Deduction for Personal Expenses:** A mandatory percentage (1/3 to 1/4) is deducted based on the number of dependents.</li>
+                            </ul>
+                        </li>
+                        <li><strong class="key-term-style">Non-Pecuniary Heads:</strong> Fixed sums for funeral expenses, loss of estate, and **Loss of Consortium** (loss of spousal companionship).</li>
+                        <li><strong class="key-term-style">Multiplier:</strong> A factor based on the age of the deceased/injured, ranging from 5 (for the oldest) to 18 (for the youngest).</li>
+                    </ul>
+                    
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Statutory No-Fault Liability (Sec. 164)</h4>
+                    <p class="text-slate-400">The MV Act also provides for fixed minimum compensation on a <strong class="text-white">no-fault basis</strong> (without proving negligence) in case of death (**₹5 Lakh**) or grievous hurt (**₹2.5 Lakh**). Claimants must choose between this no-fault system and the full compensation claim (Sec. 166).</p>
+                </article>
+
+                <!-- Article 5: Claims in Hit-and-Run and Uninsured Cases -->
+                <article id="hit-and-run" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-person-running"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Claims in Hit-and-Run and Uninsured Cases</h2>
+                        </div>
+                        <button onclick="copyLink('#hit-and-run')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Victims are protected even when the vehicle is untraceable or violates the compulsory insurance law. The government provides relief funds for such vulnerable situations.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">The Solatium Fund (Hit-and-Run)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Definition:</strong> A **Hit-and-Run** case is where the identity of the motor vehicle or the driver cannot be ascertained despite reasonable efforts.</li>
+                        <li><strong class="key-term-style">Compensation:</strong> Victims/families receive fixed compensation from the **Solatium Fund** (government fund): **₹2 Lakh** for death and **₹50,000** for grievous hurt.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Uninsured Vehicles</h4>
+                    <p class="text-slate-400">If the offending vehicle is identified but found to be <strong class="text-white">uninsured</strong>, the claim against the driver and owner remains valid. The MACT will pass the award against the driver/owner directly, who is then personally liable to pay the full compensation amount.</p>
+                </article>
+
+                <!-- Article 6: Duties of a Driver and Owner Post-Accident -->
+                <article id="driver-owner-duties" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Duties of a Driver and Owner Post-Accident</h2>
+                        </div>
+                        <button onclick="copyLink('#driver-owner-duties')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The MV Act imposes specific legal and moral duties on the driver and owner of the vehicle involved in an accident, most importantly providing aid and reporting the incident.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Duties Under Section 134, MV Act</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Provide Medical Aid:</strong> The driver must take all reasonable steps to secure medical attention for the injured person. This is part of the **Good Samaritan** law protection.</li>
+                        <li><strong class="text-slate-200">Report to Police:</strong> The driver must report the accident to the nearest police station within **24 hours**.</li>
+                        <li><strong class="text-slate-200">Provide Information:</strong> The owner/driver must provide the name and address of the injured person and details of the vehicle to the police or the insurer.</li>
+                    </ol>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Owner's Liability</h4>
+                    <p class="text-slate-400">The <strong class="text-white">owner is jointly and severally liable</strong> with the driver for the compensation paid to the victim (vicarious liability). Furthermore, the insurance company can legally deny the claim if the owner knowingly allowed a person **without a valid driving license** to operate the vehicle at the time of the accident.</p>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2024 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        mobileSearchInput.addEventListener('input', filterArticles);
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

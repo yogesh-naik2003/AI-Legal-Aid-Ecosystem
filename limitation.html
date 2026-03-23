@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statute of Limitations Checker | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        check: {
+                            400: '#34d399', // Emerald
+                            500: '#10b981',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+
+        /* Input Styles */
+        .custom-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .custom-input:focus {
+            border-color: #fbbf24;
+        }
+
+        /* Results Table Styling */
+        .result-row {
+            background: #1e293b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            border-left: 4px solid #334155;
+            transition: border-left-color 0.3s;
+        }
+        .result-row:hover {
+            border-left-color: #fbbf24;
+        }
+        .result-row strong {
+            color: white;
+            font-weight: 600;
+        }
+        .result-row span {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .deadline {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #34d399; /* Green for deadlines */
+        }
+        .deadline.critical {
+            color: #dc2626; /* Red for short deadlines */
+        }
+        .header-row {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fbbf24;
+            padding: 10px 16px;
+            border-bottom: 2px solid #334155;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 5px;
+            background: #334155;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-check-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Intro -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-check-400/10 text-check-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-check-400/20">
+                    <i class="fas fa-calendar-alt"></i> Critical Tool
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Statute of Limitations <span class="text-check-400">Checker</span></h1>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Identify the legal deadline (limitation period) for filing various civil, consumer, and criminal complaints under the **Limitation Act, 1963**.
+                </p>
+            </div>
+
+            <!-- Verification Layout -->
+            <div class="glass-panel rounded-2xl p-6 md:p-8">
+                
+                <!-- Filter and Search -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="md:col-span-2">
+                        <input type="text" id="searchInput" class="custom-input" placeholder="Search by case type (e.g., Debt Recovery, Divorce Appeal, Consumer Complaint)..." oninput="filterDeadlines()">
+                    </div>
+                    <div>
+                        <select id="categoryFilter" class="custom-input" onchange="filterDeadlines()">
+                            <option value="">Filter by Category</option>
+                            <option value="civil">Civil Suits</option>
+                            <option value="family">Family/Divorce</option>
+                            <option value="commercial">Commercial/Debt</option>
+                            <option value="consumer">Consumer/MACT</option>
+                            <option value="appeal">Appeals/Revisions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div class="mb-4">
+                    <div class="header-row hidden md:grid">
+                        <span>Dispute Type (Cause of Action)</span>
+                        <span class="text-center">Time Limit</span>
+                        <span class="text-center">Starting Point</span>
+                    </div>
+                    <div id="deadlinesContainer">
+                        <p class="text-slate-500 text-center py-10">Search or select a category to view the relevant legal deadlines.</p>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="mt-8 p-4 bg-red-900/50 border border-red-700 rounded text-xs text-red-300 leading-tight">
+                <strong>CRITICAL WARNING:</strong> The Limitation Act is subject to complex judicial interpretations. Missing a deadline can permanently bar your claim. Always consult a lawyer for your specific case.
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Data Structure (Based on Limitation Act, 1963 and Special Acts) ---
+        const DEADLINE_DATA = [
+            // Commercial/Debt
+            { type: "Recovery of Debt (Contract)", limit: "3 Years", start: "Date of Breach/Default", category: "commercial", notes: "General contract disputes (other than specific instruments)." },
+            { type: "Cheque Bounce Complaint (Sec 138 NI Act)", limit: "1 Month (Criminal)", start: "Expiry of the 15-day Demand Notice period.", category: "commercial", critical: true, icon: "fa-money-check-alt" },
+            { type: "Suit on Promissory Note", limit: "3 Years", start: "Date the Note becomes payable.", category: "commercial" },
+            
+            // Civil Suits
+            { type: "Suit for Possession (Immovable Property)", limit: "12 Years", start: "Date possession is denied/trespass occurs.", category: "civil", icon: "fa-building" },
+            { type: "Specific Performance of Contract (Land)", limit: "3 Years", start: "Date fixed for performance, or refusal.", category: "civil" },
+            { type: "Partition Suit (Joint Property)", limit: "12 Years", start: "Date when exclusion from joint property is known.", category: "civil" },
+            
+            // Consumer/Special Tribunals
+            { type: "Consumer Complaint (COPRA 2019)", limit: "2 Years", start: "Date the cause of action (defect/deficiency) arose.", category: "consumer", critical: true, icon: "fa-shopping-basket" },
+            { type: "MACT Claim (Motor Accident Compensation)", limit: "6 Months", start: "Date of the Accident", category: "consumer", critical: true, notes: "The Motor Vehicles Act sets a strict 6-month limit." },
+            
+            // Family Law
+            { type: "Restitution of Conjugal Rights (RCR)", limit: "1 Year", start: "Date marital duties were withdrawn.", category: "family", critical: true, icon: "fa-ring" },
+            { type: "Divorce Petition (Contested)", limit: "3 Years", start: "Date the ground for divorce (e.g., cruelty) first arose.", category: "family" },
+
+            // Appeals
+            { type: "Appeal to High Court (Civil/Criminal)", limit: "90 Days", start: "Date of the lower court's decree/order.", category: "appeal", critical: true, icon: "fa-gavel" },
+            { type: "Appeal to Supreme Court", limit: "60 Days", start: "Date of the High Court judgment.", category: "appeal", critical: true },
+            { type: "Appeal to State Consumer Commission", limit: "30 Days", start: "Date of the District Commission's order.", category: "appeal", critical: true }
+        ];
+
+        // --- 2. Filtering and Rendering Logic ---
+
+        function filterDeadlines() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const container = document.getElementById('deadlinesContainer');
+            const headerRow = document.querySelector('.header-row');
+
+            const filteredData = DEADLINE_DATA.filter(item => {
+                const matchesSearch = item.type.toLowerCase().includes(searchText) || item.notes?.toLowerCase().includes(searchText);
+                const matchesCategory = !selectedCategory || item.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-center py-10">No deadlines found matching your criteria. Try a broader search.</p>`;
+                headerRow.classList.add('hidden');
+                return;
+            }
+
+            headerRow.classList.remove('hidden');
+            
+            container.innerHTML = filteredData.map(item => {
+                const deadlineClass = item.critical ? 'critical' : '';
+                const iconHtml = item.icon ? `<i class="fas ${item.icon} mr-2 text-gold-400"></i>` : '';
+                const notesHtml = item.notes ? `<span class="text-xs text-slate-500 italic block mt-1">${item.notes}</span>` : '';
+                
+                return `
+                    <div class="result-row">
+                        <div>
+                            ${iconHtml}
+                            <strong>${item.type}</strong>
+                            ${notesHtml}
+                        </div>
+                        <div class="text-center">
+                            <span class="deadline ${deadlineClass}">${item.limit}</span>
+                        </div>
+                        <div class="text-center">
+                            <span>${item.start}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display all data on initial load
+            document.getElementById('searchInput').value = "";
+            document.getElementById('categoryFilter').value = "";
+            filterDeadlines();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Stories & Case Studies | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        success: {
+                            default: '#10b981', // Emerald 500
+                            light: '#34d399', // Emerald 300
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Success Card Specifics */
+        .success-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+        }
+        .success-card:hover {
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.25); /* Emerald glow */
+            transform: translateY(-4px);
+            border-color: #10b981; /* Emerald */
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+        .read-btn { 
+            background: #10b981; /* Emerald */
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+        .read-btn:hover {
+            background: #059669; /* Darker Emerald */
+            transform: translateY(-1px);
+        }
+
+        /* Modal Styles - Adapted for a case summary */
+        #storyModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        #storyModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .modal-subhead {
+            color: #34d399; /* Light Emerald */
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-success-light/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-success-light mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-trophy"></i></div>
+                <h1 class="hero-title text-white">Real-Life Legal <span>Success Stories</span></h1>
+                <p class="hero-subtitle">
+                    Read inspiring case studies and real-world examples of individuals resolving their legal challenges using smart guidance and verified expert help.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Success Stories -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Verified <span>Case Studies</span></h2>
+                <div class="download-grid" id="successStoriesContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Tell Us Your Story</h2>
+                    <p class="text-slate-400 mb-8">Have you used LegalAid AI resources or connected with a lawyer through us to resolve a dispute? Share your success!</p>
+                    <a href="mailto:stories@legalaidai.com" class="cta-btn !bg-gold-600 hover:!bg-gold-500 text-white">
+                        <i class="fas fa-bullhorn"></i> Submit Your Success Story
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This platform provides AI-generated guidance for informational purposes only and does not constitute professional legal advice.</p>
+        </div>
+    </footer>
+    
+    <!-- Story Modal HTML -->
+    <div id="storyModal">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="text-2xl font-serif font-bold text-success-light mb-4 border-b border-slate-700 pb-2"></h3>
+            <div id="modalContent" class="text-slate-400 mb-6 space-y-4">
+                <!-- Story content dynamically injected here -->
+            </div>
+            <button onclick="closeStoryModal()" class="read-btn !bg-red-600 hover:!bg-red-500 text-white">
+                <i class="fas fa-times mr-2"></i> Close Summary
+            </button>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- Success Story Data ---
+    const successStories = [
+        { 
+            id: "mact-win", icon: "fa-car", title: "₹18 Lakh Claim Won After MACT Guidance", category: "Motor Accident", color: "bg-blue", 
+            desc: "How a family used our MACT checklist to successfully prove dependency loss and secure compensation for a road accident fatality.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Case: MACT Compensation Victory</p>
+                <p>Mr. Sharma's family utilized the MACT claims procedure guidance after a fatal road accident. Our resources helped them meticulously gather the Detailed Accident Report (DAR), income proof, and file the petition within the strict time limits.</p>
+                <p class="modal-subhead">The Challenge:</p>
+                <p>The insurer initially contested the future prospects component of the claim, arguing Mr. Sharma's income was non-salaried and irregular.</p>
+                <p class="modal-subhead">The Solution & Outcome:</p>
+                <p>Using the Supreme Court precedents highlighted in our guide, the family's lawyer successfully argued for the inclusion of future prospects. The Tribunal awarded a final compensation of <strong>₹18,25,000</strong> plus 9% annual interest.</p>
+                <span class="expert-name text-xs text-slate-500">Sector: Motor Vehicles Act, 1988</span>
+            `
+        },
+        { 
+            id: "consumer-refund", icon: "fa-shopping-cart", title: "Full Refund Secured from E-Commerce Giant", category: "Consumer Law", color: "bg-cyan",
+            desc: "A consumer used our e-filing guide and legal notice template to win against a major e-commerce platform that refused a high-value laptop refund.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Case: Deficiency in Service (E-Commerce)</p>
+                <p>Ms. Riya faced a wall of customer service agents after a ₹95,000 laptop was delivered defective. She followed our guide step-by-step: first sending a legal notice, then filing the complaint via the national e-filing portal.</p>
+                <p class="modal-subhead">The Challenge:</p>
+                <p>The platform claimed the issue was post-warranty, even though the defect was reported immediately after delivery.</p>
+                <p class="modal-subhead">The Solution & Outcome:</p>
+                <p>The District Commission ruled that the service was deficient from the start, relying heavily on the clear timeline established by Ms. Riya's documented email correspondence. She received a <strong>full refund of ₹95,000</strong> plus ₹10,000 in compensation for mental agony and litigation costs.</p>
+                <span class="expert-name text-xs text-slate-500">Sector: Consumer Protection Act, 2019</span>
+            `
+        },
+        { 
+            id: "llp-dispute", icon: "fa-briefcase", title: "Partnership Dispute Resolved via Mediation", category: "Business Law", color: "bg-violet",
+            desc: "Two partners in an LLP avoided costly litigation by using the Mediation Clause template and resolving their dissolution dispute quickly.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Case: LLP Dissolution Dispute</p>
+                <p>Founders of a tech LLP, Mr. Anil and Mr. Ben, hit an impasse during dissolution. Instead of a long, expensive NCLT battle, they utilized a standard mediation clause from a LegalAid AI template.</p>
+                <p class="modal-subhead">The Challenge:</p>
+                <p>Disagreement over the valuation of assets and the division of client contracts.</p>
+                <p class="modal-subhead">The Solution & Outcome:</p>
+                <p>Through court-annexed mediation (which cost significantly less than a trial), they reached a mutually acceptable settlement within 45 days. The agreement allowed Mr. Anil to buy out Mr. Ben's share, ensuring the business could continue operations.</p>
+                <span class="expert-name text-xs text-slate-500">Sector: Limited Liability Partnership Act, 2008</span>
+            `
+        },
+        { 
+            id: "posh-action", icon: "fa-user-shield", title: "PoSH Complaint Leads to Policy Overhaul", category: "Employment Law", color: "bg-green",
+            desc: "An employee's documented complaint following our PoSH guide led to immediate action against the respondent and a mandatory ICC formation.", 
+            content: `
+                <p class="text-lg text-white font-serif mb-3">Case: Workplace Harassment (PoSH Act)</p>
+                <p>Ms. Zoya filed a complaint after facing inappropriate conduct at her mid-sized company. Since the company had over 10 employees but no compliant ICC, our guide advised her on the proper procedure for escalating the matter.</p>
+                <p class="modal-subhead">The Challenge:</p>
+                <p>The company tried to handle the issue informally, violating the PoSH Act.</p>
+                <p class="modal-subhead">The Solution & Outcome:</p>
+                <p>The District Officer, after receiving the formal complaint, mandated the company immediately form a fully compliant ICC. The subsequent inquiry found the respondent guilty, and the company was forced to institute mandatory PoSH training and policy dissemination, protecting all future employees.</p>
+                <span class="expert-name text-xs text-slate-500">Sector: PoSH Act, 2013</span>
+            `
+        }
+    ];
+
+    function renderStoryCards() {
+        const container = document.getElementById('successStoriesContainer');
+        if (!container) return;
+        
+        container.innerHTML = successStories.map(c => `
+            <div id="${c.id}" class="success-card">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header">
+                        <div class="card-icon bg-success-light shadow-lg shadow-black/30">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <p class="text-success-light text-sm font-medium mb-1 uppercase tracking-wider">${c.category}</p>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="javascript:void(0)" class="read-btn" onclick="openStoryModal('${c.id}')">
+                    <i class="fas fa-book-open mr-2"></i> Read Full Summary
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openStoryModal(id) {
+        const story = successStories.find(g => g.id === id);
+        if (!story) return;
+
+        document.getElementById('modalTitle').textContent = story.title;
+        document.getElementById('modalContent').innerHTML = story.content;
+        
+        const modal = document.getElementById('storyModal');
+        modal.style.display = 'flex';
+        // Delay adding the 'open' class for CSS transition effect
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function closeStoryModal() {
+        const modal = document.getElementById('storyModal');
+        modal.classList.remove('open');
+        // Delay hiding the modal until the transition finishes
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear content
+        }, 300); 
+    }
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('storyModal').addEventListener('click', (e) => {
+        if (e.target.id === 'storyModal') {
+            closeStoryModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderStoryCards);
+    </script>
+</body>
+</html>

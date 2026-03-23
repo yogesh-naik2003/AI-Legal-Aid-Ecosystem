@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification Checker | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        check: {
+                            400: '#34d399', // Emerald
+                            500: '#10b981',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+
+        /* Tab Switcher Styling */
+        .check-tab {
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+            font-weight: 500;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            justify-content: center;
+        }
+        .check-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        .check-tab.active {
+            background: rgba(52, 211, 153, 0.1);
+            color: #34d399;
+            border-color: #34d399;
+        }
+        .check-tab i { margin-right: 5px; }
+
+        /* Document Check Styling */
+        .check-item {
+            background: #1e293b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .check-item.verified {
+            background: #10b98120;
+            border: 1px solid #10b981;
+        }
+        .check-item.flagged {
+            background: #dc262620;
+            border: 1px solid #dc2626;
+        }
+        .check-item .status-icon {
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+        .check-item.verified .status-icon {
+            color: #10b981;
+        }
+        .check-item.flagged .status-icon {
+            color: #dc2626;
+        }
+        .check-title {
+            font-weight: 600;
+            color: white;
+        }
+        .check-desc {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        .check-link {
+            color: #34d399;
+            font-size: 0.8rem;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-check-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Intro -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-check-400/10 text-check-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-check-400/20">
+                    <i class="fas fa-search"></i> Legal Tool
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Document Verification <span class="text-check-400">Checker</span></h1>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Verify the authenticity, legal compliance, and critical 'Red Flags' in common legal and identification documents before signing or relying on them.
+                </p>
+            </div>
+
+            <!-- Verification Layout -->
+            <div class="glass-panel rounded-2xl p-6 md:p-8">
+                
+                <!-- Tab Navigation -->
+                <div class="grid grid-cols-3 gap-3 mb-8 border-b border-slate-700 pb-4">
+                    <button class="check-tab active" onclick="switchCheckTab('property')">
+                        <i class="fas fa-building"></i> Property & Title
+                    </button>
+                    <button class="check-tab" onclick="switchCheckTab('contracts')">
+                        <i class="fas fa-file-contract"></i> Contracts & Commercial
+                    </button>
+                    <button class="check-tab" onclick="switchCheckTab('personal')">
+                        <i class="fas fa-id-card"></i> Personal & Vehicle
+                    </button>
+                </div>
+
+                <!-- Verification Area -->
+                <div id="verificationArea">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="mt-12 text-center">
+                <a href="askai.html" class="text-lg font-semibold text-check-400 hover:text-white transition-colors">
+                    <i class="fas fa-robot mr-2"></i> Get AI Analysis on a Specific Clause &rarr;
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Data Structure ---
+        const CHECKLIST_DATA = {
+            'property': [
+                { 
+                    title: "Title Chain (Unbroken Ownership)", 
+                    desc: "Verify ownership history for minimum 12-15 years. Check seller's name in past Deeds.", 
+                    status: "verified", 
+                    link: "Search Property Records", 
+                    url: "https://www.google.com/search?q=state+property+search+portal" // General search leading to state portal
+                },
+                { 
+                    title: "Stamp Duty Payment", 
+                    desc: "Duty must be paid based on the State's higher Market Value (Circle Rate). Undervaluation is a risk.", 
+                    status: "flagged", 
+                    link: "Check State Stamp Rate", 
+                    url: "https://www.google.com/search?q=circle+rate+and+stamp+duty+india" // General search leading to state rate info
+                },
+                { 
+                    title: "Encumbrance Certificate (EC)", 
+                    desc: "Check for pending mortgages, charges, or legal liabilities registered against the property.", 
+                    status: "warning", 
+                    link: "Obtain EC Online (State Specific)", 
+                    url: "https://www.google.com/search?q=obtain+encumbrance+certificate+online" // General search for state portal
+                },
+                { 
+                    title: "Mutation in Revenue Records", 
+                    desc: "Ensure the seller's name is updated in the local revenue/tax records (e.g., Khata, Patta, Khasra).", 
+                    status: "warning", 
+                    link: "Check Local Revenue Portal", 
+                    url: "https://www.google.com/search?q=state+land+revenue+portal" // General search for state portal
+                }
+            ],
+            'contracts': [
+                { 
+                    title: "E-Stamp UIN Verification", 
+                    desc: "Cross-check the Unique Identification Number (UIN) on the national SHCIL portal to confirm authenticity.", 
+                    status: "verified", 
+                    link: "Verify E-Stamp Online", 
+                    url: "https://www.shcilestamp.com/estamp_cert_verify.html" // Direct link to SHCIL
+                },
+                { 
+                    title: "Notary Seal & License Validity", 
+                    desc: "Confirm the Notary Public's seal is clear, and the license is currently valid (check against local Bar Council).", 
+                    status: "warning", 
+                    link: "Verify Notary Registration", 
+                    url: "https://www.google.com/search?q=notary+verification+portal+india" // General search for verification portal
+                },
+                { 
+                    title: "Agreement Registration (Leases > 11 months)", 
+                    desc: "Lease agreements exceeding 11 months MUST be formally registered under the Registration Act.", 
+                    status: "flagged", 
+                    link: "Know Registration Rules", 
+                    url: "https://www.google.com/search?q=registration+of+lease+agreements+india"
+                },
+                { 
+                    title: "Legal Competency of Parties", 
+                    desc: "Ensure all signatories are adults (18+) and mentally sound (Indian Contract Act, 1872).", 
+                    status: "verified", 
+                    link: "Contract Act Guide", 
+                    url: "knowledge_hub_main.html#contract-law" // Internal link to your hub guide
+                }
+            ],
+            'personal': [
+                { 
+                    title: "Will Attestation (Witnesses)", 
+                    desc: "Requires mandatory attestation by TWO independent witnesses who are NOT beneficiaries.", 
+                    status: "verified", 
+                    link: "Check Will Law", 
+                    url: "knowledge_hub_main.html#inheritance" // Internal link to your hub guide
+                },
+                { 
+                    title: "Vehicle RC & DL Status", 
+                    desc: "Verify the legal status of the Registration Certificate (RC) and Driving License (DL) via Parivahan.", 
+                    status: "warning", 
+                    link: "Verify Parivahan Status", 
+                    url: "https://parivahan.gov.in/rcdlstatus/vahan/rcDlHome.xhtml" // Direct link to Parivahan portal
+                },
+                { 
+                    title: "Admissibility of Digital Evidence (Sec 65B)", 
+                    desc: "Screenshots/chats must be certified to be legally admissible in civil/divorce cases.", 
+                    status: "flagged", 
+                    link: "Read Sec 65B Guide", 
+                    url: "knowledge_hub_main.html#digital-evidence" // Simulated internal link
+                },
+                { 
+                    title: "Aadhaar / Passport Matching Names", 
+                    desc: "Check that name/DOB spelling is identical across all identity documents.", 
+                    status: "verified", 
+                    link: "UIDAI/Passport Verification", 
+                    url: "https://www.google.com/search?q=Aadhaar+verification+service" // General verification search
+                }
+            ]
+        };
+
+        // --- 2. Tab and Rendering Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if URL contains a hash for a specific category, otherwise default to 'property'
+            const initialCategory = window.location.hash.substring(1) || 'property';
+            switchCheckTab(initialCategory);
+        });
+
+        function switchCheckTab(tabId) {
+            // Update button active state
+            document.querySelectorAll('.check-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeTabButton = document.querySelector(`.check-tab[onclick="switchCheckTab('${tabId}')"]`);
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+            }
+
+            // Render content
+            renderChecklist(tabId);
+        }
+
+        function renderChecklist(category) {
+            const container = document.getElementById('verificationArea');
+            const data = CHECKLIST_DATA[category] || []; // Use empty array if category is invalid
+            
+            container.innerHTML = data.map(item => {
+                let statusClass = '';
+                let statusIcon = 'fa-info-circle';
+                
+                if (item.status === 'verified') {
+                    statusClass = 'verified';
+                    statusIcon = 'fa-check-circle';
+                } else if (item.status === 'flagged') {
+                    statusClass = 'flagged';
+                    statusIcon = 'fa-exclamation-circle';
+                } else if (item.status === 'warning') {
+                     statusIcon = 'fa-triangle-exclamation'; // Using a better warning icon
+                }
+
+                let linkHtml = item.link ? `
+                    <a href="${item.url}" target="_blank" class="check-link hover:text-white transition-colors flex items-center gap-2">
+                        ${item.link}
+                        <i class="fas fa-external-link-alt text-xs"></i>
+                    </a>` : '';
+
+                return `
+                    <div class="check-item ${statusClass}">
+                        <div class="flex items-center space-x-4">
+                            <i class="fas ${statusIcon} status-icon"></i>
+                            <div>
+                                <div class="check-title">${item.title}</div>
+                                <div class="check-desc">${item.desc}</div>
+                            </div>
+                        </div>
+                        ${linkHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Dummy alert function placeholder (using console log to avoid browser popups)
+        function alert(message) {
+            console.log(message);
+        }
+
+    </script>
+</body>
+</html>

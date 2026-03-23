@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Law: Property & Disputes | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <!-- Top Right Gold Glow -->
+        <div class="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[100px] animate-float-slow"></div>
+        
+        <!-- Bottom Left Blue Glow -->
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Bottom Right Purple Glow -->
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <!-- Links generated by JS or hardcoded -->
+                        <a href="#title-transfer" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Title Transfer</a>
+                        <a href="#rental-agreements" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Rental Agreements</a>
+                        <a href="#inheritance" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Inheritance Laws</a>
+                        <a href="#filing-suit" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Filing a Suit</a>
+                        <a href="#easements" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Easements</a>
+                        <a href="#adr" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Dispute Resolution (ADR)</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-indigo-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                    <h4 class="text-white font-bold mb-2">Need specific advice?</h4>
+                    <p class="text-xs text-slate-400 mb-4">Our AI assistant can analyze your specific situation instantly.</p>
+                    <a href="askai.html" class="block w-full text-center py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        Ask LegalAid AI
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-gold-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Civil Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Property Laws & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Civil Disputes</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    A comprehensive guide to navigating property ownership, tenancy rights, and civil court procedures in India. Understand your legal standing with expert-curated insights.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: Title Transfer -->
+                <article id="title-transfer" class="glass-panel rounded-2xl p-8 border-l-4 border-l-gold-500 hover:border-l-gold-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Property Title Transfer</h2>
+                        </div>
+                        <button onclick="copyLink('#title-transfer')" class="text-slate-500 hover:text-gold-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">
+                        The process of legally changing property ownership requires meticulous <strong class="text-white">due diligence</strong> to ensure the title is clear. It involves pre-registration verification, formal documentation, and post-registration updates.
+                    </p>
+
+                    <div class="bg-navy-900/50 rounded-xl p-6 mb-6 border border-slate-700">
+                        <h3 class="text-gold-400 font-bold text-sm uppercase tracking-wider mb-4">Key Terminology</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                <div>
+                                    <span class="text-white font-semibold block">Title Deed vs Sale Deed</span>
+                                    <span class="text-sm text-slate-400">Title establishes history; Sale Deed confirms current transfer.</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                <div>
+                                    <span class="text-white font-semibold block">Encumbrance Cert (EC)</span>
+                                    <span class="text-sm text-slate-400">Evidence that the property has no pending legal/monetary liabilities.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-white font-bold">Procedural Flow</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                            <li><strong class="text-slate-200">Agreement to Sell:</strong> Initial commitment on price and terms.</li>
+                            <li><strong class="text-slate-200">Stamp Duty Payment:</strong> Calculated on Market Value or Consideration Value.</li>
+                            <li><strong class="text-slate-200">Registration:</strong> Signed at the Sub-Registrar's office with witnesses.</li>
+                            <li><strong class="text-slate-200">Mutation:</strong> Updating government revenue records post-sale.</li>
+                        </ol>
+                    </div>
+                </article>
+
+                <!-- Article 2: Rental Agreements -->
+                <article id="rental-agreements" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-signature"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Rental Agreements</h2>
+                        </div>
+                        <button onclick="copyLink('#rental-agreements')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">
+                        A robust agreement protects both parties under the <strong class="text-white">Indian Contract Act</strong>. Most residential contracts are "Leave and License" agreements for 11 months to avoid strict rent control laws.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-navy-900/50 rounded-lg p-5 border border-slate-700">
+                            <h4 class="text-white font-bold mb-2">Essential Clauses</h4>
+                            <ul class="space-y-2 text-sm text-slate-400">
+                                <li>• <strong>Lock-in Period:</strong> Minimum stay duration preventing early exit.</li>
+                                <li>• <strong>Security Deposit:</strong> Refund conditions and deduction rules.</li>
+                                <li>• <strong>Maintenance:</strong> Minor (Tenant) vs Major (Landlord) repairs.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-navy-900/50 rounded-lg p-5 border border-slate-700">
+                            <h4 class="text-white font-bold mb-2">Dispute Management</h4>
+                            <ul class="space-y-2 text-sm text-slate-400">
+                                <li>• <strong>Notice Period:</strong> Usually 30 days written notice.</li>
+                                <li>• <strong>Eviction Grounds:</strong> Non-payment, misuse, or subletting.</li>
+                                <li>• <strong>Registration:</strong> Mandatory for leases >12 months.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Article 3: Inheritance -->
+                <article id="inheritance" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Inheritance & Succession</h2>
+                        </div>
+                        <button onclick="copyLink('#inheritance')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6">
+                        Succession laws depend on whether the deceased left a Will (<strong class="text-white">Testate</strong>) or not (<strong class="text-white">Intestate</strong>), and their religion.
+                    </p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-400">
+                            <thead class="bg-navy-900 text-white uppercase text-xs">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-tl-lg">Type</th>
+                                    <th class="px-4 py-3">Governing Act</th>
+                                    <th class="px-4 py-3 rounded-tr-lg">Key Requirement</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700 border border-slate-700 border-t-0 rounded-b-lg">
+                                <tr class="bg-navy-800/30">
+                                    <td class="px-4 py-3 font-bold text-white">Testate (With Will)</td>
+                                    <td class="px-4 py-3">Indian Succession Act, 1925</td>
+                                    <td class="px-4 py-3">Probate (for certain assets/regions)</td>
+                                </tr>
+                                <tr class="bg-navy-800/30">
+                                    <td class="px-4 py-3 font-bold text-white">Intestate (Hindu)</td>
+                                    <td class="px-4 py-3">Hindu Succession Act, 1956</td>
+                                    <td class="px-4 py-3">Legal Heir Certificate / Succession Cert</td>
+                                </tr>
+                                <tr class="bg-navy-800/30">
+                                    <td class="px-4 py-3 font-bold text-white">Intestate (Muslim)</td>
+                                    <td class="px-4 py-3">Sharia (Personal Law)</td>
+                                    <td class="px-4 py-3">Fixed shares for heirs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <!-- Article 4: Filing a Suit -->
+                <article id="filing-suit" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Filing a Civil Suit</h2>
+                        </div>
+                        <button onclick="copyLink('#filing-suit')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-6 items-center">
+                        <div class="flex-1 space-y-4">
+                            <p class="text-slate-300">
+                                Governed by the <strong class="text-white">Civil Procedure Code (CPC)</strong>. Before filing, ensure you are within the <strong>Statute of Limitation</strong> and have established a clear Cause of Action.
+                            </p>
+                            <ul class="space-y-2 text-slate-400 text-sm">
+                                <li><i class="fas fa-chevron-right text-red-500 mr-2"></i><strong>Legal Notice:</strong> Mandatory in many cases before suing.</li>
+                                <li><i class="fas fa-chevron-right text-red-500 mr-2"></i><strong>Jurisdiction:</strong> Ensure court has Territorial & Pecuniary authority.</li>
+                                <li><i class="fas fa-chevron-right text-red-500 mr-2"></i><strong>Court Fees:</strong> Percentage of claim value (Stamp Duty).</li>
+                            </ul>
+                        </div>
+                        <div class="w-full md:w-1/3 bg-navy-900 rounded-lg p-4 border border-slate-700 text-center">
+                            <h5 class="text-white font-bold mb-3">The Process</h5>
+                            <div class="space-y-3 relative before:absolute before:left-1/2 before:w-0.5 before:h-full before:bg-slate-700 before:-translate-x-1/2 before:top-0">
+                                <div class="relative z-10 bg-slate-800 text-xs py-1 px-3 rounded text-slate-300">Draft Plaint</div>
+                                <div class="relative z-10 bg-slate-800 text-xs py-1 px-3 rounded text-slate-300">File & Scrutiny</div>
+                                <div class="relative z-10 bg-slate-800 text-xs py-1 px-3 rounded text-slate-300">Summons Issued</div>
+                                <div class="relative z-10 bg-slate-800 text-xs py-1 px-3 rounded text-slate-300">Written Statement</div>
+                                <div class="relative z-10 bg-gold-600 text-xs py-1 px-3 rounded text-white font-bold">Trial / ADR</div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Article 5: Easements -->
+                <article id="easements" class="glass-panel rounded-2xl p-8 border-l-4 border-l-orange-500 hover:border-l-orange-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-road"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Easements & Rights of Way</h2>
+                        </div>
+                        <button onclick="copyLink('#easements')" class="text-slate-500 hover:text-orange-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-300 mb-4">
+                        Rights to use another's land for a specific purpose (e.g., a path). A <strong>Prescriptive Easement</strong> is acquired by 20 years of continuous, open use. Disputes are usually resolved via an Injunction Suit.
+                    </p>
+                </article>
+
+                <!-- Article 6: ADR -->
+                <article id="adr" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Alternative Dispute Resolution (ADR)</h2>
+                        </div>
+                        <button onclick="copyLink('#adr')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors">
+                            <h4 class="text-cyan-400 font-bold mb-2">Arbitration</h4>
+                            <p class="text-xs text-slate-400">Formal process. The arbitrator's decision (Award) is binding like a court decree.</p>
+                        </div>
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors">
+                            <h4 class="text-cyan-400 font-bold mb-2">Mediation</h4>
+                            <p class="text-xs text-slate-400">Voluntary. A neutral third party helps parties reach their own settlement.</p>
+                        </div>
+                        <div class="bg-navy-900/50 p-4 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors">
+                            <h4 class="text-cyan-400 font-bold mb-2">Conciliation</h4>
+                            <p class="text-xs text-slate-400">Conciliator plays an active role, proposing terms of settlement.</p>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2024 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        mobileSearchInput.addEventListener('input', filterArticles);
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            document.execCommand('copy');
+            // document.execCommand('copy') is used as navigator.clipboard.writeText() is restricted in some environments.
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

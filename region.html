@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State-Specific Legal Guides | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        map: {
+                            400: '#34d399', // Green
+                            500: '#10b981',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* State Card Specifics */
+        .state-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+            cursor: pointer;
+        }
+        .state-card:hover {
+            box-shadow: 0 12px 25px rgba(52, 211, 153, 0.25); /* Map Green glow */
+            transform: translateY(-4px);
+            border-color: #34d399;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+        .view-btn { 
+            background: #10b981; /* Map Green */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+        .view-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions */
+        .bg-map { background-color: #10b981; } 
+        .bg-blue { background-color: #3b82f6; } 
+        .bg-red { background-color: #dc2626; } 
+
+        /* Modal Styles */
+        #stateModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 30px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            border: 2px solid #34d399;
+        }
+        #stateModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* State specific styling */
+        .highlight-rule {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #34d399;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-map-400/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-map-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-map-marked-alt"></i></div>
+                <h1 class="hero-title text-white">State/Region-Specific <span>Legal Guides</span></h1>
+                <p class="hero-subtitle">
+                    Explore crucial legal differences across Indian states, focusing on local laws governing property, tenancy, and municipal compliance.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: State Guides -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Select Your <span>Region</span></h2>
+                <div class="download-grid" id="stateGuidesContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Need Localized Advice?</h2>
+                    <p class="text-slate-400 mb-8">Consult a lawyer who practices specifically in your state's High Court or District Court.</p>
+                    <a href="findlawyers.html" class="view-btn !bg-gold-600 hover:!bg-gold-500 text-white">
+                        <i class="fas fa-search-location"></i> Find Local Lawyers
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This tool is for educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <!-- State Modal HTML -->
+    <div id="stateModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-2xl font-serif font-bold text-map-400"></h3>
+                <button onclick="closeStateModal()" class="text-xl text-slate-500 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Dynamic content area -->
+            <div id="modalContent" class="text-slate-400 mb-6 space-y-4">
+                <!-- State-specific content dynamically injected here -->
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button onclick="closeStateModal()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- State Data ---
+    const stateGuides = [
+        { 
+            id: "maharashtra", icon: "fa-gavel", title: "Maharashtra (Mumbai, Pune)", color: "bg-blue", 
+            desc: "Focus on Rent Control Act, Co-operative Housing Societies Act, and unique Stamp Duty rules.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Maharashtra Rent Control Act, 1999:</strong> Governs tenancy disputes, offering protection to tenants in older buildings and setting limits on rental increases. Most agreements use the Leave and License format to circumvent this.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Co-operative Housing Societies Act, 1960:</strong> Highly relevant law governing management, transfers, and disputes within Housing Societies, often handled by the Co-operative Court or Registrar.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Stamp Duty:</strong> Generally one of the highest in the country (around 6% of the market value), with slight variations based on municipal area and gender of the buyer.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Bombay High Court, NCLT Mumbai Bench.</span>
+            `
+        },
+        { 
+            id: "karnataka", icon: "fa-leaf", title: "Karnataka (Bangalore, Mysore)", color: "bg-map", 
+            desc: "Focus on Land Revenue Act, Apartment Ownership Act, and stringent RERA compliance.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Land Records (Bhoomi):</strong> Land ownership verification is highly dependent on the online Bhoomi system. Verification of Katha (A & B) is mandatory for property legitimacy. 
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Apartment Ownership Act, 1972:</strong> Regulates the formation and functioning of apartment associations and the rights/responsibilities of flat owners.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">RERA Compliance:</strong> Karnataka RERA is known for strict enforcement, high interest penalties on developers for project delays, and mandatory project registrations.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Karnataka High Court, NCLT Bangalore Bench.</span>
+            `
+        },
+        { 
+            id: "delhi", icon: "fa-city", title: "Delhi & NCR Region", color: "bg-red", 
+            desc: "Focus on Rent Act exemptions, specialized commercial courts, and local air quality regulations.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Delhi Rent Control Act (DRCA), 1958:</strong> Excludes many new constructions and tenancies above ₹3,500 rent, limiting its scope. Most new tenancies are outside its protection, governed by lease deeds.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Commercial Courts:</strong> Delhi has highly active specialized Commercial Courts for large business disputes (over ₹3 Lakhs valuation). The procedures here are generally fast-tracked.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Air Pollution Norms:</strong> Enforcement of GRAP (Graded Response Action Plan) often leads to temporary restrictions (e.g., construction bans, vehicle limits) enforced by the Supreme Court/NGT/CPCB.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Delhi High Court, NCLT Delhi Bench.</span>
+            `
+        },
+        { 
+            id: "tamil_nadu", icon: "fa-industry", title: "Tamil Nadu (Chennai)", color: "bg-map", 
+            desc: "Focus on land records, the new Rent Act, and high industrial regulatory oversight.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Land Records (Patta and Chitta):</strong> Emphasis on documents like Patta and Chitta for land ownership verification, essential for clear title transfer, often checked through the state's online portal.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">TNRRRLTA, 2017 (New Rent Act):</strong> The Tamil Nadu Regulation of Rights and Responsibilities of Landlords and Tenants Act, 2017, governs new tenancies, moving away from older, pro-tenant legislation.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Industrial Compliance:</strong> High scrutiny from the Tamil Nadu Pollution Control Board (TNPCB) regarding effluent treatment and waste disposal, reflecting the state's manufacturing density.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Madras High Court, NCLT Chennai Bench.</span>
+            `
+        },
+        { 
+            id: "gujarat", icon: "fa-seedling", title: "Gujarat (Ahmedabad, Surat)", color: "bg-blue", 
+            desc: "Focus on the unique Gujarat Tenancy Act, industrial property acquisition, and local GST laws.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Gujarat Rent Control Act, 2021:</strong> The state government introduced a new model tenancy law aimed at balancing landlord and tenant rights, promoting formal rent agreements.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Industrial Land Use:</strong> Specific local regulations (e.g., GIDC rules) governing the conversion and acquisition of agricultural land for non-agricultural (industrial) purposes.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Gujarat GST (SGST):</strong> While GST is central, local exemptions, notifications, and anti-profiteering rulings issued by the State Tax Department can differ.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Gujarat High Court, NCLT Ahmedabad Bench.</span>
+            `
+        },
+        { 
+            id: "west_bengal", icon: "fa-umbrella", title: "West Bengal (Kolkata)", color: "bg-red", 
+            desc: "Focus on the complexities of the Thika Tenancy Act, specific land reforms, and Calcutta High Court history.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">West Bengal Land Reforms Act:</strong> Key legislation that governs ceiling on land holdings, transfer, and mutation, particularly affecting rural property disputes.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Thika Tenancy Act:</strong> A highly unique and complex local law that converts certain types of tenant land holdings in Kolkata into proprietary rights, often leading to protracted civil litigation.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Commercial Contracts:</strong> Litigation often goes through the original side of the Calcutta High Court, which has specific procedural rules governing commercial matters.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Calcutta High Court, NCLT Kolkata Bench.</span>
+            `
+        },
+        { 
+            id: "punjab_haryana", icon: "fa-wheat-awn", title: "Punjab & Haryana", color: "bg-map", 
+            desc: "Focus on agricultural land disputes, joint family property (Coparcenary), and court processes.", 
+            content: `
+                <h4 class="text-white font-semibold text-lg">Key Local Law Differences:</h4>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Agricultural Land Division:</strong> Disputes over hereditary succession and division of agricultural land are extremely common, requiring strict adherence to local revenue codes.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Joint Family Property:</strong> Complex rules govern the rights of coparceners (family members) in ancestral property, often leading to partition suits.
+                </div>
+                <div class="highlight-rule">
+                    <strong class="text-map-400">Motor Accident Claims:</strong> The High Court has implemented specific rules to streamline MACT claims, including mandatory pre-litigation mediation attempts.
+                </div>
+                <span class="text-sm text-slate-500 block mt-4">Local Jurisdiction: Punjab & Haryana High Court (Chandigarh).</span>
+            `
+        }
+    ];
+
+    function renderStateCards() {
+        const container = document.getElementById('stateGuidesContainer');
+        if (!container) return;
+        
+        container.innerHTML = stateGuides.map(c => `
+            <div id="${c.id}" class="state-card" onclick="openStateModal('${c.id}')">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header">
+                        <div class="card-icon ${c.color} shadow-lg shadow-black/30">
+                            <i class="fas fa-map-pin"></i>
+                        </div>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="javascript:void(0)" class="view-btn">
+                    <i class="fas fa-book-reader mr-2"></i> View Local Rules
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openStateModal(id) {
+        const guide = stateGuides.find(g => g.id === id);
+        if (!guide) return;
+
+        document.getElementById('modalTitle').textContent = guide.title;
+        document.getElementById('modalContent').innerHTML = guide.content;
+        
+        const modal = document.getElementById('stateModal');
+        modal.style.display = 'flex';
+        // Delay adding the 'open' class for CSS transition effect
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function closeStateModal() {
+        const modal = document.getElementById('stateModal');
+        modal.classList.remove('open');
+        // Delay hiding the modal until the transition finishes
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear content
+        }, 400); 
+    }
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('stateModal').addEventListener('click', (e) => {
+        if (e.target.id === 'stateModal') {
+            closeStateModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderStateCards);
+    </script>
+</body>
+</html>

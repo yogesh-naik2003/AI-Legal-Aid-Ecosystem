@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer Protection & FIR | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        /* Custom style for key terms, replacing the old style */
+        .key-term-style {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <!-- Top Right Gold Glow -->
+        <div class="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[100px] animate-float-slow"></div>
+        
+        <!-- Bottom Left Blue Glow -->
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Bottom Right Purple Glow -->
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <a href="#consumer-rights" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Consumer Rights (COPRA 2019)</a>
+                        <a href="#redressal-mechanism" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Redressal Mechanism</a>
+                        <a href="#filing-complaint" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Filing a Complaint</a>
+                        <a href="#unfair-practices" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Unfair Trade Practices</a>
+                        <a href="#e-commerce-rights" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">E-Commerce Rights</a>
+                        <a href="#fir-procedure" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">FIR Procedure</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-indigo-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                    <h4 class="text-white font-bold mb-2">Need specific advice?</h4>
+                    <p class="text-xs text-slate-400 mb-4">Our AI assistant can analyze your specific situation instantly.</p>
+                    <a href="askai.html" class="block w-full text-center py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        Ask LegalAid AI
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-gold-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Consumer & Criminal Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Consumer Rights & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">First Steps in Law Enforcement</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    Learn about your fundamental consumer rights, the process of filing complaints in consumer courts, and the steps for registering a First Information Report (FIR) for criminal matters.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: Your Six Fundamental Consumer Rights (COPRA 2019) -->
+                <article id="consumer-rights" class="glass-panel rounded-2xl p-8 border-l-4 border-l-gold-500 hover:border-l-gold-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Your Six Fundamental Consumer Rights (COPRA 2019)</h2>
+                        </div>
+                        <button onclick="copyLink('#consumer-rights')" class="text-slate-500 hover:text-gold-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The **Consumer Protection Act, 2019 (COPRA 2019)** significantly enhanced consumer rights, introducing provisions for **e-commerce** and redefining key terms like **product liability**. Understanding these rights is the basis for any complaint.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">The Six Consumer Rights</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Right to Safety:</strong> Protection against the marketing of goods and services which are hazardous to life and property.</li>
+                        <li><strong class="key-term-style">Right to be Informed:</strong> Right to be informed about the quality, quantity, potency, standard, and price of goods or services.</li>
+                        <li><strong class="key-term-style">Right to Choose:</strong> Access to a variety of goods and services at competitive prices.</li>
+                        <li><strong class="key-term-style">Right to be Heard:</strong> Right to ensure that consumer interests receive due consideration at appropriate forums.</li>
+                        <li><strong class="key-term-style">Right to Seek Redressal:</strong> Right to seek compensation against **unfair trade practices** or unscrupulous exploitation.</li>
+                        <li><strong class="key-term-style">Right to Consumer Education:</strong> Right to acquire the knowledge and skill to be an informed consumer.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">New Concepts under COPRA 2019</h4>
+                    <p class="text-slate-400">The new Act explicitly includes **e-commerce transactions** and introduced the concept of **Product Liability**, holding manufacturers or sellers responsible for harm caused by a defective product.</p>
+                </article>
+
+                <!-- Article 2: Navigating the Three-Tier Consumer Redressal Mechanism -->
+                <article id="redressal-mechanism" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Navigating the Three-Tier Consumer Redressal Mechanism</h2>
+                        </div>
+                        <button onclick="copyLink('#redressal-mechanism')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Consumer complaints are resolved through a quasi-judicial system, avoiding the delays of civil courts. The appropriate forum is determined solely by the <strong class="text-white">pecuniary value</strong> (monetary value) of the goods/services and compensation claimed.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Jurisdiction Based on Pecuniary Value</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="key-term-style">District Commission:</strong> Handles complaints where the value of the claim **does not exceed ₹1 Crore**.</li>
+                        <li><strong class="key-term-style">State Commission:</strong> Handles complaints where the claim value **exceeds ₹1 Crore but does not exceed ₹10 Crore**. Also hears appeals against District Commission orders.</li>
+                        <li><strong class="key-term-style">National Commission:</strong> Handles complaints where the claim value **exceeds ₹10 Crore**. Also hears appeals against State Commission orders.</li>
+                    </ol>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Key Procedural Rules</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Limitation Period:</strong> A complaint must be filed within **two years** from the date the cause of action arose.</li>
+                        <li><strong class="key-term-style">E-Filing:</strong> Complaints can now be filed electronically, making the process more accessible.</li>
+                        <li><strong class="key-term-style">Jurisdiction (Territorial):</strong> A complaint can be filed where the defendant resides OR where the cause of action arose OR where the complainant resides.</li>
+                    </ul>
+                </article>
+
+                <!-- Article 3: Step-by-Step: Filing a Consumer Complaint -->
+                <article id="filing-complaint" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Step-by-Step: Filing a Consumer Complaint</h2>
+                        </div>
+                        <button onclick="copyLink('#filing-complaint')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">A consumer complaint must be carefully prepared, detailing the deficiency and supported by concrete evidence. The first step, however, is almost always approaching the seller directly.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">The Six-Step Filing Process</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Send Legal Notice:</strong> Before filing in the forum, send a formal **legal notice** (or a detailed letter) to the seller/manufacturer demanding rectification or compensation.</li>
+                        <li><strong class="text-slate-200">Draft the Complaint:</strong> Clearly state the complainant's identity, the facts, the grounds of complaint (e.g., **Deficiency in Service** or **Defect in Goods**), and the **Relief Sought** (e.g., refund, replacement, or compensation).</li>
+                        <li><strong class="text-slate-200">Affix Documents:</strong> Attach copies of all supporting documents (**bills, warranties, correspondence, legal notice copy**).</li>
+                        <li><strong class="text-slate-200">Pay Fee:</strong> A nominal fee must be paid via Demand Draft or online, varying by the value of the claim.</li>
+                        <li><strong class="text-slate-200">Filing:</strong> Submit the complaint (either physically or through the e-filing portal) to the appropriate Commission based on pecuniary jurisdiction.</li>
+                        <li><strong class="text-slate-200">Hearing:</strong> Once accepted, the Commission issues notice to the opposite party, initiating the process of submitting written replies and evidence.</li>
+                    </ol>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Available Reliefs (Orders the Commission Can Give)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li>Directing the opposite party to remove the defect or deficiency.</li>
+                        <li>Ordering a refund of the price paid.</li>
+                        <li>Awarding compensation for any loss or injury suffered.</li>
+                        <li>Discontinuing **Unfair Trade Practices** permanently.</li>
+                    </ul>
+                </article>
+
+                <!-- Article 4: Tackling Unfair Trade Practices and Misleading Ads -->
+                <article id="unfair-practices" class="glass-panel rounded-2xl p-8 border-l-4 border-l-orange-500 hover:border-l-orange-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Tackling Unfair Trade Practices and Misleading Ads</h2>
+                        </div>
+                        <button onclick="copyLink('#unfair-practices')" class="text-slate-500 hover:text-orange-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">COPRA 2019 places significant focus on regulating practices that deceive consumers, especially through online and digital advertisements. The <strong class="text-white">Central Consumer Protection Authority (CCPA)</strong> plays a key role in enforcing these provisions.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Defining Unfair Trade Practices (UTP)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Misleading Advertisements:</strong> Any ad that falsely describes a product, guarantees results without adequate testing, or deliberately conceals important information.</li>
+                        <li><strong class="key-term-style">Bait Advertising:</strong> Advertising goods/services at very low prices to attract customers, only to switch them to more expensive products later.</li>
+                        <li><strong class="key-term-style">Spurious Goods:</strong> Products falsely labeled as genuine products of another manufacturer.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">The Role of the CCPA</h4>
+                    <p class="text-slate-400">The CCPA has the power to:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li>Issue guidelines for preventing unfair trade practices.</li>
+                        <li>Order an immediate withdrawal or modification of misleading advertisements.</li>
+                        <li>Impose penalties on manufacturers, endorsers, and publishers (including fines up to ₹50 Lakh) for false advertising.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 5: Consumer Rights in the Digital Age (E-Commerce) -->
+                <article id="e-commerce-rights" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Consumer Rights in the Digital Age (E-Commerce)</h2>
+                        </div>
+                        <button onclick="copyLink('#e-commerce-rights')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The 2019 Act brought clarity and accountability to online shopping. E-commerce entities and marketplaces are now held responsible for disclosing complete product information and ensuring return/refund policies are clearly defined.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Specific E-Commerce Requirements</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Mandatory Disclosures:</strong> Platforms must disclose the seller's details, contact information, customer care numbers, and grievance redressal mechanism.</li>
+                        <li><strong class="key-term-style">No Arbitrary Cancellation:</strong> Sellers cannot arbitrarily cancel confirmed orders unless exceptional circumstances exist.</li>
+                        <li><strong class="key-term-style">Country of Origin:</strong> E-commerce entities must clearly display the 'country of origin' for all products.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Liability for Marketplace Models</h4>
+                    <p class="text-slate-400">Even in a marketplace model (where the platform connects buyers and sellers), the e-commerce entity can be held liable if they fail to disclose sufficient information about the seller, leading to the consumer's inability to seek redressal.</p>
+                </article>
+
+                <!-- Article 6: The Procedure for Registering a First Information Report (FIR) -->
+                <article id="fir-procedure" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-user-lock"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">The Procedure for Registering a First Information Report (FIR)</h2>
+                        </div>
+                        <button onclick="copyLink('#fir-procedure')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">An **FIR** is a written document prepared by police when they receive information about the commission of a <strong class="text-white">cognizable offense</strong>. It is the crucial starting point for any criminal investigation and is governed by **Section 154 of the CrPC (Code of Criminal Procedure)**.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Key Concepts & Terms</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Cognizable Offense:</strong> A serious offense where the police officer **can arrest without a warrant**. Police *must* register an FIR if reported.</li>
+                        <li><strong class="key-term-style">Non-Cognizable Offense (NCR):</strong> A less serious offense where police **cannot arrest without a warrant**. Police simply record the information in a General Diary (**NCR** entry) and advise the complainant to approach a Magistrate.</li>
+                        <li><strong class="key-term-style">Zero FIR:</strong> An FIR registered at *any* police station, regardless of jurisdiction. It is later transferred to the correct police station.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">What to Do If Police Refuse to Register an FIR</h4>
+                    <p class="text-slate-400">If the offense is cognizable and police refuse registration, follow these legal avenues:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Approach Superior Officer (Sec. 154(3) CrPC):</strong> Send the written complaint to the **Superintendent of Police (SP)** by speed post/registered mail.</li>
+                        <li><strong class="text-slate-200">Approach the Magistrate (Sec. 156(3) CrPC):</strong> File a private complaint before a Judicial Magistrate, who can direct the police to register the FIR and investigate the matter.</li>
+                        <li><strong class="text-slate-200">Judicial Remedy:</strong> Courts have the power to penalize police officers for unjustified refusal.</li>
+                    </ol>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2024 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        mobileSearchInput.addEventListener('input', filterArticles);
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

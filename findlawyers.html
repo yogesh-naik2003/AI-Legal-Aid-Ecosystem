@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Lawyer You Can Trust</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Three.js for 3D Background Effect -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Use Inter font (modern and professional) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* New: Base dark color */
+            background-color: #0f172a; 
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 3D Canvas Styling: Fixed to background */
+        #three-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* Fallback background color now dark */
+            background: #0f172a; 
+        }
+
+        /* Custom primary color definition (Deep Indigo) */
+        .primary-color { background-color: #4f46e5; }
+        .text-primary { color: #4f46e5; }
+
+        /* Professional Gradient for Hero/Primary elements */
+        .hero-gradient {
+            background-image: linear-gradient(to right, #4f46e5, #6366f1);
+        }
+
+        /* Subtle Text Shadow for Header */
+        .header-title-shadow {
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Backdrop Blur for Modals */
+        #profile-modal, #compare-modal, #guided-modal {
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        /* Custom Button Styling with Gradient and Shadow Lift */
+        .btn-primary {
+            background-image: linear-gradient(to right, #4f46e5 0%, #6366f1 100%);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5); 
+            transition: all 0.3s ease-in-out;
+            font-weight: 700;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 10px 25px rgba(67, 56, 202, 0.7);
+            transform: translateY(-2px); 
+        }
+        
+        /* Secondary Button (View Profile) */
+        .btn-secondary {
+            background-color: #3730a3; 
+            color: #d1d5db; 
+            border: 1px solid #4f46e5; 
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #4f46e5;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Dynamic Card Shadow/Lift Effect - Now includes 3D tilt prep */
+        .dynamic-card {
+            transition: all 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+            /* 3D Tilt Setup */
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .dynamic-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            border-color: #6366f1;
+        }
+
+        /* Stronger Focus Effect for Inputs */
+        input:focus, select:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.5) !important;
+            border-color: #6366f1 !important;
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- NEW: 3D Background Canvas -->
+    <canvas id="three-bg"></canvas>
+
+    <!-- Main Container -->
+    <div class="min-h-screen flex flex-col relative z-0">
+        <!-- Sticky Header (Smallest Size, Clean Alignment) -->
+        <header class="hero-gradient shadow-2xl sticky top-0 z-40 border-b border-indigo-400">
+            <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 text-white flex items-center justify-between">
+                
+                <!-- Left: Brand Logo (LegalAid AI) -->
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold">⚖️ LegalAid AI</h2>
+                </div>
+                
+                <!-- Right/Center: Main Title and Subtitle -->
+                <div class="flex-1 text-center">
+                    <h1 class="text-xl font-extrabold tracking-tight header-title-shadow">Find a Lawyer You Can Trust</h1>
+                    <p class="text-xs font-light opacity-90">Search by expertise, location, or language — and connect instantly.</p>
+                </div>
+
+                <div class="flex-1 text-right">
+                    <a href="homelogin.html" class="text-white hover:text-indigo-200 transition-colors font-semibold px-3">Home</a> 
+                    <a href="askai.html" class="text-white hover:text-indigo-200 transition-colors font-semibold px-3">Ask AI</a> 
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 w-full">
+
+            <!-- AI Suggestion Box -->
+            <section class="bg-indigo-900 border-l-8 border-indigo-500 p-6 rounded-xl shadow-lg mb-8">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-indigo-300 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 11h10a3 3 0 010 6H7a3 3 0 010-6z"></path></svg>
+                    <div>
+                        <p class="font-bold text-xl text-indigo-300">💬 AI Recommendation</p>
+                        <p class="text-sm text-indigo-400">Based on your input, we suggest the three most suitable professionals below.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search and Filter Section (MODERNIZED LAYOUT) -->
+            <section class="bg-slate-800 p-8 rounded-3xl shadow-2xl dynamic-card mb-10 border border-slate-700">
+                
+                <!-- Search Bar Container (Elevated Look) -->
+                <div class="mb-8 p-4 rounded-xl bg-slate-700 border border-slate-600 shadow-inner">
+                    <div class="relative">
+                        <input type="text" id="search-keyword" placeholder="🔍 Search by name, keyword, or specialization..."
+                               class="w-full p-3 pl-10 border border-slate-600 rounded-lg bg-slate-800 text-gray-100 placeholder-gray-400 text-base font-medium transition duration-200 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+
+                <!-- Filters Grid (Tighter spacing) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <!-- Practice Area -->
+                    <select id="filter-practice" class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 appearance-none shadow-sm transition duration-200 focus:ring-2 focus:ring-indigo-300">
+                        <option value="">⚖️ Practice Area</option>
+                        <option value="Criminal">Criminal Law</option>
+                        <option value="Family">Family Law</option>
+                        <option value="Corporate">Corporate Law</option>
+                        <option value="Civil">Civil Litigation</option>
+                        <option value="IP">Intellectual Property</option>
+                        <option value="Tax">Tax Law</option>
+                        <option value="Real Estate">Real Estate Law</option>
+                        <option value="Labor">Labor & Employment Law</option>
+                    </select>
+
+                    <!-- Location -->
+                    <input type="text" id="filter-location" placeholder="📍 Location (City/ZIP)"
+                           class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 shadow-sm transition duration-200 focus:ring-2 focus:ring-indigo-300">
+                    
+                    <!-- Language -->
+                    <select id="filter-language" class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 appearance-none shadow-sm transition duration-200 focus:ring-2 focus:ring-indigo-300">
+                        <option value="">🗣️ Language</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="English">English</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Spanish">Spanish</option>
+                    </select>
+
+                    <!-- Experience Level -->
+                    <select id="filter-experience" class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 appearance-none shadow-sm transition duration-200 focus:ring-2 focus:ring-indigo-300">
+                        <option value="">⭐ Experience Level</option>
+                        <option value="1-3">1–3 years</option>
+                        <option value="5-10">5–10 years</option>
+                        <option value="10+">10+ years</option>
+                    </select>
+
+                    <!-- Case Type -->
+                    <select id="filter-case-type" class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 appearance-none shadow-sm transition duration-200 focus:ring-2 focus:ring-indigo-300">
+                        <option value="">💼 Case Type</option>
+                        <option value="Online">Online Consultation</option>
+                        <option value="Court">Court Representation</option>
+                        <option value="Documentation">Documentation</option>
+                    </select>
+                </div>
+
+                <!-- Sort & Action Buttons -->
+                <div class="mt-6 pt-5 border-t border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <span class="text-gray-400 font-semibold whitespace-nowrap">Sort By:</span>
+                        <select id="sort-by" class="p-3 border border-slate-600 rounded-lg bg-slate-800 text-gray-300 shadow-sm">
+                            <option value="rating">Ratings (High to Low)</option>
+                            <option value="experience">Experience (High to Low)</option>
+                            <option value="price">Price (Low to High)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <button onclick="openGuidedModal()" class="w-full sm:w-auto px-6 py-3 bg-slate-700 text-gray-300 font-bold rounded-xl transition duration-200 hover:bg-slate-600 hover:shadow-md">
+                            Need Help? (Guided Flow)
+                        </button>
+                        <button onclick="applyFilters()" class="w-full sm:w-auto px-8 py-3 btn-primary text-white rounded-xl transition duration-200">
+                            Search Lawyers
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Lawyer Profiles Display Section -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Found Professionals (<span id="lawyer-count" class="text-indigo-400"></span>)</h2>
+                <div id="lawyer-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                    <!-- Lawyer cards will be injected here by JavaScript -->
+                </div>
+
+                <div id="no-results" class="hidden text-center p-16 bg-slate-800 rounded-2xl shadow-xl mt-10 border border-slate-700">
+                    <p class="text-2xl text-gray-400 font-semibold">😔 No Matches Found</p>
+                    <p class="text-md text-gray-500 mt-2">Please widen your search criteria or clear some filters.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Fixed UI Elements -->
+
+        <!-- Compare Lawyers Button (Prominent Pink) -->
+        <button id="compare-btn" onclick="showCompareModal()" class="fixed bottom-20 right-8 z-50 px-6 py-3 bg-pink-600 text-white font-bold rounded-full shadow-2xl transition duration-300 transform hidden hover:bg-pink-700 hover:scale-105">
+            Compare <span id="compare-count">0</span> Lawyers
+        </button>
+
+        <!-- Chatbot Integration -->
+        <div class="fixed bottom-8 right-8 z-50">
+            <button onclick="openChatbot()" class="bg-indigo-600 text-white rounded-full p-5 shadow-2xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"></path></svg>
+            </button>
+            <div id="chatbot-modal" class="hidden absolute bottom-20 right-0 w-80 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-5 transition-all duration-300 transform translate-y-2 opacity-0" style="transition: transform 0.3s, opacity 0.3s;">
+                <h3 class="font-bold text-xl mb-3 text-indigo-400 border-b pb-2 border-slate-700">🧠 AI Legal Assistant</h3>
+                <p class="text-sm text-gray-300 mb-4">Describe your legal situation, and I'll find the best fit for you.</p>
+                <textarea class="w-full p-3 border border-slate-600 rounded-lg bg-slate-700 text-gray-100 text-sm mb-4 focus:ring-indigo-500 focus:border-indigo-500" rows="4" placeholder="I need advice on a corporate merger..."></textarea>
+                <button class="w-full bg-green-500 text-white py-3 rounded-xl text-md font-bold hover:bg-green-600 shadow-md">Get Recommendations</button>
+                <button onclick="closeChatbot()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 p-1 rounded-full bg-slate-700 hover:bg-slate-600">&times;</button>
+            </div>
+        </div>
+
+        <!-- Detailed Profile Modal (Hidden by default) -->
+        <div id="profile-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+            <div class="bg-slate-800 rounded-3xl w-full max-w-5xl max-h-[95vh] overflow-y-auto shadow-2xl relative p-8 md:p-12 transform scale-95 transition-transform duration-300 border border-slate-700">
+                <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+                <div id="profile-content">
+                    <!-- Detailed profile content will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compare Modal (Hidden by default) -->
+        <div id="compare-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+            <div class="bg-slate-800 rounded-3xl w-full h-full overflow-y-auto shadow-2xl relative p-8 md:p-12 transform scale-95 transition-transform duration-300 border border-slate-700">
+                <button onclick="closeCompareModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+                <h2 class="text-3xl font-extrabold text-indigo-400 mb-8 border-b pb-4 border-slate-700">Side-by-Side Comparison</h2>
+                <div id="compare-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Comparison data injected here -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button onclick="closeCompareModal()" class="px-6 py-3 btn-primary text-white rounded-xl">Close Comparison</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guided Flow Modal (Hidden by default) -->
+        <div id="guided-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+            <div class="bg-slate-800 rounded-3xl w-full max-w-lg max-h-[95vh] overflow-y-auto shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700">
+                <button onclick="closeGuidedModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+                <h2 class="text-3xl font-extrabold text-indigo-400 mb-4">Guided Lawyer Match</h2>
+                <p class="text-gray-300 mb-6">Answer a few questions to automatically set your search filters.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">1. What is the main area of your legal issue?</label>
+                        <select id="guided-practice" class="mt-1 w-full p-3 border border-slate-600 rounded-lg bg-slate-700 text-gray-100">
+                            <option value="">Select Area</option>
+                            <option value="Family">Family Law (Divorce, Custody)</option>
+                            <option value="Corporate">Corporate Law (Business, Contracts)</option>
+                            <!-- ... other options ... -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">2. Do you need Court Representation or just Documentation/Advice?</label>
+                        <select id="guided-case-type" class="mt-1 w-full p-3 border border-slate-600 rounded-lg bg-slate-700 text-gray-100">
+                            <option value="">Select Type</option>
+                            <option value="Court">Court Representation</option>
+                            <option value="Online">Online Consultation/Advice</option>
+                            <option value="Documentation">Documentation</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="submitGuidedSearch()" class="mt-8 w-full py-3 btn-primary text-white rounded-xl shadow-lg">
+                    Find Matches
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed bottom-8 right-8 z-[100] space-y-3">
+            <!-- Toasts will be injected here -->
+        </div>
+
+        <!-- Footer Section -->
+        <footer class="bg-gray-900 text-gray-400 mt-16 border-t border-indigo-900">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+                <p class="text-sm mb-4">&copy; 2025 TrustLawyer Platform. All rights reserved.</p>
+                <div class="flex justify-center space-x-6 text-sm font-light">
+                    <a href="#" class="hover:text-indigo-400 transition">Terms & Conditions</a>
+                    <a href="#" class="hover:text-indigo-400 transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-indigo-400 transition">Contact Us</a>
+                    <a href="#" class="hover:text-indigo-400 transition">Help Center</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript for Functionality and Data & Three.js -->
+    <script>
+        let allLawyers = []; // This will hold all lawyers fetched from the backend
+        let currentLawyers = []; // This will hold the currently displayed/filtered lawyers
+        let comparingLawyers = []; 
+        let favoriteLawyers = JSON.parse(localStorage.getItem('favoriteLawyers')) || []; 
+
+        // --- Utility Functions ---
+        
+        // Simple star rating display
+        const renderRating = (rating) => {
+            if (typeof rating !== 'number' || rating < 0 || rating > 5) {
+                return '<span>No rating</span>';
+            }
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 !== 0;
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<span class="text-yellow-400">★</span>';
+            }
+            if (halfStar) {
+                stars += '<span class="text-yellow-400">½</span>';
+            }
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<span class="text-gray-600">★</span>'; // Darkened empty stars
+            }
+            return `<div class="flex items-center text-sm font-bold">${stars} <span class="ml-2 text-gray-300">${rating}</span></div>`;
+        };
+        
+        // Live Availability Dot Feature
+        const getAvailabilityDot = (status) => {
+            let color, text;
+            if (status === "Available") {
+                color = 'bg-green-500';
+                text = 'Available Now';
+            } else if (status === "Busy") {
+                color = 'bg-yellow-500';
+                text = 'Busy (1-2hr wait)';
+            } else {
+                color = 'bg-gray-500'; // Darkened offline status
+                text = 'Offline / Appointment Only';
+            }
+            return `<div class="flex items-center text-xs text-gray-400 mt-1"><span class="w-2.5 h-2.5 ${color} rounded-full mr-1.5"></span> ${text}</div>`;
+        };
+
+        // --- Core Rendering Functions ---
+
+        const renderLawyerCard = (lawyer) => {
+            const lawyerName = lawyer.name || lawyer.full_name;
+            const specializationDisplay = lawyer.specializationName || lawyer.specialization;
+            const isFavorited = favoriteLawyers.some(fav => (fav.name || fav.full_name) === lawyerName);
+
+            return `
+                <div class="bg-slate-800 rounded-2xl shadow-lg dynamic-card p-6 flex flex-col border-2 border-transparent relative">
+                    <!-- MODIFIED: Removed onclick, added data-name attribute for JS event listener -->
+                    <button data-lawyer-name="${lawyerName}" class="favorite-btn absolute top-4 left-4 z-10 text-2xl ${isFavorited ? 'text-red-500' : 'text-gray-500'} hover:text-red-400 transition-transform transform hover:scale-125" title="Add to Favorites">
+                        <i class="${isFavorited ? 'fas' : 'far'} fa-heart"></i>
+                    </button>
+
+                    <div class="absolute top-4 right-4 z-10">
+                        <input type="checkbox" id="compare-${lawyerName}" onchange="toggleCompare('${lawyerName}')" class="form-checkbox h-5 w-5 text-indigo-400 rounded border-slate-600 bg-slate-700 focus:ring-indigo-500 cursor-pointer" ${comparingLawyers.includes(lawyerName) ? 'checked' : ''}>
+                        <label for="compare-${lawyer.id}" class="text-sm text-gray-400 ml-1 select-none">Compare</label>
+                    </div>
+
+                    <!-- Profile Header & Main Info -->
+                    <div class="flex items-start mb-4">
+                        <!-- Profile Image with polished border -->
+                        <img src="${lawyer.avatar_url || 'https://placehold.co/80x80/4f46e5/ffffff?text=👤'}" onerror="this.src='https://placehold.co/80x80/4f46e5/ffffff?text=👤'" class="w-16 h-16 rounded-full object-cover border-4 border-indigo-500 shadow-md mr-4 flex-shrink-0" alt="${lawyerName}">
+                        
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-extrabold text-gray-100 flex items-center mb-1">
+                                ${lawyerName}
+                            </h3>
+                            <p class="text-indigo-400 font-semibold text-sm">${specializationDisplay}</p>
+                            <div class="flex items-center mt-1">
+                                ${renderRating(lawyer.rating)}
+                                <!-- Verified Badge Feature -->
+                        ${lawyer.barId ? '<span class="text-xs font-bold px-2 py-0.5 bg-green-900 text-green-300 rounded-full ml-3 select-none">✔ Verified</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Location and Availability -->
+                    <div class="flex justify-between items-center text-gray-400 text-xs mb-3 border-b pb-3 border-slate-700">
+                        <span class="flex items-center"><svg class="w-4 h-4 mr-1.5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>${lawyer.location}</span>
+                        ${getAvailabilityDot(lawyer.availability_status || lawyer.availabilityStatus)}
+                    </div>
+                    
+                    <!-- NEW: Key Stats Block (Accent Color) -->
+                    <div class="bg-indigo-900 p-4 rounded-xl mb-4 border border-indigo-800">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-indigo-300 font-medium uppercase">Experience</p>
+                                <p class="text-lg font-bold text-gray-100">${lawyer.experience || 'N/A'} years</p>
+                            </div>
+                            <div class="h-8 w-px bg-indigo-800"></div>
+                            <div class="text-right">
+                                <p class="text-xs text-indigo-300 font-medium uppercase">Consultation Fee</p>
+                                <p class="text-xl font-extrabold text-indigo-400">₹${lawyer.consultation_fee || lawyer.fee || 'N/A'}/hr</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Short Bio -->
+                    <p class="italic text-gray-400 pt-2 text-sm leading-relaxed mb-4 flex-grow">${lawyer.short_bio || lawyer.bio}</p>
+
+                    <!-- Actions -->
+                    <div class="mt-auto flex flex-col space-y-3">
+                        <button onclick="showProfileModal('${lawyerName}')" class="w-full py-3 btn-secondary rounded-xl font-bold hover:shadow-md">View Profile</button>
+                        <button class="w-full py-3 btn-primary text-white rounded-xl shadow-md hover:shadow-lg">Book Appointment</button>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderLawyers = (lawyerList) => {
+            const grid = document.getElementById('lawyer-grid');
+            const countDisplay = document.getElementById('lawyer-count');
+            const noResults = document.getElementById('no-results');
+            
+            grid.innerHTML = '';
+            countDisplay.textContent = lawyerList.length;
+
+            if (lawyerList.length > 0) {
+              noResults.classList.add('hidden');
+              grid.classList.remove('hidden');
+              // First, build the entire HTML string
+              grid.innerHTML = lawyerList.map(renderLawyerCard).join('');
+            } else {
+              noResults.classList.remove('hidden');
+              grid.classList.add('hidden');
+            }
+
+            // THEN, after the HTML is on the page, attach the event listeners
+
+        // Add event listeners to the favorite buttons after they are rendered
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const lawyerName = this.getAttribute('data-lawyer-name');
+                toggleFavorite(lawyerName);
+            });
+        });
+        };
+
+        // --- Feature 8: Auto-Location Detection ---
+        const detectLocation = () => {
+            const filterLocationInput = document.getElementById('filter-location');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    // Simulated successful detection
+                    if (!filterLocationInput.value) {
+                         filterLocationInput.value = "New York"; 
+                         console.log("Location detected and filter pre-filled (simulated).");
+                    }
+                }, (error) => {
+                    console.warn("Location detection denied or failed:", error.message);
+                    filterLocationInput.placeholder = "📍 Location (Location blocked)";
+                }, { timeout: 5000 });
+            }
+        };
+
+        // --- Feature 7: Compare Lawyers Logic ---
+
+        const updateCompareButton = () => {
+            const btn = document.getElementById('compare-btn');
+            const count = document.getElementById('compare-count');
+            count.textContent = comparingLawyers.length;
+
+            if (comparingLawyers.length >= 2) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        };
+
+        const toggleCompare = (name) => {
+            const index = comparingLawyers.indexOf(name);
+            if (index > -1) {
+                comparingLawyers.splice(index, 1); // Remove
+            } else if (comparingLawyers.length < 3) {
+                comparingLawyers.push(name); // Add, limit to 3
+            } else {
+                // If limit reached, uncheck the box and notify (optional)
+                document.getElementById(`compare-${name}`).checked = false;
+                console.warn("Comparison limit reached (max 3 lawyers).");
+            }
+            updateCompareButton();
+        };
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = '';
+            if (type === 'success') {
+                icon = '<i class="fas fa-check-circle mr-3"></i>';
+            } else { // info for removal
+                icon = '<i class="fas fa-info-circle mr-3"></i>';
+            }
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000); // Toast visible for 3 seconds
+        }
+        const toggleFavorite = (lawyerName) => {
+            // Find the index of the lawyer in the favorites array by name
+            const index = favoriteLawyers.findIndex(fav => (fav.name || fav.full_name) === lawyerName);
+            
+            if (index > -1) {
+                favoriteLawyers.splice(index, 1); // Unfavorite
+                showToast(`Removed ${lawyerName} from favorites.`, 'info');
+            } else {
+                // Find the full lawyer object from the currently displayed list
+                const lawyerToAdd = currentLawyers.find(l => (l.name || l.full_name) === lawyerName);
+                if (lawyerToAdd) {
+                    favoriteLawyers.push(lawyerToAdd); // Favorite by adding the whole object
+                    showToast(`Added ${lawyerName} to favorites!`, 'success');
+                }
+            }
+            // Save to localStorage for persistence
+            localStorage.setItem('favoriteLawyers', JSON.stringify(favoriteLawyers)); // Now saves the array of objects
+            renderLawyers(currentLawyers); // Re-render to update the icon state
+
+            // --- NEW: Save favorites to the backend ---
+            saveFavoritesToBackend(favoriteLawyers);
+        };
+
+        async function saveFavoritesToBackend(favorites) {
+            try {
+                await fetch('http://127.0.0.1:5000/api/favorites', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(favorites)
+                });
+            } catch (error) {
+                console.error("Failed to save favorites to backend:", error);
+            }
+        };
+
+        const showCompareModal = () => {
+            const modal = document.getElementById('compare-modal');
+            const content = document.getElementById('compare-content');
+            
+            if (comparingLawyers.length < 2) {
+                console.warn("Select at least two lawyers to compare.");
+                return;
+            }
+
+            const selectedLawyers = allLawyers.filter(l => comparingLawyers.includes(l.name || l.full_name));
+            
+            // --- UPDATED COMPARISON TEMPLATE ---
+            content.innerHTML = selectedLawyers.map(l => { const lawyerName = l.name || l.full_name; return `
+                <div class="bg-slate-700 p-6 rounded-xl border-2 border-indigo-500 shadow-xl">
+                    <div class="flex flex-col items-center border-b pb-4 border-slate-600 mb-4">
+                        <img src="${l.avatar_url || 'https://placehold.co/100x100/6366f1/ffffff?text=👤'}" class="w-20 h-20 rounded-full object-cover border-4 border-indigo-400 mb-3" alt="${l.name || l.full_name}">
+                        <h3 class="text-2xl font-extrabold text-gray-100 flex items-center">
+                            ${l.name || l.full_name}
+                            ${l.barId ? '<span class="text-xs font-bold px-2 py-0.5 bg-green-900 text-green-300 rounded-full ml-3 select-none">✔ Verified</span>' : ''}
+                        </h3>
+                        <p class="text-indigo-400 text-md font-semibold">${l.specializationName || l.specialization}</p>
+                    </div>
+
+                    <h4 class="text-lg font-bold text-gray-200 mb-2">Key Metrics:</h4>
+                    
+                    <ul class="space-y-3 text-md text-gray-300">
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Rating:</strong> ${renderRating(l.rating)}</li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Experience:</strong> <span>${l.experience} Years</span></li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Location:</strong> <span>${l.location}</span></li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Languages:</strong> <span>${l.languages || l.language}</span></li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Case Success Rate:</strong> <span class="font-bold text-green-400">${l.caseSuccess}%</span></li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Clients Served:</strong> <span>${l.clientsServed}+</span></li>
+                        <li class="flex justify-between border-b border-slate-600 pb-2"><strong>Consultation Fee:</strong> <span class="font-bold text-indigo-400">₹${l.consultation_fee || l.fee}/hr</span></li>
+                        <li class="flex justify-between pt-1"><strong>Availability:</strong> ${getAvailabilityDot(l.availability_status || l.availabilityStatus)}</li>
+                    </ul>
+
+                    <h4 class="text-lg font-bold text-gray-200 mt-4 mb-2 border-t pt-4 border-slate-600">Bio:</h4>
+                    <p class="italic text-gray-400 text-sm">${l.short_bio || l.bio}</p>
+
+                    <button onclick="showProfileModal('${lawyerName}'); justCloseCompareModal();" class="w-full mt-6 py-3 btn-primary text-white rounded-xl transition duration-150 font-semibold">View Full Profile</button>
+                </div>
+            `}).join('');
+            // --- END UPDATED COMPARISON TEMPLATE ---
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeCompareModal = () => {
+            document.getElementById('compare-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            // NEW: Reload the page to clear comparison state and selected checkboxes
+            window.location.reload(); 
+        };
+
+        const justCloseCompareModal = () => {
+            document.getElementById('compare-modal').classList.add('hidden');
+            // We keep the body overflow hidden because the profile modal will be open
+            // document.body.style.overflow = 'auto';
+        }
+
+        // --- Feature 6: Guided Flow Functions ---
+        const openGuidedModal = () => {
+            document.getElementById('guided-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeGuidedModal = () => {
+            document.getElementById('guided-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        const submitGuidedSearch = () => {
+            const practice = document.getElementById('guided-practice').value;
+            const caseType = document.getElementById('guided-case-type').value;
+
+            if (practice) {
+                document.getElementById('filter-practice').value = practice;
+            }
+            if (caseType) {
+                document.getElementById('filter-case-type').value = caseType;
+            }
+
+            closeGuidedModal();
+            applyFilters();
+        };
+        
+        // --- Filter Logic ---
+        const applyFilters = () => {
+            const keyword = document.getElementById('search-keyword').value.toLowerCase();
+            const practice = document.getElementById('filter-practice').value; 
+            const location = document.getElementById('filter-location').value.toLowerCase();
+            const language = document.getElementById('filter-language').value;
+            const experience = document.getElementById('filter-experience').value;
+            const caseType = document.getElementById('filter-case-type').value;
+            const sortBy = document.getElementById('sort-by').value;
+
+            let filtered = allLawyers.filter(l => {
+                // Keyword Search Match
+                const keywordMatch = !keyword || 
+                                     (l.full_name || l.name).toLowerCase().includes(keyword) || 
+                                     (l.specialization || '').toLowerCase().includes(keyword) || 
+                                     (l.short_bio || l.bio || '').toLowerCase().includes(keyword);
+
+                // Practice Area Match
+                const practiceMatch = !practice || l.specialization === practice;
+                
+                // Location Match
+                const locationMatch = !location || l.location.toLowerCase().includes(location);
+                
+                // Language Match
+                const languageMatch = !language || (l.languages && l.languages.toLowerCase().includes(language.toLowerCase()));
+                
+                // Case Type Match
+                const caseTypeMatch = !caseType || l.caseType === caseType;
+
+                // Experience Match
+                let experienceMatch = true;
+                if (experience) {
+                    experienceMatch = l.experience === experience;
+                }
+
+                return keywordMatch && practiceMatch && locationMatch && languageMatch && experienceMatch && caseTypeMatch;
+            });
+            
+            // Sorting Logic (in-memory sort)
+            filtered.sort((a, b) => {
+                if (sortBy === 'rating') return b.rating - a.rating;
+                if (sortBy === 'experience') {
+                    // Simple conversion for sorting: 10+ > 5-10 > 1-3
+                    const expValue = (exp) => {
+                        if (exp === '10+') return 3;
+                        if (exp === '5-10') return 2;
+                        return 1;
+                    };
+                    return expValue(b.experience) - expValue(a.experience);
+                }
+                if (sortBy === 'price') return a.consultation_fee - b.consultation_fee; // Sort ascending by price
+                return 0;
+            });
+
+            currentLawyers = filtered;
+            renderLawyers(currentLawyers);
+        };
+
+        // --- Detail Modal Functions (Features 1, 2, 3, 4) ---
+
+        const showProfileModal = (lawyerName) => {
+            const lawyer = allLawyers.find(l => (l.full_name || l.name) === lawyerName);
+            if (!lawyer) return;
+
+            const specializationDisplay = lawyer.specializationName || lawyer.specialization || 'N/A'; 
+            const lawyerFullName = lawyer.full_name || lawyer.name;
+
+            const profileContent = document.getElementById('profile-content');
+            profileContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start text-gray-300">
+                    <!-- Left Column: Photo & Details -->
+                    <div class="lg:col-span-1 text-center border-b lg:border-b-0 lg:border-r border-slate-700 lg:pr-10 pb-6 lg:pb-0">
+                        <img src="${lawyer.avatar_url || 'https://placehold.co/150x150/6366f1/ffffff?text=👤'}" class="w-36 h-36 rounded-full object-cover mx-auto border-4 border-indigo-500 shadow-xl mb-4" alt="${lawyerFullName}">
+                        <h2 class="text-4xl font-extrabold text-gray-100">${lawyerFullName}</h2>
+                        <p class="text-xl text-indigo-400 font-semibold mb-3">${specializationDisplay}</p>
+                        ${renderRating(lawyer.rating)}
+                        <p class="text-gray-400 mt-1 text-sm">(${lawyer.rating} / 5.0 Average)</p>
+                        
+                        <div class="mt-6 p-4 bg-indigo-900 border border-indigo-800 rounded-xl shadow-md">
+                            <p class="text-md font-medium text-indigo-300">Consultation Fee</p>
+                            <p class="text-3xl font-extrabold text-indigo-400">₹${lawyer.consultation_fee || lawyer.fee}/hr</p>
+                            ${getAvailabilityDot(lawyer.availability_status || lawyer.availabilityStatus)}
+                        </div>
+                    </div>
+
+                    <!-- Right Columns: Expertise, Reviews, etc. -->
+                    <div class="lg:col-span-2">
+                        <h3 class="text-3xl font-bold text-gray-100 border-b pb-3 mb-6 border-slate-700">Professional Profile</h3>
+                        
+                        <!-- Key Stats (Features 2, 3) -->
+                        <div class="grid grid-cols-2 gap-4 text-gray-300 mb-8 p-4 bg-slate-700 rounded-xl border border-slate-600">
+                            <p class="text-sm md:text-md"><strong>🆔 Bar ID:</strong> <span class="font-semibold text-indigo-400">${lawyer.barId || 'Not Provided'}</span> (State Licensed)</p>
+                            <p class="text-sm md:text-md"><strong>📅 Total Experience:</strong> ${lawyer.experience} years</p>
+                            <p class="text-sm md:text-md"><strong>👥 Clients Served:</strong> <span class="font-semibold">${lawyer.clientsServed || 'N/A'}+</span></p>
+                            <p class="text-sm md:text-md"><strong>🌍 Location:</strong> ${lawyer.location}</p>
+                            <p class="text-sm md:text-md"><strong>🏅 Case Success Rate:</strong> <span class="text-green-400 font-extrabold text-lg">${lawyer.caseSuccess || 'N/A'}%</span></p>
+                            <p class="text-sm md:text-md"><strong>🗣️ Languages:</strong> ${lawyer.languages || lawyer.language}</p>
+                        </div>
+
+                        <h4 class="text-xl font-semibold text-gray-300 mb-3">Expertise & Background</h4>
+                        <p class="text-gray-400 mb-8 leading-relaxed">"${lawyer.short_bio || lawyer.bio}"<br> Throughout my career, I've successfully represented numerous clients in complex transactions and litigation. My focus is on delivering clear, actionable legal strategy.</p>
+
+                        <!-- Availability & Document Upload Placeholder (Feature 4) -->
+                        <div class="bg-slate-800 p-5 rounded-lg border-2 border-dashed border-indigo-500 mb-8 shadow-inner">
+                            <h4 class="font-bold text-xl mb-3 text-gray-100">Smart Booking & Preparation</h4>
+                            <p class="text-sm text-gray-400 mb-4">🕒 Available slots for online consultation: <span class="text-green-400 font-bold">Today 3:00 PM - 5:00 PM (Google Meet)</span></p>
+                            <p class="text-sm text-gray-400 mb-4">📄 **AI Document Analysis:** Upload your case documents below for a preliminary AI review. This helps the lawyer efficiently prepare before your consultation.</p>
+                            <div class="mt-3">
+                                <label for="document-upload" class="block text-sm font-bold text-gray-300 mb-1">Upload Case Documents (Secure & Optional)</label>
+                                <input type="file" id="document-upload" class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-500 file:text-gray-300 cursor-not-allowed" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('profile-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+        };
+
+        const closeProfileModal = () => {
+            document.getElementById('profile-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        };
+        
+        const openChatbot = () => {
+            const modal = document.getElementById('chatbot-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+        };
+
+        const closeChatbot = () => {
+            const modal = document.getElementById('chatbot-modal');
+            modal.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // --- Three.js Initialization and Animation ---
+        let scene, camera, renderer, particles, particleCount, clock;
+
+        function initThreeJS() {
+            const canvas = document.getElementById('three-bg');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            scene = new THREE.Scene();
+            clock = new THREE.Clock();
+
+            // Set up camera
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.z = 10;
+            camera.position.y = 5; // Look slightly down
+
+            // Set up renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setClearColor(0x0f172a, 1); // Dark background color
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 5); 
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            // Create particles (Dodecahedrons for a complex, professional look)
+            particleCount = 300;
+            const geometry = new THREE.DodecahedronGeometry(0.2, 0); // Small dodecahedron
+            
+            // Re-usable Material: Bright and translucent for dark background
+            const material = new THREE.MeshLambertMaterial({
+                color: 0x93c5fd, // Light Blue (blue-300)
+                emissive: 0x60a5fa, // Blue-400 glow
+                transparent: true,
+                opacity: 0.4,
+                wireframe: true, 
+            });
+
+            particles = new THREE.Group();
+            for (let i = 0; i < particleCount; i++) {
+                const particle = new THREE.Mesh(geometry, material);
+                
+                // Randomize starting position far out
+                particle.position.x = Math.random() * 80 - 40;
+                particle.position.y = Math.random() * 80 - 40;
+                particle.position.z = Math.random() * 80 - 40;
+
+                // Set a small random rotation speed
+                particle.userData.rotationSpeedX = (Math.random() - 0.5) * 0.005;
+                particle.userData.rotationSpeedY = (Math.random() - 0.5) * 0.005;
+                
+                particles.add(particle);
+            }
+            scene.add(particles);
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+
+            particles.children.forEach(particle => {
+                // 1. Rotation (Subtle spinning)
+                particle.rotation.x += particle.userData.rotationSpeedX;
+                particle.rotation.y += particle.userData.rotationSpeedY;
+
+                // 2. Downward movement ("Dropping") and forward drift
+                particle.position.y -= 0.01;
+                particle.position.z -= 0.005;
+
+                // 3. Reset position when out of view (creating continuous loop)
+                if (particle.position.y < -40) {
+                    particle.position.y = 40; // Teleport to the top
+                }
+                if (particle.position.z < -40) {
+                    particle.position.z = 40; // Teleport to the back
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+        
+        // --- Initialization ---
+        async function initializePage() {
+            // Fetch lawyers from the new API endpoint
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/public/lawyers');
+                if (!response.ok) throw new Error('Failed to fetch lawyers');
+                allLawyers = await response.json();
+            } catch (error) {
+                console.error("Could not fetch lawyers:", error);
+                allLawyers = []; // Start with an empty list on error
+            }
+
+            // Feature 8: Attempt to detect and pre-fill location
+            detectLocation();
+
+            // Initialize Three.js background
+            try {
+                initThreeJS();
+                animate();
+            } catch (e) {
+                console.error("Three.js failed to initialize:", e);
+                // Fallback style is already set in CSS body background
+            }
+
+
+            // Initial render and binding
+            applyFilters(); 
+
+            // Add event listeners for dynamic filtering (on input change)
+            document.getElementById('search-keyword').addEventListener('keyup', applyFilters);
+            document.getElementById('filter-practice').addEventListener('change', applyFilters);
+            document.getElementById('filter-location').addEventListener('keyup', applyFilters);
+            document.getElementById('filter-language').addEventListener('change', applyFilters);
+            document.getElementById('filter-experience').addEventListener('change', applyFilters);
+            document.getElementById('filter-case-type').addEventListener('change', applyFilters);
+            document.getElementById('sort-by').addEventListener('change', applyFilters);
+        }
+
+        window.onload = initializePage;
+    </script>
+</body>
+</html>

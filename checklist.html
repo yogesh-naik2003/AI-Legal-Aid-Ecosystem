@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklists & Cheat Sheets | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Shared Styles for Consistency */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+        
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Core Structure */
+        .section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            font-weight: 700;
+            color: white;
+        }
+        .section-title span { color: #fbbf24; }
+        
+        /* Card Grid - Forcing 3 columns where possible */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        
+        /* Download Card Specifics - Used for Checklist Cards */
+        .download-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 32px 24px;
+            transition: all .3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+        }
+        .download-card:hover {
+            box-shadow: 0 12px 25px rgba(251, 191, 36, 0.25); 
+            transform: translateY(-4px);
+            border-color: #fbbf24;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .card-title-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            line-height: 1.3;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 16px;
+            flex-grow: 1;
+        }
+        .download-btn { /* Renamed to .access-btn for non-PDF links */
+            background: #fbbf24; /* Gold */
+            color: #111827;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: all .2s;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+        }
+        .download-btn:hover {
+            background: #f59e0b;
+            transform: translateY(-1px);
+        }
+        
+        /* Icon color definitions based on card type */
+        .bg-fir { background-color: #dc2626; } /* Red */
+        .bg-property { background-color: #0d9488; } /* Teal */
+        .bg-marriage { background-color: #f43f5e; } /* Rose */
+        .bg-traffic { background-color: #3b82f6; } /* Blue */
+        .bg-fraud { background-color: #eab308; } /* Amber */
+        .bg-consumer-cheat { background-color: #8b5cf6; } /* Violet */
+
+        /* Modal Styles */
+        #checklistModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none; /* Controlled by JS */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        #checklistModal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 font-sans text-slate-300 relative">
+
+    <!-- === BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <div class="absolute -top-[15%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[120px] animate-float-slow mix-blend-screen"></div>
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full blur-[150px] animate-float-medium mix-blend-screen"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/90 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge_hub_main.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Knowledge Hub</a>
+                    <a href="askai.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium">Ask AI</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-4xl md:text-6xl text-gold-400 mb-4 animate-float-slow" style="animation-duration: 3s;"><i class="fas fa-list-check"></i></div>
+                <h1 class="hero-title text-white">Legal Checklists & <span>Quick Reference Guides</span></h1>
+                <p class="hero-subtitle">
+                    Essential, step-by-step instructions and cheat sheets for managing legal emergencies and administrative procedures correctly.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 1: Checklist Guides -->
+        <section class="section" style="background:#111827;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+                <h2 class="section-title">Actionable <span>Cheat Sheets</span></h2>
+                <div class="download-grid" id="checklistGuidesContainer">
+                    <!-- Cards will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="section" style="background:#0f172a; padding: 80px 0;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-800/80 glass-panel rounded-xl p-8 md:p-12 text-center">
+                    <h2 class="text-3xl font-serif font-bold text-white mb-4">Need a Specific Document?</h2>
+                    <p class="text-slate-400 mb-8">If you need a contract, notice, or petition drafted, use our AI tool for personalized drafting support.</p>
+                    <a href="askai.html" class="cta-btn !bg-indigo-600 hover:!bg-indigo-500 text-white">
+                        <i class="fas fa-file-contract"></i> Draft My Document with AI
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-slate-800 text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2024 LegalAid AI. All Rights Reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This platform provides AI-generated guidance for informational purposes only and does not constitute professional legal advice.</p>
+        </div>
+    </footer>
+    
+    <!-- Checklist Modal HTML -->
+    <div id="checklistModal">
+        <div class="modal-content">
+            <h3 id="modalTitle" class="text-2xl font-serif font-bold text-gold-400 mb-4 border-b border-slate-700 pb-2"></h3>
+            <div id="modalContent" class="text-slate-400 mb-6 space-y-4">
+                <!-- Checklist content dynamically injected here -->
+            </div>
+            <button onclick="closeChecklistModal()" class="download-btn !bg-red-600 hover:!bg-red-500 text-white">
+                <i class="fas fa-times mr-2"></i> Close
+            </button>
+        </div>
+    </div>
+    <!-- End Modal HTML -->
+
+    <script>
+    // --- Checklist Data (Updated with Content) ---
+    const checklistGuides = [
+        { 
+            id: "fir-checklist", icon: "fa-exclamation-triangle", title: "FIR Filing: Pre-Visit Checklist", color: "bg-fir", url: "#fir-checklist",
+            desc: "List of mandatory documents (ID proof, application copy) and steps before approaching the police station for a cognizable offense.", 
+            content: `
+                <h4 class="text-white font-semibold">Documents to Carry:</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li>ID Proof (Aadhaar/Voter ID) and Address Proof.</li>
+                    <li>Written Complaint Copy (2 signed copies).</li>
+                    <li>Evidence Photos/Videos (if available, on pen drive).</li>
+                    <li>Details of Witnesses (Name, Contact).</li>
+                </ul>
+                <h4 class="text-white font-semibold mt-3">Action Steps:</h4>
+                <ol class="list-decimal list-inside text-slate-300 ml-4 space-y-1">
+                    <li>Insist police read your complaint before signing the FIR.</li>
+                    <li>Obtain a free, stamped copy of the FIR immediately.</li>
+                    <li>If police refuse, write to the Superintendent of Police (SP).</li>
+                </ol>
+            `
+        },
+        { 
+            id: "land-due-diligence", icon: "fa-certificate", title: "Land Purchase Due Diligence Cheat Sheet", color: "bg-property", url: "#land-diligence",
+            desc: "Key legal documents to verify before buying property: Title Deed, Encumbrance Certificate (EC), and Property Tax receipts.", 
+            content: `
+                <h4 class="text-white font-semibold">Title Verification Steps:</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-gold-400">Check Chain of Title:</strong> Verify seller's name matches 30-40 years of past records.</li>
+                    <li><strong class="text-gold-400">Obtain Encumbrance Certificate (EC):</strong> Must be clear (no outstanding mortgages/liabilities).</li>
+                    <li><strong class="text-gold-400">Verify Property Tax:</strong> Ensure all municipal taxes are paid up to date.</li>
+                    <li><strong class="text-gold-400">Check Zonal Classification:</strong> Confirm the property's use (Residential/Commercial) matches zoning laws.</li>
+                </ul>
+            `
+        },
+        { 
+            id: "traffic-stop", icon: "fa-car", title: "Traffic Stop: Know Your Rights Cheat Sheet", color: "bg-traffic", url: "#traffic-stop",
+            desc: "Protocol for interacting with traffic police, documents to carry, and rules regarding vehicle seizure or e-challans.", 
+            content: `
+                <h4 class="text-white font-semibold">During the Stop:</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-gold-400">Remain Calm & Polite.</strong></li>
+                    <li>Present Digital/Physical Documents (DL, RC, Insurance, PUC).</li>
+                    <li>Police cannot forcibly take your keys or phone.</li>
+                    <li>You must be informed of the violation and fine amount.</li>
+                </ul>
+                <h4 class="text-white font-semibold mt-3">Post-Challan:</h4>
+                <p class="text-slate-300 ml-4">Always insist on an official E-Challan receipt. Do not pay cash fines to the police officer directly.</p>
+            `
+        },
+        { 
+            id: "fraud-response", icon: "fa-robot", title: "Online Fraud Response Checklist (The 1930 Rule)", color: "bg-fraud", url: "#fraud-response",
+            desc: "Immediate steps after losing money: Call 1930, report to cybercrime.gov.in, and file a bank complaint.", 
+            content: `
+                <h4 class="text-white font-semibold">Immediate Action (TIME IS CRITICAL):</h4>
+                <ol class="list-decimal list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-red-400">Call 1930</strong> (National Cyber Crime Helpline) immediately to report the financial loss and freeze the transaction.</li>
+                    <li>Note all Transaction Details (Reference ID, Time, Amount).</li>
+                    <li>Report the incident on the official <a href="https://cybercrime.gov.in" target="_blank" class="text-gold-400 hover:underline">Cyber Crime Portal</a>.</li>
+                    <li>Notify your bank and block any compromised accounts/cards.</li>
+                </ol>
+            `
+        },
+        { 
+            id: "marriage-registration", icon: "fa-ring", title: "Marriage Registration Timeline Cheat Sheet", color: "bg-marriage", url: "#marriage-timeline",
+            desc: "A timeline outlining the steps, notice period, and documents required for solemnization under the HMA or SMA.", 
+            content: `
+                <h4 class="text-white font-semibold">Key Timeline (Special Marriage Act - SMA):</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-gold-400">Step 1: Application Filing</strong> (Both parties).</li>
+                    <li><strong class="text-gold-400">Step 2: 30-Day Notice Period</strong> (Mandatory public notice for objections).</li>
+                    <li><strong class="text-gold-400">Step 3: Solemnization</strong> (After 30 days, before 90 days).</li>
+                </ul>
+                <h4 class="text-white font-semibold mt-3">Documents Required:</h4>
+                <ul class="list-disc list-inside text-slate-300 ml-4 space-y-1">
+                    <li>Age Proof (Birth Certificate/10th Mark Sheet).</li>
+                    <li>Address Proof.</li>
+                    <li>Passport size photos.</li>
+                    <li>3 Witnesses (with ID proofs).</li>
+                </ul>
+            `
+        },
+        { 
+            id: "consumer-escalation", icon: "fa-headset", title: "Consumer Complaint Escalation Steps", color: "bg-consumer-cheat", url: "#consumer-escalation",
+            desc: "Flow chart showing the path from sending a legal notice to filing a formal complaint at the District Consumer Commission.", 
+            content: `
+                <h4 class="text-white font-semibold">Complaint Flow Chart:</h4>
+                <ol class="list-decimal list-inside text-slate-300 ml-4 space-y-1">
+                    <li><strong class="text-gold-400">Phase 1: Direct Contact</strong> - Send written communication/Legal Notice to the seller (15-30 days to reply).</li>
+                    <li><strong class="text-gold-400">Phase 2: Formal Filing</strong> - File complaint at the District Commission (if value < ₹1 Crore) via e-filing portal.</li>
+                    <li><strong class="text-gold-400">Phase 3: Adjudication</strong> - Submit evidence (Invoice, Warranty, Correspondence) and attend hearing/mediation.</li>
+                    <li><strong class="text-gold-400">Phase 4: Appeal</strong> - If unsatisfied, appeal to the State Commission.</li>
+                </ol>
+            `
+        }
+    ];
+
+    function renderDownloadCards() {
+        const container = document.getElementById('checklistGuidesContainer');
+        if (!container) return;
+        
+        container.innerHTML = checklistGuides.map(c => `
+            <div id="${c.id}" class="download-card">
+                <div class="content-wrapper flex flex-col h-full">
+                    <div class="card-header mb-4">
+                        <div class="card-icon ${c.color} shadow-lg shadow-black/30">
+                            <i class="fas ${c.icon}"></i>
+                        </div>
+                        <h3 class="card-title-text">${c.title}</h3>
+                    </div>
+                    <p class="card-desc">${c.desc}</p>
+                </div>
+                <a href="javascript:void(0)" class="download-btn" onclick="openChecklistModal('${c.id}')">
+                    <i class="fas fa-clipboard-list mr-2"></i> View Checklist
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // --- Modal Functions ---
+    function openChecklistModal(id) {
+        const guide = checklistGuides.find(g => g.id === id);
+        if (!guide) return;
+
+        document.getElementById('modalTitle').textContent = guide.title;
+        document.getElementById('modalContent').innerHTML = guide.content;
+        
+        const modal = document.getElementById('checklistModal');
+        modal.style.display = 'flex';
+        // Delay adding the 'open' class for CSS transition effect
+        setTimeout(() => modal.classList.add('open'), 10);
+    }
+
+    function closeChecklistModal() {
+        const modal = document.getElementById('checklistModal');
+        modal.classList.remove('open');
+        // Delay hiding the modal until the transition finishes
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear content
+        }, 300); 
+    }
+    // Listen for clicks outside the modal content to close it
+    document.getElementById('checklistModal').addEventListener('click', (e) => {
+        if (e.target.id === 'checklistModal') {
+            closeChecklistModal();
+        }
+    });
+
+    // Initialize cards on load
+    document.addEventListener('DOMContentLoaded', renderDownloadCards);
+    </script>
+</body>
+</html>

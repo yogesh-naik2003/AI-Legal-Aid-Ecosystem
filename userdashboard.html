@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .sidebar { transition: width 0.3s ease-in-out; }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 1rem;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+    #bgCanvas { position: fixed; top:0; left:0; z-index:-10; width:100%; height:100%; }
+    .status-badge {
+      padding: 0.25rem 0.75rem; border-radius: 9999px;
+      font-size: 0.75rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.25rem;
+    }
+    .status-active { background-color: rgba(52, 211, 153, 0.1); color: #34d399; }
+    .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+    .status-closed { background-color: rgba(248, 113, 113, 0.1); color: #f87171; }
+    .sidebar.collapsed { width:0; padding:0; overflow:hidden; }
+    .sidebar.collapsed .sidebar-text,
+    .sidebar.collapsed .sidebar-logo-text { opacity:0; width:0; overflow:hidden; white-space:nowrap; }
+    .sidebar .nav-link-text { transition: opacity 0.2s ease, width 0.2s ease; }
+    main { transition: margin-left 0.3s ease-in-out; }
+    .form-input {
+        background-color: #1e293b; /* slate-800 */
+        border: 1px solid #334155; /* slate-700 */
+        color: #f1f5f9; /* slate-100 */
+    }
+    .form-input:focus {
+        border-color: #38bdf8; /* cyan-400 */
+        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+        outline: none;
+    }
+    .btn-primary { background-color: #0ea5e9; transition: background-color 0.2s; }
+    .btn-primary:hover { background-color: #0284c7; }
+    .btn-danger { background-color: #ef4444; }
+    .btn-danger:hover { background-color: #dc2626; }
+    .message-row { display:flex; gap:8px; align-items:flex-end; margin-bottom:10px; }
+    .message-row.incoming { justify-content:flex-start; }
+    .message-row.outgoing { justify-content:flex-end; }
+    .avatar { width:36px; height:36px; border-radius:50%; flex-shrink:0; }
+    .message-bubble { max-width:72%; padding:10px 12px; border-radius:18px; line-height:1.2; word-break:break-word; box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+    .message-bubble.incoming { background: #1f2937; color: #e5e7eb; border-bottom-left-radius:4px; }
+    .message-bubble.outgoing { background: linear-gradient(90deg,#06b6d4,#0284c7); color:#fff; border-bottom-right-radius:4px; }
+    .message-meta { display:flex; gap:6px; align-items:center; margin-top:6px; font-size:11px; opacity:0.85; }
+    .message-time { color:rgba(255,255,255,0.85); font-size:11px; }
+    .message-status { color: rgba(255,255,255,0.85); font-size:12px; margin-left:4px; }
+  </style>
+</head>
+<body class="flex">
+
+  <!-- Background Animation -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar w-64 bg-slate-900/80 flex-shrink-0 flex flex-col justify-between min-h-screen border-r border-slate-800">
+    <div>
+      <div class="flex items-center h-16 mb-4 px-4">
+        <h1 class="text-2xl font-bold text-cyan-400 flex items-center gap-2 w-full justify-center">
+          <span>⚖️</span><span class="sidebar-logo-text">LegalAid</span>
+        </h1>
+      </div>
+      <nav class="flex flex-col gap-2 px-4">
+        <a href="homelogin.html" id="home-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fas fa-home w-5 text-center"></i> <span class="nav-link-text">Home</span>
+        </a>
+        <a href="#" id="dashboard-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg bg-cyan-500/10 text-cyan-300 font-semibold">
+          <i class="fas fa-tachometer-alt w-5 text-center"></i> <span class="nav-link-text">Dashboard</span>
+        </a>
+        <a href="#" id="fav-lawyers-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fas fa-heart w-5 text-center"></i> <span class="nav-link-text">Favorite Lawyers</span>
+        </a>
+        <a href="#" id="my-cases-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"> <!-- Placeholder for My Cases -->
+          <i class="fas fa-briefcase w-5 text-center"></i> <span class="nav-link-text">My Cases</span>
+        </a>
+        <a href="#" id="messages-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"> <!-- Placeholder for Messages -->
+          <i class="fas fa-envelope w-5 text-center"></i> <span class="nav-link-text">Messages</span>
+        </a>
+        <a href="#" id="profile-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white">
+          <i class="fas fa-user-circle w-5 text-center"></i> <span class="nav-link-text">Profile</span>
+        </a>
+      </nav>
+    </div>
+    <div class="border-t border-slate-800 pt-4 px-4 pb-4">
+      <a href="#" id="logout-link" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white">
+        <i class="fas fa-sign-out-alt w-5 text-center"></i> <span class="nav-link-text">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-y-auto relative">
+    <!-- View for the Dashboard -->
+    <div id="dashboard-view">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Dashboard</h1>
+          <p id="header-welcome-message" class="text-slate-400">Welcome back!</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-lg bg-slate-800/60 focus:ring-2 focus:ring-cyan-400 outline-none w-64 text-white transition-all duration-300 focus:w-72">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          </div>
+          <button class="relative text-slate-400 hover:text-white">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute -top-1 -right-1 bg-red-500 w-4 h-4 text-xs rounded-full flex items-center justify-center">2</span>
+          </button>
+          <div class="flex items-center gap-3 cursor-pointer">
+            <img id="header-profile-img" src="https://i.pravatar.cc/40?u=user" class="w-10 h-10 rounded-full border-2 border-cyan-400" alt="Profile">
+            <div class="hidden md:block">
+              <p id="header-profile-name" class="font-semibold text-white">Client</p>
+              <p class="text-xs text-slate-400">Client</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-cyan-500/10 to-transparent">
+          <i class="fas fa-gavel text-3xl text-cyan-400"></i>
+          <div> <h2 class="text-sm text-slate-400">Lawyers Consulted</h2> <p id="stats-lawyers-consulted" class="text-3xl font-bold text-white">0</p> </div>
+        </div>
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-green-500/10 to-transparent">
+          <i class="fas fa-briefcase text-3xl text-green-400"></i>
+          <div> <h2 class="text-sm text-slate-400">Active Cases</h2> <p id="stats-active-cases" class="text-3xl font-bold text-white">0</p> </div>
+        </div>
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-amber-500/10 to-transparent">
+          <i class="fas fa-calendar-alt text-3xl text-amber-400"></i>
+          <div> <h2 class="text-sm text-slate-400">Upcoming Meetings</h2> <p id="stats-upcoming-meetings" class="text-3xl font-bold text-white">0</p> </div>
+        </div>
+        <div class="glass-card p-6 flex items-center gap-4 bg-gradient-to-br from-indigo-500/10 to-transparent">
+          <i class="fas fa-comments text-3xl text-indigo-400"></i>
+          <div> <h2 class="text-sm text-slate-400">Unread Messages</h2> <p id="stats-unread-messages" class="text-3xl font-bold text-white">0</p> </div>
+        </div>
+      </div>
+
+      <!-- Recent Lawyers Table -->
+      <div class="glass-card overflow-x-auto rounded-xl p-4">
+        <h2 class="text-xl font-semibold mb-4">Recently Consulted Lawyers</h2>
+        <p class="text-slate-400 text-center py-8">You have no recent consultations.</p>
+      </div>
+    </div>
+
+    <!-- View for My Cases (Initially Hidden) -->
+    <div id="my-cases-view" class="hidden">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-white">My Cases</h1>
+        <button onclick="openAddCaseModal()" class="btn-primary text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2">
+          <i class="fas fa-plus"></i> Add New Case
+        </button>
+      </div>
+      <div id="my-cases-container" class="glass-card overflow-x-auto rounded-xl p-4">
+        <!-- Cases table will be injected here by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Modal for Viewing Case Details -->
+    <div id="case-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700 max-h-[90vh] overflow-y-auto">
+        <button onclick="closeCaseDetailsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+        <!-- The form will be injected here, replacing the static content -->
+        <div id="case-details-content">
+          <!-- Case details will be injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Adding a New Case -->
+    <div id="add-case-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700">
+        <button onclick="closeAddCaseModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+        <h2 class="text-2xl font-bold text-cyan-400 mb-6">Add a New Case</h2>
+        <form id="add-case-form" class="space-y-4">
+          <div>
+            <label for="case-title" class="block text-sm font-medium text-slate-400 mb-1">Case Title</label>
+            <input type="text" id="case-title" name="case_title" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Rental Agreement Dispute" required>
+          </div>
+          <div>
+            <label for="case-lawyer" class="block text-sm font-medium text-slate-400 mb-1">Assigned Lawyer</label>
+            <input type="text" id="case-lawyer" name="case_lawyer" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Priya Sharma">
+          </div>
+          <div>
+            <label for="case-description" class="block text-sm font-medium text-slate-400 mb-1">Case Description</label>
+            <textarea id="case-description" name="case_description" rows="3" class="w-full p-2 rounded-lg form-input" placeholder="Briefly describe the issue..."></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="case-status" class="block text-sm font-medium text-slate-400 mb-1">Status</label>
+              <select id="case-status" name="status" class="w-full p-2 rounded-lg form-input">
+                <option value="Pending" selected>Pending</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+            <div>
+              <label for="next-hearing" class="block text-sm font-medium text-slate-400 mb-1">Next Hearing Date</label>
+              <input type="date" id="next-hearing" name="nextHearing" class="w-full p-2 rounded-lg form-input">
+            </div>
+          </div>
+          <div>
+            <label for="case-documents" class="block text-sm font-medium text-slate-400 mb-1">Related Documents</label>
+            <input type="file" id="case-documents" name="documents" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+          </div>
+          <div class="text-right pt-4">
+            <button type="submit" class="btn-primary text-white font-bold py-2 px-6 rounded-lg">Save Case</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal for Adding a New Case -->
+    <div id="add-case-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl relative p-8 transform scale-95 transition-transform duration-300 border border-slate-700">
+        <button onclick="closeAddCaseModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl p-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">&times;</button>
+        <h2 class="text-2xl font-bold text-cyan-400 mb-6">Add a New Case</h2>
+        <form id="add-case-form" class="space-y-4">
+          <div>
+            <label for="case-title" class="block text-sm font-medium text-slate-400 mb-1">Case Title</label>
+            <input type="text" id="case-title" name="case_title" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Rental Agreement Dispute" required>
+          </div>
+          <div>
+            <label for="case-lawyer" class="block text-sm font-medium text-slate-400 mb-1">Assigned Lawyer</label>
+            <input type="text" id="case-lawyer" name="case_lawyer" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Priya Sharma">
+          </div>
+          <div>
+            <label for="case-description" class="block text-sm font-medium text-slate-400 mb-1">Case Description</label>
+            <textarea id="case-description" name="case_description" rows="3" class="w-full p-2 rounded-lg form-input" placeholder="Briefly describe the issue..."></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="case-status" class="block text-sm font-medium text-slate-400 mb-1">Status</label>
+              <select id="case-status" name="status" class="w-full p-2 rounded-lg form-input">
+                <option value="Pending" selected>Pending</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+            <div>
+              <label for="next-hearing" class="block text-sm font-medium text-slate-400 mb-1">Next Hearing Date</label>
+              <input type="date" id="next-hearing" name="nextHearing" class="w-full p-2 rounded-lg form-input">
+            </div>
+          </div>
+          <div>
+            <label for="case-documents" class="block text-sm font-medium text-slate-400 mb-1">Related Documents</label>
+            <input type="file" id="case-documents" name="documents" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+          </div>
+          <div class="text-right pt-4">
+            <button type="submit" class="btn-primary text-white font-bold py-2 px-6 rounded-lg">Save Case</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- View for Favorite Lawyers (Initially Hidden) -->
+    <div id="fav-lawyers-view" class="hidden">
+      <h1 class="text-3xl font-bold text-white mb-8">Favorite Lawyers</h1>
+      <div id="favorite-lawyers-container" class="glass-card overflow-x-auto rounded-xl p-4">
+        <!-- Favorite lawyers table will be injected here -->
+        <p class="text-slate-400 text-center py-8">You haven't added any lawyers to your favorites yet.</p>
+      </div>
+    </div>
+
+    <!-- View for Messages (Initially Hidden) -->
+    <div id="messages-view" class="hidden p-4 md:p-8 h-full">
+      <div class="glass-card rounded-xl flex h-[85vh] relative overflow-hidden">
+        <!-- Conversation List -->
+        <div id="conversation-list" class="w-full md:w-1/3 bg-slate-900/50 border-r border-slate-700 overflow-y-auto transition-transform duration-300 ease-in-out flex-shrink-0 h-full z-20 absolute md:relative">
+          <div class="p-4 border-b border-slate-700">
+            <h2 class="text-xl font-bold text-white mb-4">Messages</h2>
+            <input type="text" placeholder="Search conversations..." class="w-full p-2 rounded-lg bg-slate-800 border border-slate-600 focus:ring-2 focus:ring-cyan-500 outline-none text-sm">
+          </div>
+          <!-- Conversations will be injected here -->
+          <div id="conversation-list-items" class="p-4 text-center text-slate-500">Loading conversations...</div>
+        </div>
+        <!-- Chat Area -->
+        <div id="chat-area" class="w-full md:w-2/3 flex flex-col bg-slate-800/70 h-full transition-transform duration-300 ease-in-out absolute md:relative translate-x-full md:translate-x-0 z-30">
+          <!-- Chat Header -->
+          <div id="chat-header" class="flex-shrink-0 bg-slate-900/50 border-b border-slate-700 p-4 shadow-md flex items-center">
+             <button id="back-to-conversations" class="text-slate-300 hover:text-white mr-4 p-2 rounded-full hover:bg-slate-700 transition-colors md:hidden">
+                <i class="fas fa-arrow-left"></i>
+             </button>
+             <div id="recipient-info-content" class="flex items-center gap-4">
+                <!-- Recipient info will be injected here -->
+                <p class="text-slate-400">Select a lawyer to start chatting.</p>
+             </div>
+          </div>
+        <!-- Chat History -->
+        <div id="chat-history" class="flex-grow p-6 overflow-y-auto space-y-4 bg-slate-800/30">
+          <!-- Messages will be injected here -->
+          <p class="text-center text-slate-500">This is the beginning of your conversation.</p>
+        </div>
+        <!-- Chat Input -->
+        <div class="p-4 border-t border-slate-700 flex-shrink-0 bg-slate-900/30">
+          <div class="relative">
+            <!-- File preview area -->
+            <div id="file-preview-container" class="hidden items-center gap-2 bg-slate-700/50 p-2 rounded-lg mb-2">
+              <i class="fas fa-file-alt text-cyan-400"></i>
+              <span id="file-preview-name" class="text-sm text-slate-300 truncate"></span>
+              <button id="remove-file-btn" class="ml-auto text-slate-400 hover:text-red-400 p-1 rounded-full"><i class="fas fa-times"></i></button>
+            </div>
+            <!-- Main input area -->
+            <input type="file" id="file-input" class="hidden">
+            <label for="file-input" class="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-cyan-400 transition-colors cursor-pointer">
+              <i class="fas fa-paperclip"></i>
+            </label>
+            <input type="text" id="chat-input" placeholder="Type your message..." class="w-full p-3 pl-12 pr-12 rounded-lg form-input" />
+            <button id="send-message-btn" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-cyan-500 hover:bg-slate-700 transition-colors" title="Send Message"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- View for the Profile Section (Initially Hidden) -->
+    <div id="profile-view" class="hidden">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-white">My Profile</h1>
+          <p class="text-slate-400">Manage your personal information and account settings.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Profile Picture and Basic Info -->
+        <div class="lg:col-span-1 space-y-8">
+          <div class="glass-card p-6 text-center">
+            <h2 class="text-xl font-semibold mb-4">Profile Picture</h2>
+            <img id="profile-section-img" src="https://i.pravatar.cc/150?u=user" class="w-32 h-32 rounded-full mx-auto border-4 border-cyan-400 mb-4" alt="Profile Picture">
+            <input type="file" id="avatar-upload" name="avatar" class="hidden">
+            <label for="avatar-upload" class="cursor-pointer bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition">
+              <i class="fas fa-upload mr-2"></i>Upload New Picture
+            </label>
+          </div>
+
+          <!-- Profile Completion Prompt -->
+          <div class="glass-card p-4 text-center border-l-4 border-yellow-400/80 bg-yellow-900/10">
+            <p class="font-bold text-yellow-300 text-sm flex items-center justify-center gap-2">
+              <i class="fas fa-info-circle"></i> A complete profile helps you connect with more lawyers.
+            </p>
+          </div>
+
+          <div class="glass-card p-6">
+              <h2 class="text-xl font-semibold mb-4">Communication Preferences</h2>
+              <div class="space-y-3">
+                  <label class="flex items-center">
+                      <input type="checkbox" class="form-checkbox h-5 w-5 bg-slate-700 border-slate-600 text-cyan-400 focus:ring-cyan-500" checked>
+                      <span class="ml-3 text-slate-300">Case Update Notifications</span>
+                  </label>
+                  <label class="flex items-center">
+                      <input type="checkbox" class="form-checkbox h-5 w-5 bg-slate-700 border-slate-600 text-cyan-400 focus:ring-cyan-500" checked>
+                      <span class="ml-3 text-slate-300">Lawyer Message Alerts</span>
+                  </label>
+                  <label class="flex items-center">
+                      <input type="checkbox" class="form-checkbox h-5 w-5 bg-slate-700 border-slate-600 text-cyan-400 focus:ring-cyan-500">
+                      <span class="ml-3 text-slate-300">Platform Newsletter</span>
+                  </label>
+              </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Forms -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- Personal Information -->
+          <div class="glass-card p-6">
+            <h2 class="text-xl font-semibold mb-4">Personal Information</h2>
+            <form id="profile-form" class="space-y-4" enctype="multipart/form-data">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="first-name" class="block text-sm font-medium text-slate-400 mb-1">First Name</label>
+                  <input type="text" id="first-name" name="first_name" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Jane" >
+                </div>
+                <div>
+                  <label for="last-name" class="block text-sm font-medium text-slate-400 mb-1">Last Name</label>
+                  <input type="text" id="last-name" name="last_name" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Doe" >
+                </div>
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium text-slate-400 mb-1">Email Address</label>
+                <input type="email" id="email" name="email" class="w-full p-2 rounded-lg form-input" placeholder="your.email@example.com" >
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-medium text-slate-400 mb-1">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="w-full p-2 rounded-lg form-input" placeholder="e.g., +91 9876543210">
+              </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="location" class="block text-sm font-medium text-slate-400 mb-1">Location (City, State)</label>
+                <input type="text" id="location" name="location" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Delhi, DL">
+              </div>
+              <div>
+                <label for="language" class="block text-sm font-medium text-slate-400 mb-1">Preferred Language</label>
+                <select id="language" name="language" class="w-full p-2 rounded-lg form-input">
+                  <option>English</option>
+                  <option>Hindi</option>
+                  <option>Tamil</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="case_type" class="block text-sm font-medium text-slate-400 mb-1">Primary Case Type Interest</label>
+              <input type="text" id="case_type" name="case_type" class="w-full p-2 rounded-lg form-input" placeholder="e.g., Employment Dispute" >
+            </div>
+              <div class="text-right">
+                <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-lg">Save Changes</button>
+              </div>
+            </form>
+          </div>
+
+          
+
+          <!-- Account Management -->
+          <div class="glass-card p-6">
+              <h2 class="text-xl font-semibold mb-4 text-red-400">Account Management</h2>
+              <p class="text-slate-400 mb-4">Deactivating your account will suspend your profile and access. This action can be reversed. Deleting your account is permanent and cannot be undone.</p>
+              <div class="flex gap-4">
+                 
+                  <button class="w-full btn-danger text-white font-bold py-2 px-4 rounded-lg">Delete Account</button>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Three.js Background (stars)
+    const canvas = document.getElementById("bgCanvas");
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const starCount = 4000;
+    const positions = new Float32Array(starCount * 3);
+    const geometry = new THREE.BufferGeometry();
+    for (let i = 0; i < starCount; i++) {
+      const i3 = i * 3;
+      positions[i3] = (Math.random() - 0.5) * 20;
+      positions[i3 + 1] = (Math.random() - 0.5) * 20;
+      positions[i3 + 2] = (Math.random() - 0.5) * 20;
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const material = new THREE.PointsMaterial({ color: 0x22d3ee, size: 0.015, transparent: true, opacity:0.7, blending: THREE.AdditiveBlending });
+    const stars = new THREE.Points(geometry, material);
+    scene.add(stars);
+    camera.position.z = 10;
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX - window.innerWidth / 2) / 100;
+      mouseY = (event.clientY - window.innerHeight / 2) / 100;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      camera.position.x += (mouseX - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+      stars.rotation.x += 0.0001;
+      stars.rotation.y += 0.0002;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- View Toggling Logic ---
+    const dashboardView = document.getElementById('dashboard-view');
+    const profileView = document.getElementById('profile-view');
+    const profileForm = document.getElementById('profile-form');
+    const profileImage = document.getElementById('profile-section-img');
+    const messagesView = document.getElementById('messages-view');
+    const myCasesView = document.getElementById('my-cases-view');
+    const favLawyersView = document.getElementById('fav-lawyers-view');
+    const chatInput = document.getElementById('chat-input');
+    const sendMessageBtn = document.getElementById('send-message-btn');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const views = {
+      'dashboard-link': dashboardView,
+      'profile-link': profileView,
+      'fav-lawyers-link': favLawyersView,
+      'my-cases-link': myCasesView,
+      'messages-link': messagesView,
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Mock data for "My Cases" section
+        let mockCases = [
+            {
+                caseId: 'CIV-2025-001',
+                title: 'Property Dispute with Neighbor',
+                lawyer: 'Priya Sharma',
+                description: 'A dispute regarding the boundary wall and encroachment on the northern side of the property. Initial notice has been sent.',
+                documents: [
+                    { name: 'Property_Sale_Deed.pdf', url: '#' },
+                    { name: 'Legal_Notice_Sent.pdf', url: '#' },
+                    { name: 'Neighbor_Response.pdf', url: '#' }
+                ],
+                status: 'Active',
+                nextHearing: '2025-12-15',
+                lastUpdate: 'Lawyer filed preliminary response.'
+            },
+            {
+                caseId: 'FAM-2025-003',
+                title: 'Child Custody Filing',
+                lawyer: 'Arjun Singh',
+                description: 'Filing for sole custody of the minor child citing reasons of parental neglect from the other party.',
+                documents: [{ name: 'Custody_Petition_Draft.pdf', url: '#' }],
+                status: 'Pending',
+                nextHearing: '2026-01-10',
+                lastUpdate: 'Awaiting court date assignment.'
+            },
+            {
+                caseId: 'CON-2024-089',
+                title: 'Defective Product Complaint',
+                lawyer: 'Ananya Reddy',
+                description: 'Complaint filed against a manufacturer for a faulty electronic device that caused a minor fire.',
+                documents: [{ name: 'Purchase_Invoice.jpg', url: '#' }, { name: 'Complaint_Forum.pdf', url: '#' }],
+                status: 'Closed',
+                nextHearing: null,
+                lastUpdate: 'Settlement reached and case closed.'
+            }
+        ];
+
+        async function renderMyCasesView() {
+            const container = document.getElementById('my-cases-container');
+            let allCases = [];
+
+            try {
+                // Fetch the latest cases from the server
+                const response = await fetch('http://127.0.0.1:5000/api/cases');
+                if (response.ok) {
+                    allCases = await response.json();
+                    // This is the fix: Update the main cases array so other functions can find the case details.
+                    mockCases = allCases;
+                } else {
+                    throw new Error('Failed to load cases');
+                }
+            } catch (error) {
+                console.error("Error fetching cases:", error);
+                container.innerHTML = `<p class="text-red-400 text-center py-8">Could not load case information.</p>`;
+                return;
+            }
+
+            if (allCases.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-center py-8">You have no active or past cases.</p>`;
+                return;
+            }
+
+            const statusClasses = {
+                'Active': 'status-active',
+                'Pending': 'status-pending',
+                'Closed': 'status-closed'
+            };
+
+            const tableHTML = `
+                <table class="w-full text-left">
+                    <thead><tr class="text-slate-400 border-b border-slate-700">
+                        <th class="px-4 py-3 font-semibold">Case Title</th><th class="px-4 py-3 font-semibold">Assigned Lawyer</th>
+                        <th class="px-4 py-3 font-semibold">Status</th><th class="px-4 py-3 font-semibold">Next Hearing</th>
+                        <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                    </tr></thead>
+                    <tbody>${allCases.map(caseItem => `
+                        <tr class="border-b border-slate-800 hover:bg-slate-800/40">
+                            <td class="px-4 py-4 font-semibold text-white">${caseItem.title}<div class="text-xs text-slate-500 font-normal">ID: ${caseItem.caseId}</div></td>
+                            <td class="px-4 py-4">${caseItem.lawyer}</td>
+                            <td class="px-4 py-4"><span class="status-badge ${statusClasses[caseItem.status]}">${caseItem.status}</span></td>
+                            <td class="px-4 py-4">${caseItem.nextHearing || 'N/A'}</td>
+                            <td class="px-4 py-4 text-center"><button onclick="openCaseDetailsModal('${caseItem.caseId}')" class="text-cyan-400 hover:underline text-sm">View Details</button></td>
+                        </tr>`).join('')}</tbody></table>`;
+            container.innerHTML = tableHTML;
+        }
+
+    function openCaseDetailsModal(caseId) {
+        const caseItem = mockCases.find(c => c.caseId === caseId);
+        if (!caseItem) return;
+
+        const modal = document.getElementById('case-details-modal');
+        const content = document.getElementById('case-details-content');
+
+        // The statuses for the dropdown
+        const statuses = ['Pending', 'Active', 'On Hold', 'Closed'];
+
+        content.innerHTML = `
+            <form id="update-case-form" class="space-y-4">
+                <input type="hidden" name="caseId" value="${caseItem.caseId}">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-1">Edit Case Details</h2>
+                <p class="text-sm text-slate-500 mb-6">Case ID: ${caseItem.caseId}</p>
+
+                <div>
+                    <label for="edit-case-title" class="block text-sm font-medium text-slate-400 mb-1">Case Title</label>
+                    <input type="text" id="edit-case-title" name="title" class="w-full p-2 rounded-lg form-input" value="${caseItem.title}" required>
+                </div>
+                <div>
+                    <label for="edit-case-description" class="block text-sm font-medium text-slate-400 mb-1">Case Description</label>
+                    <textarea id="edit-case-description" name="description" rows="3" class="w-full p-2 rounded-lg form-input">${caseItem.description}</textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit-case-status" class="block text-sm font-medium text-slate-400 mb-1">Status</label>
+                        <select id="edit-case-status" name="status" class="w-full p-2 rounded-lg form-input">
+                            ${statuses.map(s => `<option value="${s}" ${caseItem.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-next-hearing" class="block text-sm font-medium text-slate-400 mb-1">Next Hearing Date</label>
+                        <input type="date" id="edit-next-hearing" name="nextHearing" class="w-full p-2 rounded-lg form-input" value="${caseItem.nextHearing || ''}">
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-lg text-white mt-4 mb-2">Case Documents</h4>
+                    <ul class="space-y-2 mb-4">${caseItem.documents.length > 0 ? caseItem.documents.map(doc => `
+                        <li class="flex items-center justify-between bg-slate-700/50 p-3 rounded-lg">
+                            <span class="flex items-center gap-2 text-slate-300"><i class="fas fa-file-alt text-cyan-400"></i> ${doc.name}</span>
+                            <a href="http://127.0.0.1:5000/${doc.url}" target="_blank" class="text-cyan-400 hover:underline text-sm font-semibold">View Document</a>
+                        </li>`).join('') : '<p class="text-slate-500 text-sm">No documents uploaded yet.</p>'}
+                    </ul>
+                    <label for="edit-case-documents" class="block text-sm font-medium text-slate-400 mb-1">Upload New Documents</label>
+                    <input type="file" id="edit-case-documents" name="documents" multiple class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer">
+                </div>
+                <div class="text-right pt-4">
+                    <button type="submit" class="btn-primary text-white font-bold py-2 px-6 rounded-lg">Save Changes</button>
+                </div>
+            </form>
+        `;
+
+        modal.classList.remove('hidden');
+        modal.querySelector('.bg-slate-800').classList.remove('scale-95');
+        // Attach the event listener to the newly created form
+        document.getElementById('update-case-form').addEventListener('submit', handleUpdateCaseSubmit);
+    }
+
+    function closeCaseDetailsModal() {
+        const modal = document.getElementById('case-details-modal');
+        modal.querySelector('.bg-slate-800').classList.add('scale-95');
+        modal.classList.add('hidden');
+    }
+
+    function openAddCaseModal() {
+        const modal = document.getElementById('add-case-modal');
+        modal.classList.remove('hidden');
+        modal.querySelector('.bg-slate-800').classList.remove('scale-95');
+    }
+
+    function closeAddCaseModal() {
+        const modal = document.getElementById('add-case-modal');
+        modal.querySelector('.bg-slate-800').classList.add('scale-95');
+        modal.classList.add('hidden');
+        document.getElementById('add-case-form').reset();
+    }
+
+    async function handleAddCaseSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        // We are sending multipart/form-data now, so we don't convert to JSON
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/cases/add', {
+                method: 'POST',
+                body: formData 
+            });
+
+            if (response.ok) {
+                const newCase = await response.json();
+                // No longer need to push to mockCases, just re-render the view
+                renderMyCasesView(); 
+                alert('New case added successfully!');
+                closeAddCaseModal();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server responded with an error.');
+            }
+        } catch (error) {
+            console.error('Error adding new case:', error);
+            alert('An error occurred while adding the case. Please try again.');
+        }
+    }
+
+    async function handleUpdateCaseSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/cases/update', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                await renderMyCasesView(); // Fetch and re-render the entire list
+                alert('Case updated successfully!');
+                closeCaseDetailsModal();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server responded with an error.');
+            }
+        } catch (error) {
+            console.error('Error updating case:', error);
+            alert(`An error occurred while updating the case. Error: ${error.message}`);
+        }
+    }
+
+    function removeFavorite(lawyerName) {
+        if (!confirm(`Are you sure you want to remove ${lawyerName} from your favorites?`)) {
+            return;
+        }
+        let favoriteLawyers = JSON.parse(localStorage.getItem('favoriteLawyers')) || [];
+        favoriteLawyers = favoriteLawyers.filter(lawyer => (lawyer.name || lawyer.full_name) !== lawyerName);
+        localStorage.setItem('favoriteLawyers', JSON.stringify(favoriteLawyers));
+        renderFavoriteLawyers();
+    }
+
+    function renderFavoriteLawyers() {
+        const container = document.getElementById('favorite-lawyers-container');
+        const favoriteLawyers = JSON.parse(localStorage.getItem('favoriteLawyers')) || [];
+
+        if (favoriteLawyers.length === 0) {
+            container.innerHTML = `<p class="text-slate-400 text-center py-8">You haven't added any lawyers to your favorites yet. <a href="findlawyers.html" class="text-cyan-400 hover:underline">Find lawyers now</a>.</p>`;
+            return;
+        }
+
+        let tableHTML = `
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-slate-400 border-b border-slate-700">
+                        <th class="px-4 py-3 font-semibold">Lawyer</th>
+                        <th class="px-4 py-3 font-semibold">Specialization</th>
+                        <th class="px-4 py-3 font-semibold">Location</th>
+                        <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        favoriteLawyers.forEach(lawyer => {
+            const lawyerName = lawyer.name || lawyer.full_name;
+            tableHTML += `
+                <tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">
+                    <td class="px-4 py-4 flex items-center gap-3"><img src="${lawyer.avatar_url || 'https://i.pravatar.cc/32'}" class="w-8 h-8 rounded-full" alt="${lawyerName}">${lawyerName}</td>
+                    <td class="px-4 py-4">${lawyer.specialization || 'N/A'}</td>
+                    <td class="px-4 py-4">${lawyer.location || 'N/A'}</td>
+                    <td class="px-4 py-4 text-center flex justify-center items-center gap-2">
+                        <button onclick="startMessage('${lawyerName}')" class="text-slate-300 hover:text-cyan-400 p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors" title="Message ${lawyerName}">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                        <button onclick="removeFavorite('${lawyerName}')" class="text-slate-300 hover:text-red-400 p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors" title="Remove from favorites"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `</tbody></table>`;
+        container.innerHTML = tableHTML;
+    }
+
+    function startMessage(lawyerName) {
+        const favoriteLawyers = JSON.parse(localStorage.getItem('favoriteLawyers')) || [];
+        const lawyer = favoriteLawyers.find(l => (l.name || l.full_name) === lawyerName);
+
+        if (lawyer) {
+            currentChatRecipient = lawyer.name || lawyer.full_name;
+            // Standardize to use full_name if available, otherwise name.
+            currentChatRecipient = lawyer.full_name || lawyer.name;
+
+            // Populate the chat view with lawyer's details
+            document.getElementById('chat-lawyer-avatar').src = lawyer.avatar_url || 'https://i.pravatar.cc/40';
+            document.getElementById('chat-lawyer-name').textContent = lawyer.name || lawyer.full_name;
+            document.getElementById('chat-lawyer-name').textContent = currentChatRecipient;
+            document.getElementById('chat-lawyer-status').textContent = lawyer.availability_status || 'Online';
+            
+            renderChatHistory(currentUser.name, currentChatRecipient);
+            // Switch to the messages view
+            switchView('messages-link');
+        }
+    }
+
+    async function renderChatHistory(userName, lawyerName) {
+        const chatHistory = document.getElementById('chat-history');
+        let allMessages = [];
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/history');
+            if (response.ok) allMessages = await response.json();
+        } catch (error) {
+            console.error("Failed to load chat history:", error);
+            chatHistory.innerHTML = `<p class="text-center text-red-400">Could not load messages.</p>`;
+            return;
+        }
+
+        currentMessageCount = allMessages.length;
+        
+        const conversation = allMessages.filter(msg => 
+            msg.sender && msg.recipient && ((msg.sender.name === userName && msg.recipient === lawyerName) || (msg.sender.name === lawyerName && msg.recipient === userName))
+        );
+
+        if (conversation.length === 0) {
+            chatHistory.innerHTML = `<p class="text-center text-slate-500">This is the beginning of your conversation with ${lawyerName}.</p>`;
+        } else {
+            chatHistory.innerHTML = conversation.map(msg => {
+                const isUserMessage = msg.sender.name === userName;
+                const avatarUrl = isUserMessage ? (currentUser.avatar_url || 'https://i.pravatar.cc/40?u=user') : (msg.sender.avatar_url || 'https://i.pravatar.cc/40?u=lawyer');
+                const time = msg.timestamp ? new Date(msg.timestamp.replace('Z', '')).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+
+                let inner = '';
+                if (msg.text) inner += `<div class="mb-1">${msg.text}</div>`;
+                const fileUrl = msg.fileUrl || msg.file || '';
+                const fileName = msg.fileName || msg.file_name || '';
+                if (fileUrl) {
+                    const full = fileUrl.startsWith('http') ? fileUrl : `http://127.0.0.1:5000/${String(fileUrl).replace(/^\/+/, '')}`;
+                    if (/\.(jpg|jpeg|png|gif|webp)$/i.test(fileName)) inner += `<a href="${full}" target="_blank"><img src="${full}" class="rounded-lg max-w-xs"></a>`;
+                    else inner += `<a href="${full}" target="_blank" class="flex items-center gap-2"><i class="fas fa-file-alt text-cyan-400"></i><span class="truncate">${fileName}</span></a>`;
+                }
+
+                return `
+                    <div class="message-row ${isUserMessage ? 'outgoing' : 'incoming'} group">
+                        ${!isUserMessage ? `<img class="avatar" src="${avatarUrl}" alt="avatar">` : ''}
+                        <div class="message-bubble ${isUserMessage ? 'outgoing' : 'incoming'}">
+                            ${inner}
+                            <div class="message-meta">
+                                <span class="message-time">${time}</span>
+                                ${isUserMessage ? `<span class="message-status">✓✓</span>` : ''}
+                            </div>
+                        </div>
+                        ${isUserMessage ? `<img class="avatar" src="${avatarUrl}" alt="you">` : ''}
+                        ${isUserMessage && msg.id ? `<div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 ml-2"><button onclick="editUserMessage('${msg.id}')" class="text-slate-300 hover:text-cyan-400 bg-slate-700/50 hover:bg-slate-700 p-2 rounded-lg transition-colors" title="Edit message"><i class="fas fa-edit text-base"></i></button><button onclick="deleteUserMessage('${msg.id}')" class="text-slate-300 hover:text-red-400 bg-slate-700/50 hover:bg-slate-700 p-2 rounded-lg transition-colors" title="Delete message"><i class="fas fa-trash text-base"></i></button></div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const text = chatInput.value.trim();
+        const fileInput = document.getElementById('file-input');
+        const file = fileInput.files[0];
+
+        if ((!text && !file) || !currentChatRecipient) return;
+
+        const formData = new FormData();
+        formData.append('sender_name', currentUser.name);
+        formData.append('sender_avatar_url', currentUser.avatar_url);
+        formData.append('recipient', currentChatRecipient);
+        formData.append('text', text);
+        if (file) {
+            formData.append('file', file);
+        }
+        
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/send', {
+                method: 'POST',
+                body: formData // No 'Content-Type' header, browser sets it for FormData
+            });
+            if (!response.ok) throw new Error('Failed to send message');
+            
+            chatInput.value = '';
+            fileInput.value = ''; // Clear the file input
+            document.getElementById('file-preview-container').classList.add('hidden'); // Hide preview
+            await renderChatHistory(currentUser.name, currentChatRecipient); // Re-fetch and render
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Could not send your message. Please try again.');
+        }
+    }
+
+    async function editUserMessage(msgId) {
+        const newText = prompt("Edit your message:");
+        if (!newText || !newText.trim()) return;
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/edit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: msgId, text: newText.trim() })
+            });
+            if (response.ok) await renderChatHistory(currentUser.name, currentChatRecipient);
+        } catch (error) {
+            console.error('Error editing message:', error);
+        }
+    }
+
+    async function deleteUserMessage(msgId) {
+        if (!confirm("Delete this message?")) return;
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: msgId })
+            });
+            if (response.ok) await renderChatHistory(currentUser.name, currentChatRecipient);
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        }
+    }
+
+    async function startMessage(lawyerName) {
+        // 1. Fetch all profiles to ensure we have the lawyer's details
+        let allProfiles = [];
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/all-profiles');
+            if (response.ok) allProfiles = await response.json();
+        } catch (error) {
+            console.error("Failed to load profiles:", error);
+        }
+
+        // 2. Find the specific lawyer's profile
+        const lawyer = allProfiles.find(p => (p.full_name || p.name) === lawyerName);
+        if (!lawyer) {
+            console.error(`Lawyer ${lawyerName} not found.`);
+            return;
+        }
+
+        // 3. Set the current chat recipient
+        currentChatRecipient = lawyer.full_name || lawyer.name;
+
+        // 4. Populate the chat header with the lawyer's info
+        const recipientInfoContent = document.getElementById('recipient-info-content');
+        recipientInfoContent.innerHTML = `
+            <img src="${lawyer.avatar_url || 'https://i.pravatar.cc/40'}" class="w-10 h-10 rounded-full" alt="${currentChatRecipient}">
+            <div>
+                <h2 class="font-bold text-lg text-white">${currentChatRecipient}</h2>
+                <p class="text-xs text-green-400">${lawyer.availability_status || 'Online'}</p>
+            </div>
+        `;
+
+        // 5. Switch to the messages view only if not already there
+        if (currentActiveView !== 'messages-link') {
+            switchView('messages-link');
+        }
+        await renderChatHistory(currentUser.name, currentChatRecipient);
+
+        // 6. On mobile, slide the chat area into view
+        if (window.innerWidth < 768) {
+            document.getElementById('conversation-list').classList.add('-translate-x-full');
+            document.getElementById('chat-area').classList.remove('md:translate-x-0');
+        }
+    }
+
+    async function renderUserMessagesView() {
+        let allProfiles = [];
+        try {
+            const profileResponse = await fetch('http://127.0.0.1:5000/api/all-profiles');
+            if (profileResponse.ok) allProfiles = await profileResponse.json();
+        } catch (error) {
+            console.error("Failed to load profiles for messaging:", error);
+        }
+
+        let allMessages = [];
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/history');
+            if (response.ok) allMessages = await response.json();
+        } catch (error) {
+            console.error("Failed to load chat history:", error);
+            document.getElementById('conversation-list-items').innerHTML = `<p class="p-4 text-center text-red-400">Could not load conversations.</p>`;
+            return;
+        }
+        currentMessageCount = allMessages.length;
+
+        const conversations = allMessages.reduce((acc, msg) => {
+            // Ensure the message involves the current user.
+            if (msg.sender.name === currentUser.name || msg.recipient === currentUser.name) {
+                // Identify the other person in the conversation.
+                const otherPartyName = msg.sender.name === currentUser.name ? msg.recipient : msg.sender.name;
+                // If the other party's name is valid, process the message.
+                if (!acc[otherPartyName]) {
+                    // Find the full profile of the other party.
+                    const profile = allProfiles.find(p => (p.full_name || p.name) === otherPartyName);
+                    acc[otherPartyName] = { otherParty: profile || { name: otherPartyName, avatar_url: 'https://i.pravatar.cc/40' }, messages: [] };
+                }
+                acc[otherPartyName].messages.push(msg);
+            }
+            return acc;
+        }, {});
+
+        const conversationListItems = document.getElementById('conversation-list-items');
+        const conversationValues = Object.values(conversations);
+        conversationValues.forEach(convo => convo.lastMessage = convo.messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]);
+        conversationValues.sort((a, b) => new Date(b.lastMessage.timestamp) - new Date(a.lastMessage.timestamp));
+
+        if (conversationValues.length === 0) {
+            conversationListItems.innerHTML = '<p class="p-4 text-center text-slate-500">No messages yet. Find a lawyer to start a conversation.</p>';
+            return;
+        }
+
+        conversationListItems.innerHTML = conversationValues.map(convo => `
+            <div onclick="startMessage('${convo.otherParty.full_name || convo.otherParty.name}')" class="flex items-center p-3 cursor-pointer rounded-lg hover:bg-slate-800/60">
+                <img src="${convo.otherParty.avatar_url || 'https://i.pravatar.cc/40'}" class="w-10 h-10 rounded-full mr-3" alt="${convo.otherParty.full_name || convo.otherParty.name}">
+                <div class="flex-grow overflow-hidden">
+                    <h3 class="font-semibold text-white truncate">${convo.otherParty.full_name || convo.otherParty.name}</h3>
+                    <p class="text-sm text-slate-400 truncate">${convo.lastMessage.text || 'File sent'}</p>
+                </div>
+                <span class="text-xs text-slate-500 flex-shrink-0">${new Date(convo.lastMessage.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+        `).join('');
+    }
+
+    async function loadProfileData() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/user/profile');
+        if (!response.ok) throw new Error('Failed to fetch profile');
+        const data = await response.json();
+
+        // Update header elements
+        const fullName = (data.first_name + ' ' + data.last_name).trim() || 'Client';
+        document.getElementById('header-profile-name').textContent = fullName;
+        // --- FIX: Update the currentUser object with the correct name ---
+        currentUser.name = fullName;
+        if(data.avatar_url) currentUser.avatar_url = data.avatar_url;
+
+        // NEW: Save the full user profile to localStorage for the lawyer's dashboard to access
+        localStorage.setItem('userProfile', JSON.stringify(data));
+
+        document.getElementById('header-welcome-message').textContent = `Welcome back, ${data.first_name || 'Client'}!`;
+        if (data.avatar_url) {
+            document.getElementById('header-profile-img').src = data.avatar_url;
+            profileImage.src = data.avatar_url;
+        }
+        
+        // Populate form fields
+        document.getElementById('first-name').value = data.first_name || '';
+        document.getElementById('last-name').value = data.last_name || '';
+        document.getElementById('phone').value = data.phone || '';
+        document.getElementById('location').value = data.location || '';
+        document.getElementById('language').value = data.language || 'English';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('case_type').value = data.case_type || '';
+
+      } catch (error) {
+        console.error("Could not load profile data:", error);
+      }
+    }
+
+    profileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        // Append the file from the separate input
+        const avatarFile = document.getElementById('avatar-upload').files[0];
+        if (avatarFile) {
+            formData.append('avatar', avatarFile);
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/user/profile', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Profile saved successfully!');
+                // --- FIX: Force reload the avatar image after successful upload ---
+                const newAvatarUrl = (await response.json()).avatar_url;
+                if (newAvatarUrl) {
+                    document.getElementById('profile-section-img').src = newAvatarUrl + '?t=' + new Date().getTime(); // Add timestamp to break cache
+                }
+                loadProfileData(); // Reload data to show changes
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.error || 'Failed to save profile.'}`);
+            }
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            alert('An error occurred while saving. Please check the console.');
+        }
+    });
+
+    function switchView(viewId) {
+      currentActiveView = viewId;
+      // Hide all views
+      Object.values(views).forEach(view => {
+        if (view) view.classList.add('hidden');
+      });
+
+      // Show the selected view
+      const activeView = views[viewId];
+      if (activeView) {
+        activeView.classList.remove('hidden');
+      }
+
+      // If switching to profile view, load the data
+      if (viewId === 'profile-link') {
+          loadProfileData();
+      }
+      
+      // If switching to favorites view, render the lawyers
+      if (viewId === 'fav-lawyers-link') {
+          renderFavoriteLawyers();
+      }
+      
+      // If switching to my cases view, render the cases
+      if (viewId === 'my-cases-link') {
+          renderMyCasesView();
+      }
+
+      // --- FIX: Start polling when switching to messages view ---
+      if (viewId === 'messages-link') {
+          renderUserMessagesView();
+          startChatPolling();
+      }
+
+      if (viewId !== 'messages-link' && chatPollingInterval) {
+          stopChatPolling();
+      }
+
+      // Update active link style
+      navLinks.forEach(link => {
+        link.classList.remove('bg-cyan-500/10', 'text-cyan-300', 'font-semibold');
+        link.classList.add('text-slate-400', 'hover:bg-slate-800', 'hover:text-white');
+        if (link.id === viewId) {
+          link.classList.add('bg-cyan-500/10', 'text-cyan-300', 'font-semibold');
+        }
+      });
+    }
+
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+    sendMessageBtn.addEventListener('click', sendMessage);
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (link.id !== 'home-link') {
+          e.preventDefault();
+          switchView(link.id);
+        }
+      }); 
+    });
+
+    // Logout functionality
+    document.getElementById('logout-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'login.html';
+    });
+
+    // Load profile data first, then show initial view
+    loadProfileData().then(() => {
+      // Ensure initial view shown on load
+      switchView('dashboard-link');
+    });
+    
+    // Attach form submit listener
+    document.getElementById('add-case-form').addEventListener('submit', handleAddCaseSubmit);
+
+    // --- NEW: Add listener for the mobile back button in chat ---
+    document.getElementById('back-to-conversations').addEventListener('click', () => {
+        document.getElementById('conversation-list').classList.remove('-translate-x-full');
+        document.getElementById('chat-area').classList.add('translate-x-full');
+        currentChatRecipient = null; // Clear the current chat
+        renderUserMessagesView(); // Refresh conversation list to remove highlight
+    });
+
+    // --- NEW: File Upload UI Logic for Chat ---
+    const fileInput = document.getElementById('file-input');
+    const filePreviewContainer = document.getElementById('file-preview-container');
+    const filePreviewName = document.getElementById('file-preview-name');
+    const removeFileBtn = document.getElementById('remove-file-btn');
+
+    fileInput.addEventListener('change', () => { if (fileInput.files.length > 0) { filePreviewName.textContent = fileInput.files[0].name; filePreviewContainer.classList.remove('hidden'); filePreviewContainer.classList.add('flex'); } });
+    removeFileBtn.addEventListener('click', () => { fileInput.value = ''; filePreviewContainer.classList.add('hidden'); });
+
+    // Make renderMyCasesView globally accessible
+    window.renderMyCasesView = renderMyCasesView; 
+
+    // Make modal functions globally accessible
+    window.openCaseDetailsModal = openCaseDetailsModal;
+    window.closeCaseDetailsModal = closeCaseDetailsModal;
+    window.openAddCaseModal = openAddCaseModal;
+    window.closeAddCaseModal = closeAddCaseModal;
+    window.handleUpdateCaseSubmit = handleUpdateCaseSubmit;
+    window.handleAddCaseSubmit = handleAddCaseSubmit;
+
+    window.removeFavorite = removeFavorite;
+    window.startMessage = startMessage;
+    window.editUserMessage = editUserMessage;
+    window.deleteUserMessage = deleteUserMessage; 
+
+  });
+  // Global variables for chat state
+  let currentUser = { name: 'Client', avatar_url: 'https://i.pravatar.cc/40?u=user' };
+  let currentChatRecipient = null;
+  let chatPollingInterval = null;
+  let currentMessageCount = 0;
+  let currentActiveView = 'dashboard-link';
+
+  function startChatPolling() {
+    if (chatPollingInterval) clearInterval(chatPollingInterval);
+
+    chatPollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/history');
+            if (response.ok) {
+                const messages = await response.json(); 
+                if (messages.length !== currentMessageCount) {
+                    console.log("New messages detected, refreshing chat history...");
+                    currentMessageCount = messages.length;
+                    if (currentChatRecipient) {
+                        await renderChatHistory(currentUser.name, currentChatRecipient);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Chat polling failed:", error);
+        }
+    }, 3000); // Poll every 3 seconds
+  }
+
+  function stopChatPolling() {
+    clearInterval(chatPollingInterval);
+    chatPollingInterval = null;
+  }
+  </script>
+</body>
+</html>

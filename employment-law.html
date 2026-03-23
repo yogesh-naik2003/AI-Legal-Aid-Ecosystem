@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employment & Labour Laws | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        /* Custom style for key terms, replacing the old style */
+        .key-term-style {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <!-- Top Right Gold Glow -->
+        <div class="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[100px] animate-float-slow"></div>
+        
+        <!-- Bottom Left Blue Glow -->
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Bottom Right Purple Glow -->
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <a href="#code-on-wages" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Code on Wages</a>
+                        <a href="#social-security" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Social Security (EPF, ESI)</a>
+                        <a href="#termination-retrenchment" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Termination & Retrenchment</a>
+                        <a href="#posh-act" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">PoSH Act (Sexual Harassment)</a>
+                        <a href="#working-hours" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Working Hours & Leave</a>
+                        <a href="#appointment-letter" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Appointment Letter</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-indigo-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                    <h4 class="text-white font-bold mb-2">Need specific advice?</h4>
+                    <p class="text-xs text-slate-400 mb-4">Our AI assistant can analyze your specific situation instantly.</p>
+                    <a href="askai.html" class="block w-full text-center py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        Ask LegalAid AI
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-gold-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Employment Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Employment & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Labour Codes Compliance</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    Detailed guides on employee rights concerning wages, social security, termination procedures, and protection against harassment under major central and state labour codes.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: The Code on Wages: Salary, Minimum Wage, and Deductions -->
+                <article id="code-on-wages" class="glass-panel rounded-2xl p-8 border-l-4 border-l-gold-500 hover:border-l-gold-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-money-check-alt"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">The Code on Wages: Salary, Minimum Wage, and Deductions</h2>
+                        </div>
+                        <button onclick="copyLink('#code-on-wages')" class="text-slate-500 hover:text-gold-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The <strong class="text-white">Code on Wages, 2019</strong>, consolidates laws relating to wages, bonus payments, and equal remuneration. It sets national standards for minimum pay and regulates lawful deductions from an employee's salary.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Key Provisions of the Code on Wages, 2019</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Minimum Wage:</strong> The Code mandates the central government to set a **National Floor Wage**. State governments must ensure their minimum wages are not less than this national floor.</li>
+                        <li><strong class="key-term-style">Definition of Wages:</strong> Clarifies that wages include basic pay, dearness allowance, and retaining allowance, but <strong class="key-term-style">excludes</strong> HRA, bonus, and statutory contributions (like EPF).</li>
+                        <li><strong class="key-term-style">Equal Remuneration:</strong> Prohibits gender discrimination in matters relating to wages for the **same work or work of a similar nature**.</li>
+                        <li><strong class="key-term-style">Payment Period:</strong> Wages must be paid within seven days of the end of the wage period. Full and final settlement upon termination must be done within two working days.</li>
+                    </ul>
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Lawful Deductions</h4>
+                    <p class="text-slate-400">Deductions from wages are strictly regulated and generally cannot exceed 50% of the total wages. Allowable deductions include: Income Tax, EPF/ESI contributions, fines, and recovery of advances.</p>
+                </article>
+
+                <!-- Article 2: Employee Social Security: EPF, ESI, and Gratuity -->
+                <article id="social-security" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Employee Social Security: EPF, ESI, and Gratuity</h2>
+                        </div>
+                        <button onclick="copyLink('#social-security')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">These laws ensure employees have a financial safety net for retirement, illness, and long-term service. Compliance is mandatory for employers who meet specific employee thresholds.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Employees' Provident Fund (EPF) & Pension</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">EPF Act, 1952:</strong> Mandatory for establishments with **20 or more employees**. Both the employer and employee contribute 12% of the basic salary (plus DA) to the fund.</li>
+                        <li><strong class="key-term-style">EPF Calculation:</strong> The 12% employer contribution is split between the **EPF Scheme** (3.67%) and the **Employee Pension Scheme (EPS)** (8.33%).</li>
+                        <li><strong class="key-term-style">UAN:</strong> A **Universal Account Number (UAN)** is mandatory for all members to enable portability and easy tracking.</li>
+                    </ul>
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Gratuity and ESI</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="key-term-style">Payment of Gratuity Act, 1972:</strong> An employer must pay gratuity to an employee who has completed **five years of continuous service** upon termination, retirement, or resignation. The amount is calculated at 15 days' wages for every completed year of service.</li>
+                        <li><strong class="key-term-style">ESI Act, 1948:</strong> Provides social security benefits (medical, sickness, maternity) to employees earning up to a specific wage limit in covered areas.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 3: Legal Procedures for Termination and Retrenchment -->
+                <article id="termination-retrenchment" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-briefcase-times"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Legal Procedures for Termination and Retrenchment</h2>
+                        </div>
+                        <button onclick="copyLink('#termination-retrenchment')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The process of firing an employee, especially a <strong class="text-white">workman</strong> (non-managerial/supervisory staff), is heavily regulated by the <strong class="text-white">Industrial Disputes Act, 1947</strong> to prevent arbitrary removal.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Termination vs. Retrenchment</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Termination (General):</strong> Ending employment based on individual performance or contractual expiry. Requires serving the notice period or paying salary in lieu of notice.</li>
+                        <li><strong class="key-term-style">Retrenchment (Layoff):</strong> Termination for reasons other than punishment (e.g., redundancy). Requires mandatory notice and **retrenchment compensation** (15 days' average pay for every completed year of service).</li>
+                        <li><strong class="key-term-style">Wrongful Termination:</strong> Termination without following due process, making the employer liable for damages or reinstatement.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Dispute Resolution (Industrial Disputes Act, 1947)</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Conciliation:</strong> A government conciliation officer attempts to mediate the dispute between the employer and employee/union (first step).</li>
+                        <li><strong class="text-slate-200">Adjudication:</strong> If conciliation fails, the dispute is referred to the **Labour Court** or **Industrial Tribunal** for a final, binding decision.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 4: Protection Against Sexual Harassment (PoSH Act, 2013) -->
+                <article id="posh-act" class="glass-panel rounded-2xl p-8 border-l-4 border-l-orange-500 hover:border-l-orange-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Protection Against Sexual Harassment (PoSH Act, 2013)</h2>
+                        </div>
+                        <button onclick="copyLink('#posh-act')" class="text-slate-500 hover:text-orange-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The <strong class="text-white">Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013</strong> is mandatory civil legislation aimed at creating safe working environments for women.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Compliance and Procedure</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Mandatory Internal Complaints Committee (ICC):</strong> Every employer with **10 or more employees** must constitute an ICC. The committee must have an external member and a woman presiding officer.</li>
+                        <li><strong class="key-term-style">Definition of Sexual Harassment:</strong> Includes unwelcome acts such as physical contact, a demand for sexual favours, showing pornography, or making sexually coloured remarks.</li>
+                        <li><strong class="key-term-style">Scope of Workplace:</strong> Covers the office premises, transport provided by the employer, and any place visited by the employee arising out of or during the course of employment (e.g., client meetings).</li>
+                    </ul>
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Redressal and Penalties</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Complaint:</strong> An aggrieved woman can file a complaint with the ICC within three months of the incident.</li>
+                        <li><strong class="text-slate-200">Inquiry:</strong> The ICC must complete the inquiry within **90 days** and submit its report.</li>
+                        <li><strong class="text-slate-200">Penalties:</strong> Failure to constitute the ICC or non-compliance can result in a fine up to **₹50,000** and cancellation of the business license.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 5: Regulation of Working Hours, Overtime, and Leave Entitlements -->
+                <article id="working-hours" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Regulation of Working Hours, Overtime, and Leave Entitlements</h2>
+                        </div>
+                        <button onclick="copyLink('#working-hours')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Statutory regulation of working conditions ensures humane hours and mandatory rest. This is generally governed by the **Factories Act, 1948** (for factories) and the Shops and Establishments Act (state-specific).</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Working Hours and Overtime</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Maximum Working Hours:</strong> Typically **8 hours per day** and **48 hours per week**.</li>
+                        <li><strong class="key-term-style">Overtime Pay:</strong> An employee working beyond the stipulated hours is entitled to compensation at **twice the ordinary rate of wages**.</li>
+                        <li><strong class="key-term-style">Rest Intervals:</strong> Mandatory rest intervals must be provided during the working day.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Leave Entitlements</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Annual Leave/Earned Leave (EL):</strong> Calculated based on the number of days worked. Generally one day of EL for every 20 days worked.</li>
+                        <li><strong class="text-slate-200">Sick Leave/Casual Leave:</strong> Varies by state law, but usually mandatory for all workers.</li>
+                        <li><strong class="text-slate-200">Maternity Leave:</strong> The **Maternity Benefit Act, 1961** mandates up to **26 weeks of paid leave** for women employees, provided certain conditions are met.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 6: The Legal Weight of the Appointment Letter -->
+                <article id="appointment-letter" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">The Legal Weight of the Appointment Letter</h2>
+                        </div>
+                        <button onclick="copyLink('#appointment-letter')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The <strong class="text-white">Appointment Letter</strong> is the primary contract establishing the employer-employee relationship. It formalizes all terms of service and is crucial for resolving disputes related to salary, designation, and termination.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Critical Clauses in the Appointment Contract</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Probation Period:</strong> Defines the initial testing period (usually 3 to 6 months) during which termination can be easier for the employer.</li>
+                        <li><strong class="key-term-style">Notice Period:</strong> Specifies the mandatory period (e.g., 30, 60, or 90 days) required by either party to terminate the contract. Can be substituted by **Pay in Lieu of Notice**.</li>
+                        <li><strong class="key-term-style">Non-Compete and Non-Solicitation:</strong> Clauses designed to protect the employer's business interests. Note that <strong class="key-term-style">post-employment non-compete clauses are generally unenforceable</strong> in India.</li>
+                        <li><strong class="key-term-style">Confidentiality Clause:</strong> Binds the employee to protect the company's proprietary information, both during and after employment.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Legal Basis</h4>
+                    <p class="text-slate-400">Terms and conditions outlined in the Appointment Letter are enforceable under the <strong class="text-white">Indian Contract Act, 1872</strong>, provided they do not violate any mandatory provisions of labour law (e.g., Minimum Wage). Labour laws always override any contractual term that is less favourable to the employee.</p>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2024 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        mobileSearchInput.addEventListener('input', filterArticles);
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

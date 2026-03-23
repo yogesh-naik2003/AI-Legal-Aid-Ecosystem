@@ -1,0 +1,377 @@
+[
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "tell about section 420"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "Section 420 is a prominent section of the **Indian Penal Code (IPC)**, dealing with **cheating and dishonestly inducing delivery of property**. It's one of the most commonly invoked sections related to fraud and financial deception in India.\n\nHere's a breakdown of what Section 420 entails:\n\n1.  **Core Offence: Cheating (Section 415 IPC)**\n    Section 420 is an aggravated form of \"cheating\" as defined in Section 415. To understand 420, one must first grasp the basics of cheating:\n    *   **Deception:** There must be a dishonest misrepresentation or concealment of facts.\n    *   **Inducement:** This deception must induce the person to:\n        *   Deliver any property to any person.\n        *   Consent that any person shall retain any property.\n        *   Do or omit to do anything which he would not do or omit if he were not so deceived, and which act or omission causes or is likely to cause damage or harm to that person in body, mind, reputation or property.\n    *   **Dishonest/Fraudulent Intention:** The person causing the deception must have a dishonest intention at the time of making the promise or representation. This is crucial; a mere breach of contract, without initial dishonest intent, does not amount to cheating.\n\n2.  **Section 420: Aggravated Cheating**\n    Section 420 specifically deals with cases where the cheating is related to:\n    *   **Dishonestly inducing the delivery of any property:** This covers instances where a person is tricked into giving away money, goods, valuable securities, or any other form of property.\n    *   **Consent to retain any property:** Where a person is deceived into allowing another person to keep property they wouldn't otherwise have allowed.\n    *   **Intentionally inducing the deceived person to make, alter, or destroy the whole or any part of a valuable security, or anything which is signed or sealed, and which is capable of being converted into a valuable security:** This covers fraud involving documents like cheques, promissory notes, deeds, wills, etc.\n\n    Essentially, Section 420 is applied when the act of cheating directly results in the wrongful gain of property for the deceiver or wrongful loss of property for the deceived.\n\n3.  **Punishment:**\n    The punishment for an offence under Section 420 IPC is:\n    *   **Imprisonment** which may extend to **seven years**.\n    *   **Fine**.\n    *   **Both** imprisonment and fine.\n\n4.  **Nature of the Offence:**\n    *   **Cognizable:** Police can register an FIR and arrest the accused without a warrant.\n    *   **Non-bailable:** Granting of bail is at the discretion of the court, not a right of the accused.\n    *   **Compoundable (with court permission):** The victim can agree to drop the charges with the court's permission.\n    *   **Triable by Magistrate of the First Class:** The case is heard by a Judicial Magistrate First Class.\n\n5.  **Common Examples:**\n    *   Fraudulent investment schemes where people are tricked into parting with money.\n    *   Selling property using fake documents.\n    *   Impersonation to gain financial benefits.\n    *   Online phishing scams where bank details are obtained, and money is siphoned off.\n    *   Issuing cheques knowing they will bounce, with the intent to defraud.\n\n6.  **Colloquial Usage:**\n    In common Indian parlance, \"420\" or \"doing a 420\" has become a slang term for someone who is a cheat, a fraudster, or someone who engages in deceptive practices to swindle others. It's often used loosely, not always in the strict legal sense, but its origin is directly from this section of the IPC.\n\nIn summary, Section 420 of the IPC is a crucial legal provision against various forms of financial fraud and deception involving property, aiming"
+            }
+        ]
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T13:03:49.126488Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T15:26:06.505769Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T15:32:29.982362Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "harsha s",
+        "timestamp": "2025-11-29T15:46:51.429567Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T15:49:15.116922Z",
+        "text": "",
+        "fileUrl": "static/uploads/chat_files/TOC_module-1.pdf",
+        "fileName": "TOC_module-1.pdf"
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T15:52:29.981336Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "harsha s",
+        "timestamp": "2025-11-29T15:52:41.706382Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T16:17:47.398914Z",
+        "text": "how arfe you",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "harsha s",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-11-29T16:21:56.804308Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-07T22:44:13.205227Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Priya Sharma",
+        "timestamp": "2025-12-07T22:53:26.975978Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-07T23:53:13.113112Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T00:09:05.480933Z",
+        "text": "how are you?",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T00:46:08.220430Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T00:56:36.420453Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T00:56:51.472337Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T00:57:10.373959Z",
+        "text": "how are you",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:01:38.441127Z",
+        "text": "fine",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:03:43.097871Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T01:04:15.325417Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:07:19.601174Z",
+        "text": "i want to contact you",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Priya Sharma",
+        "timestamp": "2025-12-08T01:08:47.120369Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T01:09:24.817996Z",
+        "text": "",
+        "fileUrl": "static/uploads/chat_files/CN_Mod2_Imp_Q.pdf",
+        "fileName": "CN_Mod2_Imp_Q.pdf"
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:14:50.162085Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:15:22.169818Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T01:22:16.981568",
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:22:16.981568Z",
+        "text": "your city",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T01:24:48.726767",
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T01:24:48.726767Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T01:29:09.485307",
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T01:29:09.485307Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T09:16:31.390369",
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T09:16:31.390369Z",
+        "text": "hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T09:16:45.636179",
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T09:16:45.636179Z",
+        "text": "hi",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T13:37:14.935064",
+        "sender": {
+            "name": "yogesh naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "Yogesh Naik",
+        "timestamp": "2025-12-08T13:37:14.935064Z",
+        "text": "hi hello",
+        "fileUrl": null,
+        "fileName": null
+    },
+    {
+        "id": "2025-12-08T13:37:47.993878",
+        "sender": {
+            "name": "Yogesh Naik",
+            "avatar_url": "static/uploads/avatars/passport_photo_mine.jpg"
+        },
+        "recipient": "yogesh naik",
+        "timestamp": "2025-12-08T13:37:47.993878Z",
+        "text": "",
+        "fileUrl": "static/uploads/chat_files/arohan.pdf.pdf",
+        "fileName": "arohan.pdf.pdf"
+    }
+]

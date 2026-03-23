@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate & Business Law | LegalAid AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    // Custom animations for the background orbs
+                    animation: {
+                        'float-slow': 'float 20s ease-in-out infinite',
+                        'float-medium': 'float 15s ease-in-out infinite reverse',
+                        'pulse-slow': 'pulse 10s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '50%': { transform: 'translate(30px, -30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Link Active State */
+        .nav-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+        }
+
+        /* Smooth Fade In */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Background Grid Pattern */
+        .bg-grid-pattern {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        /* Custom style for key terms, replacing the old style */
+        .key-term-style {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-300 font-sans selection:bg-gold-500 selection:text-white relative">
+
+    <!-- === ATTRACTIVE BACKGROUND ELEMENTS === -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
+        
+        <!-- Glowing Orbs (Animated) -->
+        <!-- Top Right Gold Glow -->
+        <div class="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-[100px] animate-float-slow"></div>
+        
+        <!-- Bottom Left Blue Glow -->
+        <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px] animate-float-medium mix-blend-screen"></div>
+        
+        <!-- Bottom Right Purple Glow -->
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    </div>
+    <!-- ====================================== -->
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 top-0 bg-navy-900/80 backdrop-blur-md border-b border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="homelogin.html" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-navy-900 shadow-lg group-hover:shadow-gold-500/40 transition-all duration-300">
+                        <i class="fas fa-scale-balanced text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-serif font-bold text-white">LegalAid <span class="text-gold-400">AI</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="knowledge-base.html" class="text-slate-300 hover:text-gold-400 transition-colors font-medium"><i class="fas fa-arrow-left mr-2"></i>Back to Hub</a>
+                    <div class="relative group">
+                        <input type="text" id="searchInput" placeholder="Filter topics..." class="bg-navy-800/80 text-sm rounded-full pl-10 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 w-64 transition-all">
+                        <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-500 group-focus-within:text-gold-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex flex-col lg:flex-row gap-10 relative z-10">
+
+        <!-- Sidebar Navigation (Sticky) -->
+        <aside class="hidden lg:block lg:w-1/4">
+            <div class="sticky top-28 space-y-8">
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="text-white font-serif font-bold text-lg mb-4 border-b border-slate-700 pb-2">
+                        <i class="fas fa-list-ul text-gold-400 mr-2"></i> On This Page
+                    </h3>
+                    <nav class="flex flex-col space-y-1" id="toc-nav">
+                        <a href="#business-entity" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Choosing Business Entity</a>
+                        <a href="#contract-law" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Contract Law Fundamentals</a>
+                        <a href="#annual-compliance" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Annual Compliance</a>
+                        <a href="#ip-protection" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">IP Protection</a>
+                        <a href="#debt-recovery" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Debt Recovery & IBC</a>
+                        <a href="#labour-law" class="nav-link py-2 px-3 text-sm border-l-2 border-transparent hover:text-white transition-all">Labour Law Compliance</a>
+                    </nav>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-gradient-to-br from-indigo-900/90 to-navy-900/90 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                    <h4 class="text-white font-bold mb-2">Need specific advice?</h4>
+                    <p class="text-xs text-slate-400 mb-4">Our AI assistant can analyze your specific situation instantly.</p>
+                    <a href="askai.html" class="block w-full text-center py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg">
+                        Ask LegalAid AI
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="lg:w-3/4 w-full">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 text-gold-400 text-xs font-semibold uppercase tracking-wide mb-4 border border-gold-500/20 backdrop-blur-sm">
+                    <i class="fas fa-book-open"></i> Corporate Law Series
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight">
+                    Corporate & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Business Compliance</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                    Essential guides for entrepreneurs on entity formation, contract drafting, corporate compliance, and intellectual property protection under Indian law.
+                </p>
+            </div>
+
+            <!-- Mobile Filter (Visible only on small screens) -->
+            <div class="lg:hidden mb-8">
+                <input type="text" id="mobileSearchInput" placeholder="Search topics..." class="w-full bg-navy-800 rounded-lg px-4 py-3 border border-slate-700 focus:border-gold-500 focus:outline-none text-white">
+            </div>
+
+            <!-- Articles Container -->
+            <div id="articles-container" class="space-y-10">
+
+                <!-- Article 1: Choosing the Right Business Entity in India -->
+                <article id="business-entity" class="glass-panel rounded-2xl p-8 border-l-4 border-l-gold-500 hover:border-l-gold-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Choosing the Right Business Entity in India</h2>
+                        </div>
+                        <button onclick="copyLink('#business-entity')" class="text-slate-500 hover:text-gold-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">The legal structure you choose dictates liability, compliance burden, tax obligations, and fundraising capacity. The key is balancing simplicity with the need for <strong class="text-white">limited liability</strong> and scalability.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Comparison of Entity Types</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Proprietorship:</strong> Easiest to start, minimal compliance. <strong class="key-term-style">Owner bears unlimited liability</strong> (personal assets are at risk).</li>
+                        <li><strong class="key-term-style">Partnership (Reg./Unreg.):</strong> Governed by the **Indian Partnership Act, 1932**. Partners share profits and liability is generally <strong class="key-term-style">unlimited</strong>.</li>
+                        <li><strong class="key-term-style">Limited Liability Partnership (LLP):</strong> Governed by the **LLP Act, 2008**. Offers <strong class="key-term-style">limited liability</strong> to partners while retaining flexibility. Compliance is moderate.</li>
+                        <li><strong class="key-term-style">Private Limited Company (Pvt Ltd):</strong> Governed by the **Companies Act, 2013**. Offers the highest degree of <strong class="key-term-style">limited liability</strong> and is best for serious fundraising. Compliance is high.</li>
+                    </ul>
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Key Concepts in Formation</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Memorandum of Association (MoA):</strong> Defines the scope of the company’s activities.</li>
+                        <li><strong class="text-slate-200">Articles of Association (AoA):</strong> Defines the internal rules for management and governance.</li>
+                        <li><strong class="text-slate-200">Certificate of Incorporation:</strong> The document granted by the MCA proving the company's legal existence.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 2: Fundamentals of Contract Law and Enforceability -->
+                <article id="contract-law" class="glass-panel rounded-2xl p-8 border-l-4 border-l-red-500 hover:border-l-red-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Fundamentals of Contract Law and Enforceability</h2>
+                        </div>
+                        <button onclick="copyLink('#contract-law')" class="text-slate-500 hover:text-red-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Every business transaction is rooted in contract law, governed by the <strong class="text-white">Indian Contract Act, 1872</strong>. A valid contract requires specific elements to be legally binding and enforceable in court.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Elements of a Valid Contract</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Offer and Acceptance:</strong> A clear proposal from one party and unequivocal acceptance from the other.</li>
+                        <li><strong class="key-term-style">Intention to Create Legal Relationship:</strong> Parties must intend for the agreement to have legal consequences (excluding social or domestic agreements).</li>
+                        <li><strong class="key-term-style">Lawful Consideration:</strong> Something of value given or promised in exchange for the promise, often referred to as 'quid pro quo'.</li>
+                        <li><strong class="key-term-style">Competent Parties:</strong> Parties must be of legal age (18+), of sound mind, and not disqualified by any law (e.g., insolvents).</li>
+                    </ul>
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Remedies for Breach of Contract</h4>
+                    <p class="text-slate-400">If a party fails to fulfill its obligations, the non-defaulting party can seek:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Damages:</strong> Monetary compensation for the loss suffered. Contracts often specify **Liquidated Damages** (pre-agreed amount).</li>
+                        <li><strong class="text-slate-200">Specific Performance:</strong> A court order compelling the defaulting party to perform the exact terms of the contract (usually for unique goods like land).</li>
+                        <li><strong class="text-slate-200">Injunction:</strong> A court order restraining the defaulting party from doing something promised not to do.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 3: Annual Compliance and Corporate Governance -->
+                <article id="annual-compliance" class="glass-panel rounded-2xl p-8 border-l-4 border-l-green-500 hover:border-l-green-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Annual Compliance and Corporate Governance</h2>
+                        </div>
+                        <button onclick="copyLink('#annual-compliance')" class="text-slate-500 hover:text-green-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Maintaining a company's legal status requires strict adherence to the <strong class="text-white">Companies Act, 2013</strong>. Non-compliance can lead to hefty fines, disqualification of directors, and loss of **Limited Liability Protection** (Lifting the Corporate Veil).</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Mandatory Annual Compliance (Pvt Ltd & LLP)</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Annual General Meeting (AGM):</strong> Must be held every year. Annual return and financial statements filed to the RoC.</li>
+                        <li><strong class="key-term-style">Board Meetings:</strong> Minimum number of board meetings must be held (varies by company type).</li>
+                        <li><strong class="key-term-style">Statutory Audit:</strong> Mandatory appointment of an auditor and conducting an annual audit of accounts.</li>
+                        <li><strong class="key-term-style">KYC Filing:</strong> Annual filing of KYC details for all Directors/Designated Partners.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Key Governance Principles</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Fiduciary Duty of Directors:</strong> Directors must act in the best interest of the company and its shareholders.</li>
+                        <li><strong class="text-slate-200">Transparency:</strong> Maintaining accurate books of accounts and ensuring timely public disclosure.</li>
+                        <li><strong class="text-slate-200">Lifting the Corporate Veil:</strong> A legal mechanism where courts ignore the company's separate legal status and hold directors personally liable, typically in cases of fraud.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 4: Protecting Your Business Assets: Trademark, Copyright, and Patent -->
+                <article id="ip-protection" class="glass-panel rounded-2xl p-8 border-l-4 border-l-orange-500 hover:border-l-orange-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Protecting Your Business Assets: Trademark, Copyright, and Patent</h2>
+                        </div>
+                        <button onclick="copyLink('#ip-protection')" class="text-slate-500 hover:text-orange-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Intellectual Property is often a company's most valuable asset. The correct IP registration under Indian statutes is essential to prevent unauthorized use, reproduction, or imitation.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Types of Intellectual Property</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Trademark:</strong> Protects brand identity (names, logos, slogans). Governed by the **Trademarks Act, 1999**.</li>
+                        <li><strong class="key-term-style">Copyright:</strong> Protects original literary, dramatic, musical, artistic, and cinematic works (e.g., software code, website content). Governed by the **Copyright Act, 1957**.</li>
+                        <li><strong class="key-term-style">Patent:</strong> Protects a novel invention or process that offers a technical solution. Governed by the **Patents Act, 1970**. Protection is granted for 20 years.</li>
+                    </ul>
+                    
+                    
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">IP Infringement and Enforcement</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Infringement:</strong> The unauthorized use or reproduction of registered IP.</li>
+                        <li><strong class="text-slate-200">Legal Action:</strong> Civil suit seeking an **Injunction** (stopping the activity) and **Damages** (monetary compensation).</li>
+                        <li><strong class="text-slate-200">Design Registration:</strong> Protects the aesthetic and ornamental aspects of a product (Designs Act, 2000).</li>
+                    </ol>
+                </article>
+
+                <!-- Article 5: Debt Recovery and the Insolvency & Bankruptcy Code (IBC) -->
+                <article id="debt-recovery" class="glass-panel rounded-2xl p-8 border-l-4 border-l-cyan-500 hover:border-l-cyan-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-funnel-dollar"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Debt Recovery and the Insolvency & Bankruptcy Code (IBC)</h2>
+                        </div>
+                        <button onclick="copyLink('#debt-recovery')" class="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">When customers or debtors fail to pay, businesses utilize specific legal frameworks for recovery. For large corporate debtors, the <strong class="text-white">Insolvency and Bankruptcy Code (IBC), 2016</strong> governs the process of resolution or liquidation.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Recovery Mechanisms</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Negotiable Instruments Act, 1881:</strong> Used for recovering money related to dishonoured cheques (**Cheque Bounce**), leading to criminal proceedings.</li>
+                        <li><strong class="key-term-style">Summary Suits (Order 37 CPC):</strong> A fast-track civil procedure for recovering debts based on bills of exchange or written contracts.</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Insolvency & Bankruptcy Code (IBC)</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Initiation:</strong> A creditor (**Financial Creditor** or **Operational Creditor**) files an application with the National Company Law Tribunal (**NCLT**).</li>
+                        <li><strong class="text-slate-200">Moratorium:</strong> Once admitted, a **moratorium** (freeze on all litigation/recovery actions) is declared.</li>
+                        <li><strong class="text-slate-200">Resolution:</strong> Aims for **Corporate Insolvency Resolution Process (CIRP)** to revive the company before resorting to **Liquidation**.</li>
+                    </ol>
+                </article>
+
+                <!-- Article 6: Essential Labour Law Compliance for Small Businesses -->
+                <article id="labour-law" class="glass-panel rounded-2xl p-8 border-l-4 border-l-purple-500 hover:border-l-purple-400 transition-all duration-300 group search-item">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-white">Essential Labour Law Compliance for Small Businesses</h2>
+                        </div>
+                        <button onclick="copyLink('#labour-law')" class="text-slate-500 hover:text-purple-400 transition-colors" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 leading-relaxed">Startups and MSMEs must comply with foundational labour laws, most notably regarding provident funds, gratuity, and handling workplace issues like sexual harassment, to avoid legal risk and maintain employee trust.</p>
+                    
+                    <h4 class="text-white font-bold mb-4 border-b border-slate-700 pb-2">Key Compliance Requirements</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="key-term-style">Provident Fund (EPF) and ESI:</strong> Mandatory registration for companies crossing specific employee thresholds.</li>
+                        <li><strong class="key-term-style">Payment of Gratuity Act, 1972:</strong> Mandatory payment of gratuity to employees who complete five years of continuous service.</li>
+                        <li><strong class="key-term-style">PoSH Compliance:</strong> Every employer with **10 or more employees** must constitute an **Internal Complaints Committee (ICC)** to address complaints of sexual harassment at the workplace (**PoSH Act, 2013**).</li>
+                    </ul>
+
+                    <h4 class="text-white font-bold mt-6 mb-4 border-b border-slate-700 pb-2">Employee Contracts</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-400 marker:text-gold-500 marker:font-bold">
+                        <li><strong class="text-slate-200">Offer Letter vs. Appointment Letter:</strong> The **Appointment Letter** formalizes employment and must clearly define the role, salary, working hours, and termination clause.</li>
+                        <li><strong class="text-slate-200">Non-Disclosure Agreement (NDA):</strong> Essential for protecting proprietary business information and trade secrets.</li>
+                    </ol>
+                </article>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950/80 backdrop-blur-md border-t border-slate-800 py-10 mt-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2024 LegalAid AI. All rights reserved.</p>
+            <p class="text-slate-600 text-xs mt-2">Disclaimer: This information is educational. Consult a qualified lawyer for legal advice.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gold-500 text-navy-900 px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 font-bold z-50">
+        Link Copied!
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // 1. ScrollSpy for Sidebar
+        const sections = document.querySelectorAll("article");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // 2. Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const articles = document.querySelectorAll('.search-item');
+
+        function filterArticles(e) {
+            const text = e.target.value.toLowerCase();
+            articles.forEach(article => {
+                const content = article.innerText.toLowerCase();
+                if(content.includes(text)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterArticles);
+        mobileSearchInput.addEventListener('input', filterArticles);
+
+        // 3. Copy Link Functionality
+        function copyLink(id) {
+            // This copies the full URL with the section hash
+            const url = window.location.origin + window.location.pathname + id; 
+            
+            // To make document.execCommand('copy') work, we must manually write the text to a temporary element, select it, and then execute the command.
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

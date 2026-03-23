@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ask AI - Legal Aid Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.8) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes gradient-animation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .typing-indicator span { animation: blink 1.4s infinite both; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; transform: scale(0.5); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+    body {
+    background: linear-gradient(-45deg, #0f172a, #111827, #1f2937, #0f172a);
+      background-size: 400% 400%;
+    animation: gradient-animation 20s ease infinite;
+      font-family: 'Inter', sans-serif;
+    }
+    .glass {
+    background: rgba(17, 24, 39, .6);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .chat-bubble {
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 16px;
+    }
+    .quick-prompt-btn {
+      transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      will-change: transform, box-shadow;
+    }
+    .quick-prompt-btn:hover, .quick-prompt-btn:active, .quick-prompt-btn:focus {
+      box-shadow: 0 8px 24px rgba(56,189,248,0.18);
+      transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+    color: #eff6ff;
+    }
+    /* Sidebar Collapse Styles */
+    #sidebar {
+      transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+    }
+    #sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #sidebar.collapsed .sidebar-content {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sidebar-content {
+      transition: opacity 0.2s ease;
+    }
+    #disclaimerBanner.full-width {
+      left: 0;
+      width: 100%;
+    }
+    @media (max-width: 640px) {
+      #askForm {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 56px;
+      background: rgba(15, 23, 42, 0.95);
+        z-index: 40;
+      box-shadow: 0 -2px 16px rgba(0,0,0,0.2);
+        margin-top: 0 !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 1.5rem 1.5rem 0 0;
+      }
+    }
+    .section-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #bae6fd 0%, #38bdf8 100%);
+      opacity: 0.15;
+      margin: 2rem 0;
+      border-radius: 1px;
+    }
+    #sidebar-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .background-accent {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none;
+        z-index: -1; /* Behind content */
+    }
+    .accent-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.08;
+        animation: accentMove 20s linear infinite alternate;
+    }
+    .accent-shape.one { width: 400px; height: 400px; background: #3b82f6; left: 5vw; top: 10vh; animation-duration: 22s; }
+    .accent-shape.two { width: 300px; height: 300px; background: #6366f1; right: 8vw; top: 40vh; animation-duration: 18s; }
+    @keyframes accentMove {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(40px) rotate(20deg); }
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen" style="overflow: hidden;">
+<div class="background-accent">
+    <div class="accent-shape one"></div>
+    <div class="accent-shape two"></div>
+</div>
+<div class="fixed bottom-0 left-0 w-full z-50 bg-slate-900
+  <span class="font-bold mr-2">Disclaimer:</span>
+  This AI is for informational purposes only and does not constitute legal advice. Always consult with a qualified professional for legal matters.
+</div>
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="w-72 glass p-0 flex-shrink-0 flex flex-col justify-between bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-800 shadow-xl relative overflow-hidden">
+    <div class="sidebar-content flex-grow flex flex-col">
+      <canvas id="sidebar-canvas"></canvas>
+      <div class="relative z-10 flex-grow flex flex-col overflow-y-auto">
+        <!-- User Profile Card with Upload Feature -->
+        <div class="user-profile-card p-6 border-b border-slate-700 text-center group bg-slate-800/50">
+          <div class="relative inline-block group/avatar">            <img id="userAvatar" src="https://i.pravatar.cc/80?u=user" alt="User Avatar" class="w-20 h-20 rounded-full border-4 border-cyan-400 shadow-xl mb-2 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" />
+            <label for="avatarUpload" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer opacity-0 group-hover/avatar:opacity-100 transition-opacity" title="Change profile picture">
+                <i class="fas fa-camera text-white text-xl"></i>
+            </label>
+            <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+            <span class="absolute bottom-2 right-0 block h-4 w-4 rounded-full bg-green-400 border-2 border-slate-800 ring-1 ring-green-400" title="Online"></span>
+          </div>
+          <h2 class="font-bold text-xl text-white mt-2">Legal User</h2>
+          <p id="user-name-sidebar" class="text-sm text-slate-400">Client</p>
+        </div>
+        <!-- New Chat Button -->
+        <div class="px-6 pt-4">
+            <button id="newChatBtn" class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-cyan-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75 transition-all duration-300 hover:scale-105">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+        </div>
+        <!-- History Section -->
+        <div class="px-6 py-6">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">History</h3>
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-semibold text-slate-300">History</h3>
+            <button id="clearHistoryBtn" class="text-xs text-slate-400 hover:text-red-400 hover:underline" title="Clear all chat history">
+              Clear All
+            </button>
+          </div>
+          <ul id="historyList" class="text-xs text-slate-400 space-y-2">
+            <!-- History items will be injected here -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-content border-t border-slate-800 p-4 relative z-10">
+        <button id="sidebar-toggle" class="w-full flex items-center justify-center px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white transition-colors group" title="Hide Sidebar">
+            <i id="toggle-icon" class="fas fa-chevron-left transition-transform"></i>
+        </button>
+    </div>
+  </aside>
+  <!-- Main Content -->
+  <div class="flex-grow flex flex-col overflow-y-auto">
+    <button id="sidebar-show-btn" class="hidden fixed bottom-8 left-4 z-50 text-slate-300 hover:text-white w-10 h-10 rounded-full bg-slate-800/80 backdrop-blur-sm shadow-lg transition-transform hover:scale-105 flex items-center justify-center" title="Show Sidebar">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 p-2 glass shadow-md mb-4 flex items-center justify-between transition-colors duration-500"
+      id="mainHeader" 
+      >
+      <div class="flex items-center gap-8">
+        <a href="homelogin.html" class="flex items-center gap-3 text-cyan-300 hover:text-cyan-100 transition-colors">
+          <span class="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 1.5v21m-8.25-6.75h16.5M3.75 6h16.5" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 22.5c-5.13 0-9.25-4.12-9.25-9.25S6.87 4 12 4s9.25 4.12 9.25 9.25-4.12 9.25-9.25 9.25z" />
+            </svg>
+          </span>
+          <span class="text-xl font-bold tracking-tight hidden sm:inline">Legal AI Assistant</span>
+        </a>
+        <nav>
+        
+          <a href="homelogin.html" class="font-semibold text-cyan-300 hover:underline mr-4">Home</a>
+         
+          <a href="knowledge-base.html" class="font-semibold text-cyan-300 hover:underline mr-4">Knowledge Base</a>
+          <a href="findlawyers.html" class="font-semibold text-cyan-300 hover:underline mr-4">Find Lawyers</a>
+         
+          <a href="quiz.html" class="font-semibold text-cyan-300 hover:underline">Quiz</a>
+        </nav>
+      </div>
+      <!-- 3D Model Container -->
+      <div id="header-3d-container" class="w-16 h-16 hidden md:block">
+        <!-- Canvas will be injected here by Three.js -->
+      </div>
+    </header>
+    <!-- Page Title & Description -->
+    <section class="text-center mb-8 px-6">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">Get Instant Legal Insights</h1>
+      <p class="text-slate-300 text-lg max-w-3xl mx-auto">Ask your legal questions in plain language and get structured, AI-powered answers in seconds.</p>
+      <p class="text-xs text-slate-400 mt-2">For general guidance only. Not a substitute for professional legal advice.</p>
+    </section>
+    <!-- How it works section -->
+    <section id="howItWorks" class="mb-6 px-8 py-8 rounded-2xl bg-slate-900/60 shadow-lg max-w-3xl mx-auto">
+      <h2 class="text-cyan-300 font-semibold text-2xl mb-4">How it works</h2>
+      <ul class="list-disc list-inside text-lg text-slate-300 space-y-3">
+        <li>Type your legal question or select a quick prompt.</li>
+        <li>The AI analyzes your query and provides a structured, easy-to-understand answer.</li>
+        <li>For complex or urgent matters, consult a qualified legal professional.</li>
+      </ul>
+    </section>
+    <div class="section-divider"></div>
+    <!-- Main Chat Area -->
+    <main class="flex-grow container mx-auto px-6 py-8 flex flex-col">
+      <!-- Chat Container -->
+      <div id="chatBox" class="flex flex-col gap-4 overflow-y-auto max-h-[800px] p-6 glass shadow-inner scroll-smooth bg-gradient-to-br from-slate-800 to-slate-900 mb-8" style="transition: max-height 0.4s;">
+      </div>
+      <!-- Related Suggestions -->
+      <div id="relatedSuggestions" class="hidden mt-4 mb-2">
+        <h4 class="text-sm font-semibold text-cyan-300 mb-2">Related follow-up:</h4>
+        <div class="flex flex-wrap gap-2">
+          <button class="quick-prompt-btn bg-slate-700 text-slate-200 px-3 py-1 rounded-full font-medium">Can you give an example?</button>
+          <button class="quick-prompt-btn bg-slate-700 text-slate-200 px-3 py-1 rounded-full font-medium">What are the next steps?</button>
+          <button class="quick-prompt-btn bg-slate-700 text-slate-200 px-3 py-1 rounded-full font-medium">Where can I learn more?</button>
+        </div>
+      </div>
+      <!-- Quick Prompts -->
+      <div id="quickPrompts" class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">📜</span>
+          <span class="text-cyan-200 font-medium">What is a 'writ petition'?</span>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">🗣️</span>
+          <span class="text-cyan-200 font-medium">Explain 'defamation'</span>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">📑</span>
+          <span class="text-cyan-200 font-medium">Basics of contract law</span>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">🏠</span>
+          <span class="text-cyan-200 font-medium">Tenant rights overview</span>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">👨‍👩‍👧‍👦</span>
+          <span class="text-cyan-200 font-medium">Family law basics</span>
+        </div>
+        <div class="bg-slate-900/80 rounded-xl shadow-md p-4 flex items-center gap-3 cursor-pointer quick-prompt-btn hover:shadow-lg hover:bg-slate-700 transition" tabindex="0">
+          <span class="text-xl">💼</span>
+          <span class="text-cyan-200 font-medium">Employment law essentials</span>
+        </div>
+      </div>
+      <!-- Input -->
+      <form id="askForm" class="mt-8 flex gap-4" style="transition: margin-top 0.3s;">
+        <input 
+          id="userInput"
+          type="text"
+          placeholder="Ask me any legal question..."
+          class="flex-grow p-5 rounded-2xl glass text-white border-2 border-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-300 bg-slate-900/70 shadow-lg text-lg"
+          required
+        />
+        <button 
+          id="askButton" type="submit"
+          class="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-700 hover:to-blue-600 rounded-2xl text-white font-bold shadow-xl transition-transform hover:scale-105 text-lg"
+        >
+          Ask
+        </button>
+      </form>
+      <!-- Privacy Statement Link -->
+      <div class="mt-2 text-xs text-slate-400 text-center">
+        
+        <a href="#" id="privacy-link" class="underline hover:text-white">Privacy Statement</a>
+      </div>
+    </main>
+    <!-- Floating Chat Bubble -->
+    <button id="floatingChatBtn" class="fixed bottom-8 right-8 z-50 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full shadow-xl p-4 flex items-center justify-center transition-all duration-300 md:hidden" title="Start Chat" style="box-shadow: 0 4px 24px rgba(56, 189, 248, 0.18);">
+      <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#38bdf8"/><path d="M9 11h10M9 15h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="14" r="13" stroke="#fff" stroke-width="2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Modal for Privacy Policy -->
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+    <div id="modal-panel" class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-6 md:p-8 max-w-3xl w-full relative transform transition-transform duration-300 scale-95 opacity-0">
+        <button id="modal-close-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-transform hover:scale-125">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <h2 id="modal-title" class="text-2xl font-bold text-yellow-400 mb-4"></h2>
+        <div id="modal-content" class="text-gray-300 max-h-[60vh] overflow-y-auto pr-4 space-y-4">
+            <!-- Content will be injected by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<template id="privacy-content-template">
+    <h3 class="font-bold text-lg text-gray-200">Privacy Policy for AskAI</h3>
+    <p>Your privacy is important to us. This policy outlines how we handle your data on the AskAI page.</p>
+    <ul class="list-disc ml-5 space-y-2">
+        <li><strong>Chat History:</strong> Your conversation with the AI is saved to a server-side `chat.json` file to maintain context between sessions. This history is cleared when you start a "New Chat".</li>
+        <li><strong>Local Storage:</strong> We use your browser's local storage to save your question history for the sidebar and to remember your chosen profile picture. This data remains on your device.</li>
+        <li><strong>Data Security:</strong> We do not share your chat data with third parties. The conversation is processed by the Google Gemini API to generate responses, subject to Google's privacy policies.</li>
+        <li><strong>Anonymity:</strong> Your interactions are not linked to your user account in the database. The chat history is stored anonymously.</li>
+    </ul>
+</template>
+
+<script>
+  // --- API Configuration ---
+  const API_KEY = "AIzaSyClpMvRJRZMzK_ZYcxwTz2Q1DzhAcnetEA";
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+  // This will store the conversation history for the AI
+  let conversationHistory = [];
+
+  // --- DOM Elements ---
+  const chatBox = document.getElementById("chatBox");
+  const quickPrompts = document.getElementById('quickPrompts');
+  const askForm = document.getElementById("askForm");
+  const floatingChatBtn = document.getElementById('floatingChatBtn');
+  const userInput = document.getElementById("userInput");
+  const newChatBtn = document.getElementById('newChatBtn');
+  const askButton = document.getElementById("askButton");
+  const historyList = document.getElementById('historyList');
+  const mainHeader = document.getElementById('mainHeader');
+  const userAvatar = document.getElementById('userAvatar');
+  const howItWorks = document.getElementById('howItWorks');
+  const sidebar = document.getElementById('sidebar');
+  const toggleButton = document.getElementById('sidebar-toggle');
+  const showButton = document.getElementById('sidebar-show-btn');
+  const toggleIcon = document.getElementById('toggle-icon');
+  const disclaimerBanner = document.getElementById('disclaimerBanner');
+  const relatedSuggestions = document.getElementById('relatedSuggestions');
+  const avatarUploadInput = document.getElementById('avatarUpload');
+
+  // Load history from localStorage or initialize an empty array
+  let history = JSON.parse(localStorage.getItem('askAiChatHistory')) || [];
+
+  /**
+  * Adds a new message bubble to the chat interface.
+  * @param {string} message - The text content of the message.
+  * @param {boolean} isUser - True if the message is from the user.
+  * @param {boolean} isTyping - True to show a typing indicator.
+  * @returns {HTMLElement} The created bubble element.
+  */
+  function addChatMessage(message, isUser, isTyping = false) {
+    const bubble = document.createElement("div");
+    const userClasses = "chat-bubble self-end bg-gradient-to-r from-cyan-500 to-indigo-500 text-white p-4 max-w-xl";
+    const aiClasses = "chat-bubble bg-gradient-to-r from-slate-700 to-slate-800 p-4 text-slate-200 w-full";
+
+    bubble.className = isUser ? userClasses : aiClasses;
+
+    if (isTyping) {
+      bubble.innerHTML = `
+        <div class="flex items-center gap-2 text-slate-300">
+          <div class="typing-indicator">
+            <span class="w-2 h-2 bg-cyan-400 rounded-full inline-block"></span>
+            <span class="w-2 h-2 bg-cyan-400 rounded-full inline-block"></span>
+            <span class="w-2 h-2 bg-cyan-400 rounded-full inline-block"></span>
+          </div>
+        </div>`;
+    } else {
+      bubble.innerHTML = message;
+      // Add copy button for AI messages
+      if (!isUser) {
+        const messageContentDiv = document.createElement('div');
+        messageContentDiv.innerHTML = message; // message is already HTML
+
+        const copyButton = document.createElement('button');
+        copyButton.className = 'self-end text-slate-400 hover:text-cyan-400 text-xs px-2 py-1 rounded-md transition-colors flex items-center gap-1 mt-2'; // Added mt-2 for spacing
+        copyButton.innerHTML = '<i class="fas fa-copy"></i> <span class="copy-text">Copy</span>';
+        copyButton.onclick = () => copyToClipboard(messageContentDiv.innerText, copyButton);
+
+        // Clear existing innerHTML and append structured content
+        bubble.innerHTML = '';
+        bubble.appendChild(messageContentDiv);
+        bubble.appendChild(copyButton);
+      }
+    }
+
+
+    chatBox.appendChild(bubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if (isUser && message) {
+      // We pass the raw text to history, not HTML
+      addToHistory(message.replace(/<[^>]*>?/gm, ''));
+    }
+    return bubble;
+  }
+
+  /**
+   * Copies the given text to the clipboard and provides visual feedback on the button.
+   * @param {string} text - The text content to copy.
+   * @param {HTMLElement} buttonElement - The button element that triggered the copy.
+   */
+  function copyToClipboard(text, buttonElement) {
+    navigator.clipboard.writeText(text).then(() => {
+      const originalTextSpan = buttonElement.querySelector('.copy-text');
+      const originalIcon = buttonElement.querySelector('i').className;
+
+      originalTextSpan.textContent = 'Copied!';
+      buttonElement.querySelector('i').className = 'fas fa-check';
+      buttonElement.classList.add('bg-green-500/20', 'text-green-400'); // Add temporary success styling
+
+      setTimeout(() => {
+        originalTextSpan.textContent = 'Copy'; // Revert text
+        buttonElement.querySelector('i').className = originalIcon; // Revert icon
+        buttonElement.classList.remove('bg-green-500/20', 'text-green-400'); // Remove temporary styling
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy text.');
+    });
+  }
+
+  /**
+   * Saves the entire chat history to the server.
+   * @param {Array} history - The conversation history array.
+   */
+  async function saveChatHistory(history) {
+    try {
+      await fetch('http://127.0.0.1:5000/api/chat/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(history)
+      });
+    } catch (error) {
+      console.error('Failed to save chat history:', error);
+    }
+  }
+  function addToHistory(question) {
+    // Remove if it already exists to move it to the top
+    const existingIndex = history.indexOf(question);
+    if (existingIndex > -1) {
+      history.splice(existingIndex, 1);
+    }
+
+    history.unshift(question);
+
+    // Limit history size
+    if (history.length > 10) {
+      history.pop();
+    }
+
+    // Save to localStorage
+    localStorage.setItem('askAiChatHistory', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function deleteHistoryItem(index, event) {
+    event.stopPropagation(); // Prevent the click from triggering the question submission
+    history.splice(index, 1);
+    localStorage.setItem('askAiChatHistory', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+      history = [];
+      localStorage.removeItem('askAiChatHistory');
+      renderHistory();
+    }
+  }
+  function renderHistory() {
+    historyList.innerHTML = '';
+    history.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.className = "flex justify-between items-center group cursor-pointer hover:bg-slate-700/50 p-1 rounded-md";
+      li.title = item;
+      li.onclick = () => submitQuestion(item);
+      li.innerHTML = `<span class="truncate flex-grow">${item}</span>
+                      <button onclick="deleteHistoryItem(${idx}, event)" class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2 p-1"><i class="fas fa-trash-alt"></i></button>`;
+      historyList.appendChild(li);
+    });
+  }
+
+  /**
+  * Toggles the disabled state of the input form.
+  * @param {boolean} disabled - The disabled state to set.
+  */
+  function toggleInputState(disabled) {
+    userInput.disabled = disabled;
+    askButton.disabled = disabled;
+    if (disabled) {
+      askButton.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      askButton.classList.remove('opacity-50', 'cursor-not-allowed');
+      userInput.focus();
+    }
+  }
+
+  /**
+  * Fetches a real AI response from the Google Gemini API.
+  * @param {string} question - The user's question.
+  * @returns {Promise<string>} A promise that resolves with the AI's answer (as HTML).
+  */
+  async function fetchAIResponse(question) {
+    if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+        return '<p class="text-red-300"><strong>Configuration Error:</strong> Please paste your API key into the `API_KEY` variable in the script tag.</p>';
+    }
+    
+    // Add the user's question to the conversation history
+    conversationHistory.push({
+      "role": "user",
+      "parts": [{ "text": question }]
+    });
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "contents": conversationHistory,
+          // You can adjust generationConfig as needed
+          "generationConfig": {
+            "temperature": 0.7,
+            "topK": 1,
+            "topP": 1,
+            "maxOutputTokens": 2048,
+          },
+          // Safety settings are important
+          "safetySettings": [
+            { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+            { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+            { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
+            { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        return `<p class="text-red-300"><strong>API Error:</strong> ${errorData.error.message}</p>`;
+      }
+
+      const data = await response.json();
+
+      if (!data.candidates || !data.candidates[0].content) {
+        console.error('Invalid API Response:', data);
+        if (data.promptFeedback && data.promptFeedback.blockReason) {
+            return `<p class="text-red-300"><strong>Content Blocked:</strong> Your prompt was blocked by the AI's safety filters (Reason: ${data.promptFeedback.blockReason}).</p>`;
+        }
+        return '<p class="text-red-300"><strong>Error:</strong> Received an invalid response from the AI.</p>';
+      }
+
+      // Get the AI's response text (which is in Markdown)
+      const aiMarkdown = data.candidates[0].content.parts[0].text;
+
+      // Add the AI's response to the history
+      conversationHistory.push({
+        "role": "model",
+        "parts": [{ "text": aiMarkdown }]
+      });
+
+      // --- FIX: Save the updated conversation to localStorage ---
+      localStorage.setItem('geminiConversationHistory', JSON.stringify(conversationHistory));
+
+      // Convert Markdown to HTML using the marked.js library
+      // This is why you added the script tag in Step 1
+      const aiHtml = marked.parse(aiMarkdown);
+      
+      return aiHtml;
+
+    } catch (error) {
+      console.error('Network error:', error);
+      return `<p class="text-red-300"><strong>Connection Error:</strong> Could not reach the AI assistant. Check your internet connection or the browser console for details.</p>`;
+    }
+  }
+
+  function expandChatBoxContainer() {
+    chatBox.style.maxHeight = "1200px";
+  }
+
+  async function submitQuestion(question) {
+    if (!question) return;
+
+    // Hide quick prompts and move input to bottom after first question
+    if (quickPrompts && quickPrompts.style.display !== "none") {
+      quickPrompts.style.display = "none";
+      moveInputToBottom();
+      expandChatBoxContainer(); // Expand chat container after first question
+    }
+    // Hide "How it works" after first question
+    if (howItWorks && howItWorks.style.display !== "none") {
+      howItWorks.style.display = "none";
+    }
+    // Show related suggestions after first answer
+    if (relatedSuggestions && relatedSuggestions.style.display !== "flex") {
+      relatedSuggestions.style.display = "flex";
+    }
+
+    addChatMessage(question, true); // The user's message is plain text
+    userInput.value = '';
+    toggleInputState(true);
+
+    const typingBubble = addChatMessage('', false, true);
+
+    const responseHtml = await fetchAIResponse(question);
+
+    // Remove the typing indicator bubble
+    chatBox.removeChild(typingBubble);
+
+    addChatMessage(responseHtml, false, false); // Add the actual AI response with the copy button
+
+    toggleInputState(false);
+  }
+
+  /**
+  * Initializes the 3D scales of justice animation in the header.
+  */
+  function initHeaderAnimation() {
+    const container = document.getElementById('header-3d-container');
+    if (!container || typeof THREE === 'undefined') return;
+
+    const w = container.clientWidth, h = container.clientHeight;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+    camera.position.set(0, 0.5, 6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const amb = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(amb);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+    dir.position.set(5, 10, 7);
+    scene.add(dir);
+
+    // Materials (themed to match the page)
+    const primaryMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.6, roughness: 0.3 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.2, roughness: 0.8 });
+
+    const group = new THREE.Group();
+    group.scale.set(0.8, 0.8, 0.8);
+
+    // Base
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.8, 0.4, 48), darkMat);
+    base.position.y = -1.6;
+    group.add(base);
+
+    // Column
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.25, 3.2, 32), primaryMat);
+    col.position.y = 0;
+    group.add(col);
+
+    // Top cap
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.15, 32), primaryMat);
+    cap.position.y = 1.7;
+    group.add(cap);
+
+    // Beam
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(4, 0.12, 0.2), primaryMat);
+    beam.position.y = 1.5;
+    group.add(beam);
+
+    // Pivots
+    const pivotL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 16), primaryMat);
+    pivotL.rotation.z = Math.PI / 2;
+    pivotL.position.set(-1.8, 1.5, 0);
+    group.add(pivotL);
+
+    const pivotR = pivotL.clone();
+    pivotR.position.x = 1.8;
+    group.add(pivotR);
+
+    // Chains (simple rods)
+    function chain(x) {
+      const c = new THREE.Group();
+      for (let i = 0; i < 3; i++) {
+        const link = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.7, 8), primaryMat);
+        link.position.set(x + (i - 1) * 0.2, 0.95, 0);
+        c.add(link);
+      }
+      return c;
+    }
+    const chainsL = chain(-1.8);
+    const chainsR = chain(1.8);
+    group.add(chainsL, chainsR);
+
+    // Pans
+    function pan(x) {
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.85, 0.18, 48), primaryMat);
+      bowl.position.set(x, 0.45, 0);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.04, 12, 64), primaryMat);
+      ring.position.set(x, 0.85, 0);
+      ring.rotation.x = Math.PI / 2;
+      return new THREE.Group().add(bowl, ring);
+    }
+    const panL = pan(-1.8);
+    const panR = pan(1.8);
+    group.add(panL, panR);
+
+    scene.add(group);
+
+    const targetRotation = { x: 0, y: 0 };
+
+    function onMouseMove(event) {
+        const rect = container.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        
+        const normalizedX = (mouseX / rect.width) * 2 - 1;
+        const normalizedY = (mouseY / rect.height) * 2 - 1;
+
+        // Adjust sensitivity with the multiplier (e.g., 0.25)
+        targetRotation.y = normalizedX * 0.25;
+        targetRotation.x = -normalizedY * 0.25;
+    }
+
+    function onMouseLeave() {
+        // Smoothly return to center when mouse leaves
+        targetRotation.x = 0;
+        targetRotation.y = 0;
+    }
+
+    container.addEventListener('mousemove', onMouseMove, false);
+    container.addEventListener('mouseleave', onMouseLeave, false);
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+      const ambientRotationY = elapsedTime * 0.2; // Constant rotation
+      group.rotation.x += (targetRotation.x - group.rotation.x) * 0.05; // Smooth tilt
+      const finalTargetY = ambientRotationY + targetRotation.y;
+      group.rotation.y += (finalTargetY - group.rotation.y) * 0.05; // Smooth combined rotation
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+
+  /**
+  * Initializes the falling stars animation in the sidebar.
+  */
+  function initSidebarAnimation() {
+    const canvas = document.getElementById('sidebar-canvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const starCount = 1500;
+    const positions = new Float32Array(starCount * 3);
+    const geometry = new THREE.BufferGeometry();
+
+    const viewHeight = 10; // A virtual height for the animation area
+    for (let i = 0; i < starCount; i++) {
+      const i3 = i * 3;
+      positions[i3] = (Math.random() - 0.5) * 10; // x
+      positions[i3 + 1] = (Math.random() - 0.5) * viewHeight; // y
+      positions[i3 + 2] = (Math.random() - 0.5) * 5; // z
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+      color: 0xfacc15, // yellow-400
+      size: 0.03,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending
+    });
+
+    const stars = new THREE.Points(geometry, material);
+    scene.add(stars);
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const positions = stars.geometry.attributes.position.array;
+      for (let i = 1; i < positions.length; i += 3) {
+        positions[i] -= 0.005; // Move star down
+        if (positions[i] < -viewHeight / 2) {
+          positions[i] = viewHeight / 2;
+        }
+      }
+      stars.geometry.attributes.position.needsUpdate = true;
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+
+  function moveInputToBottom() {
+    askForm.classList.remove('mt-8');
+    askForm.classList.add('mt-auto', 'mb-2');
+  }
+
+  /**
+  * Resets the chat to its initial state.
+  */
+  function startNewChat() {
+    // 1. Clear chatBox
+    chatBox.innerHTML = '';
+
+    // 2. Reset conversation history for the AI
+    conversationHistory = [];
+
+    // --- FIX: Clear the AI conversation from localStorage ---
+    localStorage.removeItem('geminiConversationHistory');
+
+    // 3. Show initial sections and hide follow-up suggestions
+    if (quickPrompts) quickPrompts.style.display = "grid";
+    if (howItWorks) howItWorks.style.display = "block";
+    if (relatedSuggestions) relatedSuggestions.style.display = "none";
+
+    // 4. Reset input form position
+    askForm.classList.remove('mt-auto', 'mb-2');
+    askForm.classList.add('mt-8');
+  }
+  // Floating chat bubble logic
+  if (floatingChatBtn) {
+    floatingChatBtn.addEventListener('click', () => {
+      userInput.focus();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+  }
+
+  /**
+  * Handles the chat form submission.
+  * @param {Event} event - The form submission event.
+  */
+  function handleFormSubmit(event) {
+    event.preventDefault(); // Corrected typo
+    submitQuestion(userInput.value.trim());
+  }
+
+  /**
+  * Main initialization function.
+  */
+  async function init() {
+    // --- FIX: Load conversation history from localStorage on page load ---
+    const savedConversation = localStorage.getItem('geminiConversationHistory');
+    if (savedConversation) {
+        conversationHistory = JSON.parse(savedConversation);
+        if (conversationHistory.length > 0) {
+            chatBox.innerHTML = ''; // Clear initial greeting
+            conversationHistory.forEach(item => {
+                const isUser = item.role === 'user';
+                const messageText = item.parts[0].text;
+                addChatMessage(isUser ? messageText : marked.parse(messageText), isUser);
+            });
+            // Hide initial prompts if there's history
+            if (quickPrompts) quickPrompts.style.display = "none";
+            if (howItWorks) howItWorks.style.display = "none";
+            moveInputToBottom();
+            expandChatBoxContainer();
+        }
+    }
+    askForm.addEventListener("submit", handleFormSubmit);
+
+    // --- NEW: Fetch user profile to update avatar and name ---
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/user/profile');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.avatar_url) {
+                document.getElementById('userAvatar').src = data.avatar_url;
+            }
+            document.getElementById('user-name-sidebar').textContent = data.first_name || 'Client';
+        }
+    } catch (error) {
+        console.error("Could not load user profile for sidebar:", error);
+    }
+    newChatBtn.addEventListener('click', startNewChat);
+    document.getElementById('clearHistoryBtn').addEventListener('click', clearAllHistory);
+    avatarUploadInput.addEventListener('change', handleAvatarUpload);
+
+    // Load saved avatar from localStorage
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+        userAvatar.src = savedAvatar;
+    }
+    // Quick Prompts Logic
+    document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
+      btn.addEventListener('click', () => submitQuestion(btn.innerText));
+      // Use 'touchstart' for faster response on mobile, but 'click' is more reliable
+      // btn.addEventListener('touchstart', () => submitQuestion(btn.innerText));
+    });
+
+    renderHistory();
+
+    initSidebarAnimation();
+
+    initHeaderAnimation();
+  }
+
+  // --- Modal Logic ---
+  function openModal(title, contentTemplateId) {
+      const modal = document.getElementById('modal');
+      const modalPanel = document.getElementById('modal-panel');
+      const modalTitle = document.getElementById('modal-title');
+      const modalContent = document.getElementById('modal-content');
+      const template = document.getElementById(contentTemplateId);
+      modalTitle.textContent = title;
+      modalContent.innerHTML = ''; // Clear previous content
+      modalContent.appendChild(template.content.cloneNode(true));
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => {
+          modalPanel.classList.remove('scale-95', 'opacity-0');
+      }, 10); // Delay for transition
+  }
+
+  function closeModal() {
+      const modal = document.getElementById('modal');
+      const modalPanel = document.getElementById('modal-panel');
+      modalPanel.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+      }, 300); // Match transition duration
+  }
+
+
+  // --- Sidebar Toggle Functionality ---
+  function setSidebarState(collapsed) {
+    if (collapsed) {
+      sidebar.classList.add('collapsed');
+      showButton.classList.remove('hidden');
+      disclaimerBanner.classList.add('full-width');
+      localStorage.setItem('askaiSidebarCollapsed', 'true');
+    } else {
+      sidebar.classList.remove('collapsed');
+      showButton.classList.add('hidden');
+      disclaimerBanner.classList.remove('full-width');
+      localStorage.setItem('askaiSidebarCollapsed', 'false');
+    }
+  }
+
+  toggleButton.addEventListener('click', () => {
+    setSidebarState(true);
+  });
+
+  showButton.addEventListener('click', () => {
+    setSidebarState(false);
+  });
+
+  // Check localStorage on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const isCollapsed = localStorage.getItem('askaiSidebarCollapsed') === 'true';
+    // Apply initial state without transition on load
+    sidebar.style.transition = 'none';
+    if (isCollapsed) {
+      setSidebarState(true);
+    }
+    // Re-enable transitions after initial load
+    setTimeout(() => { sidebar.style.transition = ''; }, 10);
+  });
+
+  // Run the app
+  document.addEventListener('DOMContentLoaded', init); // Corrected typo
+
+  // Add event listeners for the new modal
+  document.getElementById('privacy-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('Privacy Statement', 'privacy-content-template');
+  });
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+</script>
+</body>
+</html>
