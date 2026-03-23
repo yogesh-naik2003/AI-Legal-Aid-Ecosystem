@@ -19,7 +19,7 @@ app.secret_key = 'your_super_secret_key' # IMPORTANT: Change this to a random, s
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'yogesh@25112003'  # Your password
+app.config['MYSQL_PASSWORD'] = 'Your mysql password'  # Your password
 app.config['MYSQL_DB'] = 'legalaid_db'
 
 # 3. ADDED: This line makes the cursor return dictionaries (like JSON)
